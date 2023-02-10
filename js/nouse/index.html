@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0 maximum-scale=1.0"/>
+    <!-- ICON -->
+    <link rel="icon" href="./assets/favicon.ico" sizes="32x32" type="image/vnd.microsoft.icon">
+    <!-- TITLE -->
+    <title class="application-title">Geodesign Hub Diagrams</title>
+    
+    <!-- CALCITE -->
+    <script src="https://js.arcgis.com/calcite-components/1.0.0-beta.86/calcite.esm.js" type="module"></script>
+    <link href="https://js.arcgis.com/calcite-components/1.0.0-beta.86/calcite.css" rel="stylesheet"/>
+    
+    <!-- ArcGIS API for JavaScript-->
+    <link href="https://js.arcgis.com/4.24/@arcgis/core/assets/esri/themes/light/main.css" rel="stylesheet"/>
+    <script src="https://js.arcgis.com/4.24/"></script>
+    
+    <!-- APPLICATION -->
+    <link rel="stylesheet" type="text/css" href="./css/application.css">
+    <script type="module" src="./js/Application.js"></script>
+  </head>
+  <body class="calcite-theme-light">
+    
+    <calcite-shell dir="ltr">
+      
+      <header slot="header">
+        <h2 class="application-title">Geodesign Hub Diagrams</h2>
+        <div>
+          <span id="sign-in-user-label"></span>
+        </div>
+      </header>
+      
+      <!-- LEFT -->
+      <calcite-shell-panel slot="primary-panel" position="start" width-scale="m" collapsed="false">
+        <calcite-panel>
+          
+          <calcite-block heading="GeoPlanner Scenario Layers" collapsible open>
+            <calcite-icon slot="icon" icon="map-contents"></calcite-icon>
+            <calcite-pick-list id="geoplanner-layers-list" selection-follows-focus></calcite-pick-list>
+          </calcite-block>
+          
+          <!--<calcite-block heading="Map Layers" collapsible open>
+            <calcite-icon slot="icon" icon="layers"></calcite-icon>
+            <div id="layer-list-container"></div>
+          </calcite-block>-->
+          
+          <calcite-block heading="Map Legend" collapsible open>
+            <calcite-icon slot="icon" icon="legend"></calcite-icon>
+            <div id="legend-container"></div>
+          </calcite-block>
+        
+        </calcite-panel>
+      </calcite-shell-panel>
+      
+      <!-- CENTER -->
+      <div id="center-container">
+        <div id="view-container"></div>
+      </div>
+      
+      <!-- RIGHT -->
+      <calcite-shell-panel slot="contextual-panel" position="end" width-scale="m" collapsed="false">
+        <calcite-panel>
+          
+          <calcite-block heading="Analysis Source" summary="feature layer in map" open>
+            <calcite-icon slot="icon" icon="layer-polygon-service"></calcite-icon>
+            <calcite-input id="source-layer-input" placeholder="source layer" type="text" icon="layer-polygon" read-only></calcite-input>
+          </calcite-block>
+          
+          <calcite-block heading="Plan" summary="GeoPlanner Scenario" collapsible open>
+            <calcite-icon slot="icon" icon="collection"></calcite-icon>
+            <calcite-pick-list id="plan-list" selection-follows-focus></calcite-pick-list>
+          </calcite-block>
+          
+          <!--<calcite-block heading="Systems" summary="????" collapsible open>
+            <calcite-icon slot="icon" icon="basemap"></calcite-icon>
+            <calcite-pick-list id="systems-list" selection-follows-focus></calcite-pick-list>
+          </calcite-block>-->
+          
+          <calcite-block heading="Diagrams" summary="GeoPlanner Feature" collapsible open>
+            <calcite-icon slot="icon" icon="classify-objects"></calcite-icon>
+  
+            <calcite-pick-list id="diagrams-list" selection-follows-focus></calcite-pick-list>
+            
+          </calcite-block>
+        
+        </calcite-panel>
+      
+      </calcite-shell-panel>
+    
+    </calcite-shell>
+  </body>
+</html>
