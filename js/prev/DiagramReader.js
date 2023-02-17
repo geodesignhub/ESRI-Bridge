@@ -415,25 +415,7 @@ class DiagramReader extends EventTarget {
     });
   }
 
-  /**
-   *
-   *
-   * @param {PortalUser} portalUser
-   * @param {string} geoPlannerProjectID
-   * @returns {Promise<{portalFolder: PortalFolder}>}
-   * @private
-   */
-  _findGeoPlannerProjectFolder({portalUser, geoPlannerProjectID}) {
-    return new Promise((resolve, reject) => {
-      portalUser.fetchFolders().then((userFolders) => {
 
-        const geoPlannerFolderName = `_ Geoplanner ${ geoPlannerProjectID }`;
-        const geoPlannerFolder = userFolders.find(folder => folder.title === geoPlannerFolderName);
-
-        resolve({portalFolder: geoPlannerFolder});
-      }).catch(reject);
-    });
-  }
 
   /**
    *
@@ -462,6 +444,26 @@ class DiagramReader extends EventTarget {
         this._addNewGeoPlannerScenarioFeatures({designFeaturesAsEsriJSON: updatedDesignFeaturesAsEsriJSON, newPortalItem}).then(({addFeaturesOIDs}) => {
           resolve({newPortalItem, scenarioID, scenarioFilter, addFeaturesOIDs});
         }).catch(reject);
+      }).catch(reject);
+    });
+  }
+
+  /**
+   *
+   *
+   * @param {PortalUser} portalUser
+   * @param {string} geoPlannerProjectID
+   * @returns {Promise<{portalFolder: PortalFolder}>}
+   * @private
+   */
+  _findGeoPlannerProjectFolder({portalUser, geoPlannerProjectID}) {
+    return new Promise((resolve, reject) => {
+      portalUser.fetchFolders().then((userFolders) => {
+
+        const geoPlannerFolderName = `_ Geoplanner ${ geoPlannerProjectID }`;
+        const geoPlannerFolder = userFolders.find(folder => folder.title === geoPlannerFolderName);
+
+        resolve({portalFolder: geoPlannerFolder});
       }).catch(reject);
     });
   }
