@@ -17,6 +17,16 @@ header {
   flex: 0 0 auto;
 }
 
+#about-btn {
+  cursor: help;
+  margin: 5px;
+  padding: 5px;
+  font-size: 11pt;
+  position: absolute;
+  right: 0 ;
+  bottom: 0;
+}
+
 #main-content {
   flex: 1 1 auto;
   display: flex;

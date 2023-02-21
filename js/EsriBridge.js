@@ -41,7 +41,7 @@ class EsriBridge extends EventTarget {
    * NOTE: HERE WE CAN MAINTAIN BOTH APP IDS AND WE CAN
    *       SWITCH LOCALLY WHILE TESTING...
    *
-   * @type {{OAUTH_APP_ID: string, PORTAL_URL: string}}
+   * @type {{PORTAL_URL: string}}
    */
   static CONFIG = {
     PORTAL_URL: "https://www.arcgis.com/"
@@ -57,7 +57,7 @@ class EsriBridge extends EventTarget {
     EXPORT: 'export'
   };
 
-  static USE_IGC_BRDIGE_EXTENSIONS = true;
+  static USE_IGC_BRIDGE_EXTENSIONS = true;
 
   /**
    * @type {Portal}
@@ -92,17 +92,22 @@ class EsriBridge extends EventTarget {
   constructor() {
     super();
 
-    /*
-     const size = { width: 1024, height: 700};
-     const pos = { top: ((window.screen.availHeight - size.height) * 0.5), left: ((window.screen.availWidth - size.width) * 0.5) };
-     window.open(location.href, 'bridge', `top=${ pos.top },left=${ pos.left },width=${ size.width },height=${ size.height }`);
-    */
-
     //
     // BRIDGE WELCOME //
     // - INITIALLY SHOW WELCOME //
     //
     const bridgeWelcome = new EsriBridgeWelcome({container: 'welcome-container'});
+    let diagramImporter;
+    let diagramExporter;
+
+    // ABOUT BUTTON //
+    const aboutBtn = document.getElementById('about-btn');
+    aboutBtn.addEventListener('click',()=>{
+      const isActive = aboutBtn.toggleAttribute('active');
+      bridgeWelcome.toggleAttribute('hidden', !isActive);
+      diagramImporter?.toggleAttribute('hidden', isActive);
+      diagramExporter?.toggleAttribute('hidden', isActive);
+    })
 
     //
     // URL SEARCH PARAMETERS //
@@ -145,7 +150,7 @@ class EsriBridge extends EventTarget {
                 //
                 // DIAGRAM IMPORTER //
                 //
-                const diagramImporter = new DiagramImporter({
+                diagramImporter = new DiagramImporter({
                   container: 'import-container',
                   portal: this.#portal,
                   gplProjectGroup: this.#gplProjectGroup,
@@ -159,7 +164,7 @@ class EsriBridge extends EventTarget {
                 //
                 // DIAGRAM EXPORTER
                 //
-                const diagramExporter = new DiagramExporter({
+                diagramExporter = new DiagramExporter({
                   container: 'export-container',
                   portal: this.#portal,
                   gplProjectGroup: this.#gplProjectGroup,
