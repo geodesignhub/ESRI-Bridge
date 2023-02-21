@@ -95,8 +95,6 @@
  {"gplSystemCode": 8, 'name': 'WAT', 'color': "#6B9CB0"}
  ];*/
 
-import EsriBridge from './EsriBridge.js';
-
 class DiagramImporter extends HTMLElement {
 
   static version = '0.0.1';
