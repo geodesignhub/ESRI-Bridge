@@ -35,54 +35,67 @@
  *
  * @type {CLIMATE_ACTION[]}
  */
-const CLIMATE_ACTIONS = [
-  {
-    actionCode: '1.3.4',
-    actionName: 'Natural gas power plant closure',
-    policyCode: '1.3',
-    policyName: 'Close fossil energy generators',
-    systemCode: '1',
-    systemName: 'Energy',
-    gdhSystemCode: 'ENE'
-  },
-  {
-    actionCode: '1.4.1',
-    actionName: 'Solar photovoltaics',
-    policyCode: '1.4',
-    policyName: 'Substitute with renewable energy systems',
-    systemCode: '1',
-    systemName: 'Energy',
-    gdhSystemCode: 'ENE'
-  },
-  {
-    actionCode: '1.4.3',
-    actionName: 'Wind power',
-    policyCode: '1.4',
-    policyName: 'Substitute with renewable energy systems',
-    systemCode: '1',
-    systemName: 'Energy',
-    gdhSystemCode: 'ENE'
-  },
-  {
-    actionCode: '3.1.11',
-    actionName: 'Forest protection',
-    policyCode: '3.1',
-    policyName: 'Manage forests sustainably',
-    systemCode: '3',
-    systemName: 'Forests, Peatlands, and Grasslands',
-    gdhSystemCode: 'FOR'
+/*const CLIMATE_ACTIONS = [
+ {
+ actionCode: '1.3.4',
+ actionName: 'Natural gas power plant closure',
+ policyCode: '1.3',
+ policyName: 'Close fossil energy generators',
+ systemCode: '1',
+ systemName: 'Energy',
+ gdhSystemCode: 'ENE'
+ },
+ {
+ actionCode: '1.4.1',
+ actionName: 'Solar photovoltaics',
+ policyCode: '1.4',
+ policyName: 'Substitute with renewable energy systems',
+ systemCode: '1',
+ systemName: 'Energy',
+ gdhSystemCode: 'ENE'
+ },
+ {
+ actionCode: '1.4.3',
+ actionName: 'Wind power',
+ policyCode: '1.4',
+ policyName: 'Substitute with renewable energy systems',
+ systemCode: '1',
+ systemName: 'Energy',
+ gdhSystemCode: 'ENE'
+ },
+ {
+ actionCode: '3.1.11',
+ actionName: 'Forest protection',
+ policyCode: '3.1',
+ policyName: 'Manage forests sustainably',
+ systemCode: '3',
+ systemName: 'Forests, Peatlands, and Grasslands',
+ gdhSystemCode: 'FOR'
 
-  },
-  {
-    actionCode: '3.1.12',
-    actionName: 'Forest restoration',
-    policyCode: '3.1',
-    policyName: 'Manage forests sustainably',
-    systemCode: '3',
-    systemName: 'Forests, Peatlands, and Grasslands',
-    gdhSystemCode: 'FOR'
-  }
-];
+ },
+ {
+ actionCode: '3.1.12',
+ actionName: 'Forest restoration',
+ policyCode: '3.1',
+ policyName: 'Manage forests sustainably',
+ systemCode: '3',
+ systemName: 'Forests, Peatlands, and Grasslands',
+ gdhSystemCode: 'FOR'
+ }
+ ];*/
+
+/*static SYSTEMS_INFOS = [
+ {"gplSystemCode": 1, 'name': 'ENE', 'color': "#AB507E"},
+ {"gplSystemCode": 2, 'name': 'AG', 'color': "#D9CD91"},
+ {"gplSystemCode": 3, 'name': 'FOR', 'color': "#80BD75"},
+ {"gplSystemCode": 4, 'name': 'OCN', 'color': "#8CCDD1"},
+ {"gplSystemCode": 5, 'name': 'STL', 'color': "#E6564E"},
+ {"gplSystemCode": 6, 'name': 'IND', 'color': "#916DA3"},
+ {"gplSystemCode": 7, 'name': 'TRAN', 'color': "#706666"},
+ {"gplSystemCode": 8, 'name': 'WAT', 'color': "#6B9CB0"}
+ ];*/
+
+import EsriBridge from './EsriBridge.js';
 
 class DiagramImporter extends HTMLElement {
 
@@ -147,12 +160,6 @@ class DiagramImporter extends HTMLElement {
    * @type {number}
    */
   #scenarioDiagramCount;
-
-  /**
-   * @type {{}[]} source GeoPlanner Scenario as array of GDH diagrams
-   *
-   */
-  #diagramsGeoJSON;
 
   /**
    *
@@ -359,51 +366,82 @@ class DiagramImporter extends HTMLElement {
       maxFeatureCount: this.#scenarioDiagramCount
     }).then(({features}) => {
 
-      //
-      // DECONSTRUCT/DISASSEMBLE FEATURES INTO DIAGRAMS
-      //
-      // ONCE WE HAVE ALL THE SOURCE SCENARIO FEATURES WE'LL HAVE ORGANIZE THE THEM INTO GDH DIAGRAMS
-      // BASED ON THE SYSTEM. WHICH WILL LIKELY RESULT IN MORE DIAGRAMS THAN SOURCE SCENARIO FEATURES
-      //
-      // IN THIS WORKFLOW, FOR EACH INPUT FEATURE, WE END UP WITH A DIAGRAM WITH MULTIPLE ACTIONS
-      // PER SYSTEM. IF NOT ACTIONS EXIST FOR A SYSTEM THEN THERE IS NO DIAGRAM FOR THAT SYSTEM.
-      //
-      const diagramsGeoJSON = features.reduce((list, feature) => {
+      let diagramsGeoJSON;
 
-        // GET LIST OF ALL CLIMATE ACTIONS FOR EACH FEATURE //
-        const actions = feature.properties.ACTION_IDS.split('|');
+      const supportsMultipleActionsPerDiagram = false;
+      if (supportsMultipleActionsPerDiagram) {
 
-        // GROUP CLIMATE ACTIONS BY SYSTEM //
-        const groupedActionsBySystem = actions.reduce((bySystem, action) => {
+        //
+        // DECONSTRUCT/DISASSEMBLE FEATURES INTO DIAGRAMS
+        //
+        // ONCE WE HAVE ALL THE SOURCE SCENARIO FEATURES WE'LL HAVE ORGANIZE THE THEM INTO GDH DIAGRAMS
+        // BASED ON THE SYSTEM. WHICH WILL LIKELY RESULT IN MORE DIAGRAMS THAN SOURCE SCENARIO FEATURES
+        //
+        // IN THIS WORKFLOW, FOR EACH INPUT FEATURE, WE END UP WITH A DIAGRAM WITH MULTIPLE ACTIONS
+        // PER SYSTEM. IF NOT ACTIONS EXIST FOR A SYSTEM THEN THERE IS NO DIAGRAM FOR THAT SYSTEM.
+        //
+        diagramsGeoJSON = features.reduce((list, feature) => {
 
+          // GROUP CLIMATE ACTIONS BY SYSTEM //
+          const actions = feature.properties.ACTION_IDS.split('|');
+          const groupedActionsBySystem = actions.reduce((bySystem, action) => {
+
+            // GET CLIMATE ACTION DETAILS //
+            const systemCode = +action.split('.')[0];
+
+            // GET LIST OF CLIMATE ACTIONS BY SYSTEM //
+            const actionsBySystem = bySystem.get(systemCode) || [];
+            // ADD ACTION TO LIST OF ACTIONS BY SYSTEM //
+            actionsBySystem.push(action);
+
+            return bySystem.set(systemCode, actionsBySystem);
+          }, new Map());
+
+          // CREATE ONE DIAGRAM FOR EACH SYSTEM //
+          groupedActionsBySystem.forEach((climateActions, systemCode) => {
+            // DIAGRAM //
+            const newDiagram = {
+              type: 'Feature',
+              id: (list.length + 1),
+              geometry: feature.geometry,
+              properties: {
+                ...feature.properties, // HERE WE COULD RESTRICT OR FILTER WHICH PROPERTIES/ATTRIBUTES TO MAINTAIN... //
+                system: systemCode,
+                tags: climateActions // ARRAY OF CLIMATE ACTION CODES //
+              }
+            };
+            list.push(newDiagram);
+          });
+
+          return list;
+        }, []);
+
+      } else {
+        //
+        // SINGLE ACTION PER DIAGRAM
+        //
+        diagramsGeoJSON = features.map((feature, featureIdx) => {
+
+          // GET LIST OF ALL CLIMATE ACTIONS FOR EACH FEATURE //
+          const actionCode = feature.properties.ACTION_IDS;
           // GET CLIMATE ACTION DETAILS //
-          const climateAction = this._getClimateAction(action);
-          // GET LIST OF CLIMATE ACTIONS BY SYSTEM //
-          const actionsBySystem = bySystem.get(climateAction.systemCode) || [];
-          // ADD ACTION TO LIST OF ACTIONS BY SYSTEM //
-          actionsBySystem.push(climateAction.actionCode);
+          const systemCode = +actionCode.split('.')[0];
 
-          return bySystem.set(climateAction.systemCode, actionsBySystem);
-        }, new Map());
-
-        // CREATE ONE DIAGRAM FOR EACH SYSTEM //
-        groupedActionsBySystem.forEach((climateActions, systemCode) => {
-          // DIAGRAM //
           const newDiagram = {
             type: 'Feature',
-            id: (list.length + 1),
+            id: (featureIdx + 1),
             geometry: feature.geometry,
             properties: {
               ...feature.properties, // HERE WE COULD RESTRICT OR FILTER WHICH PROPERTIES/ATTRIBUTES TO MAINTAIN... //
               system: systemCode,
-              tags: climateActions // ARRAY OF CLIMATE ACTION CODES //
+              tags: [actionCode] // ARRAY OF CLIMATE ACTION CODES //
             }
           };
-          list.push(newDiagram);
-        });
+          //console.info(newDiagram);
 
-        return list;
-      }, []);
+          return newDiagram;
+        });
+      }
 
       // GEODESIGNHUB MIGRATE FEATURES AS DIAGRAMS //
       this.#geodesignhub.migrateGPLFeaturesAsDiagrams(diagramsGeoJSON).then(() => {
@@ -422,11 +460,12 @@ class DiagramImporter extends HTMLElement {
    * @param {string} actionCode
    * @returns {CLIMATE_ACTION}
    */
-  _getClimateAction(actionCode) {
-    return CLIMATE_ACTIONS.find(action => {
-      return (action.actionCode === actionCode);
-    });
-  };
+
+  /* _getClimateAction(actionCode) {
+   return CLIMATE_ACTIONS.find(action => {
+   return (action.actionCode === actionCode);
+   });
+   };*/
 
   /**
    *

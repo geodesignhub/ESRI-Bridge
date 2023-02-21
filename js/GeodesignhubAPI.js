@@ -307,6 +307,7 @@ class GeodesignhubAPI extends HTMLElement {
 
   displayMessage(message) {
     this.consoleElement.innerHTML = message || '';
+    this.toggleAttribute('hidden', false);
   }
 
   verifyCredentials() {
@@ -357,6 +358,7 @@ class GeodesignhubAPI extends HTMLElement {
 
               this.#allGDHSystems = systemsData;
 
+              this.dispatchEvent(new CustomEvent('ready', {}));
             } else {
               this.consoleElement.innerHTML = "Geodesignhub project is not setup correctly, please contact your administrator";
             }
@@ -368,6 +370,7 @@ class GeodesignhubAPI extends HTMLElement {
         this.consoleElement.innerHTML = `<div>${ error }</div>${ this.consoleElement.innerHTML }`;
       });
     }
+
   }
 
   gdhGPLSystemConverter(gplSystem) {
