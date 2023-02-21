@@ -56,6 +56,12 @@ class DiagramExporter extends HTMLElement {
 
   /**
    *
+   * @type {boolean}
+   */
+  #supportsMultipleActionsPerDiagram = false;
+
+  /**
+   *
    */
   constructor({container, portal, gplProjectGroup, geodesignhub}) {
     super();
@@ -436,8 +442,7 @@ class DiagramExporter extends HTMLElement {
     //
     let newFeaturesToAdd;
 
-    const supportsMultipleActionsPerDiagram = false;
-    if (supportsMultipleActionsPerDiagram) {
+    if (this.#supportsMultipleActionsPerDiagram) {
 
       //
       // MULTIPLE ACTIONS PER DIAGRAM

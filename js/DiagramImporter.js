@@ -161,6 +161,12 @@ class DiagramImporter extends HTMLElement {
 
   /**
    *
+   * @type {boolean}
+   */
+  #supportsMultipleActionsPerDiagram = false;
+
+  /**
+   *
    */
   constructor({container, portal, gplProjectGroup, geodesignhub}) {
     super();
@@ -366,8 +372,7 @@ class DiagramImporter extends HTMLElement {
 
       let diagramsGeoJSON;
 
-      const supportsMultipleActionsPerDiagram = false;
-      if (supportsMultipleActionsPerDiagram) {
+      if (this.#supportsMultipleActionsPerDiagram) {
 
         //
         // DECONSTRUCT/DISASSEMBLE FEATURES INTO DIAGRAMS
