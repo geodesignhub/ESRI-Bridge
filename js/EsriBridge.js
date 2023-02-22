@@ -115,8 +115,8 @@ class EsriBridge extends EventTarget {
     const urlParameters = new URLSearchParams(window.location.search);
     this.#gdhProjectId = urlParameters.get('gdhProjectId') || '184cd61c05e0e2c7';
     this.#gdhAPIToken = urlParameters.get('gdhAPIToken') || 'c0ae02b64a7e0ca453231143ae2fe2d8202e51e8';
-    this.#arcgisToken = urlParameters.get('arcgisToken');
     this.#gplProjectId = urlParameters.get('gplProjectId') || '8722fceaa08b4f32bc51896f1dcfa8da';
+    this.#arcgisToken = urlParameters.get('arcgisToken') || 'VdNiLhzba1QOujuNNEzS4uE3dKlrk1SeVuK_HY0LydqVqvdjMnijY1kXmpvu4amcg3eZxbHNmDy4dE8TJZSTtNGeuxTkIdkUaqN-bae72A8eTlRb5i26fRLqRR39haCrxeuod6d5yCQfaUxkmVhjxgqJVIggNr0ntQbaCdI9_woegypyBOaVenaS0hC0-rrL5M0ZDDLv9gsQwFP4CT7drs17XgTzZd9OY9MqDpWUotI.';
 
     // ARE ALL VALUES VALID = NOT NULL OR EMPTY STRING //
     const _validate = values => values.every(value => value?.length > 0);

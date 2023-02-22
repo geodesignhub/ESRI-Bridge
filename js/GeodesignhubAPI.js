@@ -84,7 +84,7 @@ class GeodesignhubAPI extends HTMLElement {
         :host .gdh-console {
           width: 100%;
           max-height: 3rem;
-          padding: 0 15px;          
+          padding: 5px 15px;          
           font-size: 11pt;
           overflow-y: auto;        
           color: #666666;
@@ -234,7 +234,7 @@ class GeodesignhubAPI extends HTMLElement {
       });
   };
 
-  __gdhGetProjectTags() {
+  _gdhGetProjectTags() {
     return this.__fetchResource(`projects/${ this.#gdhProjectId }/tags/`,
       {
         method: 'GET',
@@ -456,9 +456,7 @@ class GeodesignhubAPI extends HTMLElement {
             this._gdhUpdateDiagramProperties(diagramID, gdhDiagramProperties).then(propertiesUpdated => {
               this.consoleElement.innerHTML = "Diagram properties updated..";
 
-              setTimeout(() => {
-                resolve();
-              }, 250);
+              setTimeout(resolve, 250);
 
             }).catch(error => this.consoleElement.innerHTML = `<div>${ error }</div>${ this.consoleElement.innerHTML }`);
           }).catch(error => this.consoleElement.innerHTML = `<div>${ error }</div>${ this.consoleElement.innerHTML }`);

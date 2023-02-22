@@ -58,7 +58,7 @@ class DiagramExporter extends HTMLElement {
    *
    * @type {boolean}
    */
-  #supportsMultipleActionsPerDiagram = false;
+  #supportsMultipleActionsPerDiagram = true;
 
   /**
    *

@@ -163,7 +163,7 @@ class DiagramImporter extends HTMLElement {
    *
    * @type {boolean}
    */
-  #supportsMultipleActionsPerDiagram = false;
+  #supportsMultipleActionsPerDiagram = true;
 
   /**
    *
