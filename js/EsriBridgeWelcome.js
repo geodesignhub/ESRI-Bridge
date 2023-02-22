@@ -54,8 +54,7 @@ class EsriBridgeWelcome extends HTMLElement {
         <h4>Who is this for?</h4>
         <p>This bridge is meant for Geodesignhub project administrators and who want to migrate data between a specially configured Geodesignhub projects into ArcGIS (and vice versa). Some actions are irreversible so please review the workflow documentation before proceeding, you can also contact via <a href="https://community.geodesignhub.com">Geodesignhub Community</a> portal in case of questions.</p>
         <h4>Before you begin</h4>
-        <p>To use this bridge, you will need an account in <a href="https://www.arcgis.com/index.html">ArcGIS online</a> and be a part of an ArcGIS Organization. On the <a href="https://www.geodesignhub.com">Geodesignhub</a> side, you must be a member of a Geodesignhub project. You will also need your project ID and API token from Geodesignhub, for more information on how to get your API Token and Project ID see <a
-          href="https://community.geodesignhub.com/t/where-is-my-project-id/1275">support article</a>.
+        <p>To use this bridge, you will need an account in <a href="https://www.arcgis.com/index.html">ArcGIS online</a> and be a part of an ArcGIS Organization. On the <a href="https://www.geodesignhub.com">Geodesignhub</a> side, you must be a member of a Geodesignhub project. 
         </p>
         <h4>Step by step instruction</h4>
         <h5>Worflow 1: Geoplanner / ArcGIS Organization -> Geodesignhub</h5>
