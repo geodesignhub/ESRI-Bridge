@@ -90,6 +90,7 @@ class GeodesignhubAPI extends HTMLElement {
           color: #666666;
           background-color: #efefef;
           border: solid 1px #cccccc;
+          border-radius: 3px;
           opacity: 1;
           transition: opacity 1s linear;
         }
@@ -306,7 +307,8 @@ class GeodesignhubAPI extends HTMLElement {
   //
 
   displayMessage(message) {
-    this.consoleElement.innerHTML = message || '';
+    //this.consoleElement.innerHTML = message || '';
+    this.consoleElement.innerHTML = message ? `<div>${ message }</div>${ this.consoleElement.innerHTML }` : '';
     this.toggleAttribute('hidden', false);
   }
 

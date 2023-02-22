@@ -72,6 +72,16 @@ class EsriBridge extends EventTarget {
   /**
    * @type {string}
    */
+  #gdhDesignTeamId;
+
+  /**
+   * @type {string}
+   */
+  #gdhDesignId;
+
+  /**
+   * @type {string}
+   */
   #gplProjectId;
 
   /**
@@ -92,29 +102,32 @@ class EsriBridge extends EventTarget {
   constructor() {
     super();
 
+    let diagramImporter;
+    let diagramExporter;
+
     //
     // BRIDGE WELCOME //
     // - INITIALLY SHOW WELCOME //
     //
     const bridgeWelcome = new EsriBridgeWelcome({container: 'welcome-container'});
-    let diagramImporter;
-    let diagramExporter;
 
     // ABOUT BUTTON //
     const aboutBtn = document.getElementById('about-btn');
-    aboutBtn.addEventListener('click',()=>{
+    aboutBtn.addEventListener('click', () => {
       const isActive = aboutBtn.toggleAttribute('active');
-      bridgeWelcome.toggleAttribute('hidden', !isActive);
-      diagramImporter?.toggleAttribute('hidden', isActive);
-      diagramExporter?.toggleAttribute('hidden', isActive);
-    })
+      bridgeWelcome.container.toggleAttribute('hidden', !isActive);
+      diagramImporter?.container.toggleAttribute('hidden', isActive);
+      diagramExporter?.container.toggleAttribute('hidden', isActive);
+    });
 
     //
     // URL SEARCH PARAMETERS //
     //
     const urlParameters = new URLSearchParams(window.location.search);
-    this.#gdhProjectId = urlParameters.get('gdhProjectId') || '184cd61c05e0e2c7';
     this.#gdhAPIToken = urlParameters.get('gdhAPIToken') || 'c0ae02b64a7e0ca453231143ae2fe2d8202e51e8';
+    this.#gdhProjectId = urlParameters.get('gdhProjectId') || '184cd61c05e0e2c7';
+    this.#gdhDesignTeamId = urlParameters.get('gdhDesignTeamId');
+    this.#gdhDesignId = urlParameters.get('gdhDesignId');
     this.#gplProjectId = urlParameters.get('gplProjectId') || '8722fceaa08b4f32bc51896f1dcfa8da';
     this.#arcgisToken = urlParameters.get('arcgisToken') || 'VdNiLhzba1QOujuNNEzS4uE3dKlrk1SeVuK_HY0LydqVqvdjMnijY1kXmpvu4amcg3eZxbHNmDy4dE8TJZSTtNGeuxTkIdkUaqN-bae72A8eTlRb5i26fRLqRR39haCrxeuod6d5yCQfaUxkmVhjxgqJVIggNr0ntQbaCdI9_woegypyBOaVenaS0hC0-rrL5M0ZDDLv9gsQwFP4CT7drs17XgTzZd9OY9MqDpWUotI.';
 
@@ -156,22 +169,30 @@ class EsriBridge extends EventTarget {
                   gplProjectGroup: this.#gplProjectGroup,
                   geodesignhub: geodesignhub
                 });
-                bridgeWelcome.toggleAttribute('hidden', true);
+                bridgeWelcome.container.toggleAttribute('hidden', true);
+                diagramImporter.container.toggleAttribute('hidden', false);
                 geodesignhub.toggleAttribute('hidden', false);
                 break;
 
               case 'export': // MODE EXPORT //
-                //
-                // DIAGRAM EXPORTER
-                //
-                diagramExporter = new DiagramExporter({
-                  container: 'export-container',
-                  portal: this.#portal,
-                  gplProjectGroup: this.#gplProjectGroup,
-                  geodesignhub: geodesignhub
-                });
-                bridgeWelcome.toggleAttribute('hidden', true);
-                geodesignhub.toggleAttribute('hidden', false);
+                if (_validate([this.#gdhDesignTeamId, this.#gdhDesignId])) {
+                  //
+                  // DIAGRAM EXPORTER
+                  //
+                  diagramExporter = new DiagramExporter({
+                    container: 'export-container',
+                    portal: this.#portal,
+                    gplProjectGroup: this.#gplProjectGroup,
+                    gdhDesignTeamId: this.#gdhDesignTeamId,
+                    gdhDesignId: this.#gdhDesignId,
+                    geodesignhub: geodesignhub
+                  });
+                  bridgeWelcome.container.toggleAttribute('hidden', true);
+                  diagramExporter.container.toggleAttribute('hidden', false);
+                  geodesignhub.toggleAttribute('hidden', false);
+                } else {
+                  geodesignhub.displayMessage(`Missing information about the selected design team and/or design.`);
+                }
                 break;
             }
           }).catch(error => {
@@ -243,12 +264,11 @@ class EsriBridge extends EventTarget {
 
       /**
        * ASK PORTAL TO FIND GEOPLANNER GROUP
-       *  - groups with these tags: geodesign | geodesignScenario
-       *  - group with specific id
+       *  - group with specific id and tags: geodesign | geodesignScenario
        */
       this.#portal.queryGroups({
-        //query: 'tags:(geodesign AND geodesignProject)',
-        query: `id:${ this.#gplProjectId }`,
+        query: `id:${ this.#gplProjectId } tags:(geodesign AND geodesignProject)`,
+        //query: `id:${ this.#gplProjectId }`,
         num: 1
       }).then(({results}) => {
         //console.info(results);

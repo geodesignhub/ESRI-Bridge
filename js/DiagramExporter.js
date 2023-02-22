@@ -50,6 +50,16 @@ class DiagramExporter extends HTMLElement {
   #projectPortalItem;
 
   /**
+   * @type {string}
+   */
+  #gdhDesignTeamId;
+
+  /**
+   * @type {string}
+   */
+  #gdhDesignId;
+
+  /**
    * @type {GeodesignhubAPI}
    */
   #geodesignhub;
@@ -63,13 +73,16 @@ class DiagramExporter extends HTMLElement {
   /**
    *
    */
-  constructor({container, portal, gplProjectGroup, geodesignhub}) {
+  constructor({container, portal, gplProjectGroup, gdhDesignTeamId, gdhDesignId, geodesignhub}) {
     super();
 
     this.container = (container instanceof HTMLElement) ? container : document.getElementById(container);
 
     this.#portal = portal;
     this.#gplProjectGroup = gplProjectGroup;
+    this.#gdhDesignTeamId = gdhDesignTeamId;
+    this.#gdhDesignId = gdhDesignId;
+
     this.#geodesignhub = geodesignhub;
 
     const shadowRoot = this.attachShadow({mode: 'open'});
@@ -78,8 +91,8 @@ class DiagramExporter extends HTMLElement {
         :host {}
         :host h3 {
           text-align: center;
-        }    
-        :host select,
+        }
+        :host input,
         :host button {
           width: 100%;
           margin: 5px 0;
@@ -89,14 +102,20 @@ class DiagramExporter extends HTMLElement {
       </style>                  
       <h3>Migrate Geodesignhub Design as GeoPlanner Scenario</h3>                    
       <label>
-        <div>Select Design Team</div>
-        <select class="teams-list"></select>        
+        <div>Selected Design Team</div>
+        <input class="design-team-input" type="text" readonly placeholder="design team">
       </label>                       
       <label>
-        <div>Select a Design</div>   
-        <select class="team-design-list"></select>
+        <div>Selected Design</div>   
+        <input class="design-input" type="text" readonly placeholder="design">        
       </label>
-      <button class="migrate-selected-btn">Migrate Geodesignhub Design as GeoPlanner Scenario</button>
+      <button class="migrate-selected-btn" disabled>Migrate Geodesignhub Design as GeoPlanner Scenario</button>
+      <div class="complete-section" hidden>
+        <div>    
+          <a class="new-scenario-link" href="" target="_blank">View new Scenario in ArcGIS</a>
+        </div>
+        <button class="close-btn">continue</button>
+      </div>      
     `;
 
     this.container?.append(this);
@@ -107,15 +126,18 @@ class DiagramExporter extends HTMLElement {
    */
   connectedCallback() {
 
-    this.teamsList = this.shadowRoot.querySelector('.teams-list');
-    this.teamsList.addEventListener('change', () => {
-      this.initializeTeamDesigns(this.teamsList.value);
-    });
-    this.teamDesignList = this.shadowRoot.querySelector('.team-design-list');
+    this.designTeamInput = this.shadowRoot.querySelector('.design-team-input');
+    this.designInput = this.shadowRoot.querySelector('.design-input');
+
     this.migrateSelectedBtn = this.shadowRoot.querySelector('.migrate-selected-btn');
     this.migrateSelectedBtn.addEventListener('click', () => {
       this.migrateDesignAsScenario();
     });
+
+    this.completeSection = this.shadowRoot.querySelector('.complete-section');
+    this.newScenarioLink = this.shadowRoot.querySelector('.new-scenario-link');
+    this.closeBtn = this.shadowRoot.querySelector('.close-btn');
+    this.closeBtn.addEventListener('click', () => { close(); });
 
     // INITIALIZE THE UI //
     this.getProjectPortalItem().then(({projectPortalItem}) => {
@@ -131,37 +153,30 @@ class DiagramExporter extends HTMLElement {
    *
    */
   initializeDesignTeams() {
-    this.#geodesignhub._gdhGetProjectDesignTeams().then(teamInfos => {
-      const teamsItems = teamInfos.map(teamInfo => {
-        const teamOption = document.createElement('option');
-        teamOption.setAttribute("value", teamInfo.id);
-        teamOption.innerHTML = teamInfo.title;
-        return teamOption;
-      });
-      this.teamsList.replaceChildren(...teamsItems);
-      this.initializeTeamDesigns(this.teamsList.value);
-    }).catch(error => {
-      this.#geodesignhub.displayMessage(error.message);
-    });
-  }
 
-  /**
-   *
-   * @param designTeamId
-   */
-  initializeTeamDesigns(designTeamId) {
-    this.#geodesignhub._gdhGetDesignTeamDesigns(designTeamId).then((designData) => {
-      const designSynthesisData = designData.synthesis;
-      const designItems = designSynthesisData.map(designSynthesis => {
-        const designItem = document.createElement('option');
-        designItem.setAttribute("value", designSynthesis.id);
-        designItem.innerHTML = designSynthesis.description;
-        return designItem;
+    // GET DESIGN TEAMS //
+    this.#geodesignhub._gdhGetProjectDesignTeams().then(teamInfos => {
+
+      // FIND SELECTED DESIGN TEAM //
+      const selectedDesignTeam = teamInfos.find(teamInfo => teamInfo.id === this.#gdhDesignTeamId);
+      this.designTeamInput.value = selectedDesignTeam.title;
+
+      // GET DESIGNS //
+      this.#geodesignhub._gdhGetDesignTeamDesigns(selectedDesignTeam.id).then((designData) => {
+
+        // FIND SELECTED DESIGN //
+        const selectedDesign = designData.synthesis.find(designSynthesis => designSynthesis.id === this.#gdhDesignId);
+        this.designInput.value = selectedDesign.description;
+
+        // ENABLE MIGRATE BUTTON //
+        this.migrateSelectedBtn.toggleAttribute('disabled', false);
+      }).catch(error => {
+        this.#geodesignhub.displayMessage(error.message);
       });
-      this.teamDesignList.replaceChildren(...designItems);
     }).catch(error => {
       this.#geodesignhub.displayMessage(error.message);
     });
+
   }
 
   /**
@@ -192,10 +207,10 @@ class DiagramExporter extends HTMLElement {
    */
   migrateDesignAsScenario() {
 
-    const gdhDesignTeamID = this.teamsList.options[this.teamsList.selectedIndex].id;
-    const gdhDesignTeamName = this.teamsList.options[this.teamsList.selectedIndex].innerText;
-    const gdhDesignID = this.teamDesignList.options[this.teamDesignList.selectedIndex].id;
-    const gdhDesignName = this.teamDesignList.options[this.teamDesignList.selectedIndex].innerText;
+    const gdhDesignTeamID = this.#gdhDesignTeamId;
+    const gdhDesignTeamName = this.designTeamInput.value;
+    const gdhDesignID = this.#gdhDesignId;
+    const gdhDesignName = this.designInput.value;
 
     this.#geodesignhub._gdhGetDesignESRIJSON(gdhDesignTeamID, gdhDesignID).then(designFeaturesAsEsriJSON => {
 
@@ -218,12 +233,10 @@ class DiagramExporter extends HTMLElement {
         // ADD NEW GEOPLANNER SCENARIO FEATURES //
         this._addNewGeoPlannerScenarioFeatures({designFeaturesAsEsriJSON: updatedDesignFeaturesAsEsriJSON, newPortalItem}).then(({addFeaturesOIDs}) => {
           //resolve({newPortalItem, newScenarioID, scenarioFilter, addFeaturesOIDs});
+          console.info('New GeoPlanner Scenario Feature OIDs: ', addFeaturesOIDs);
 
-          const mapUrl = `https://igcollab.maps.arcgis.com/apps/mapviewer/index.html?layers=${ newScenarioID }`;
-          console.info('New GeoPlanner Scenario Feature OIDs: ', addFeaturesOIDs, mapUrl);
-
-          // TODO: CLOSE WINDOW OR SHOW CLOSE BUTTON ??
-          // close();
+          this.newScenarioLink.setAttribute('href', `https://${ this.#portal.urlKey }.${ this.#portal.customBaseUrl }/apps/mapviewer/index.html?layers=${ newScenarioID }`);
+          this.completeSection.toggleAttribute('hidden', false);
 
         }).catch(error => {
           this.#geodesignhub.displayMessage(error.message);
@@ -275,8 +288,6 @@ class DiagramExporter extends HTMLElement {
         // GET PORTAL ITEM DATA //
         //  - https://developers.arcgis.com/javascript/latest/api-reference/esri-portal-PortalItem.html#fetchData
         this.#projectPortalItem.fetchData().then((sourceLayerPortalItemData) => {
-          //console.info("SOURCE Scenario Portal Item: ", this.sourcePortalItem);
-          //console.info("SOURCE Scenario Portal Item Data: ", sourceLayerPortalItemData);
 
           // PROJECT TYPEKEYWORD //
           const projectKeyword = this.#projectPortalItem.typeKeywords.find(keyword => keyword.startsWith('geodesignProjectID'));
@@ -297,6 +308,12 @@ class DiagramExporter extends HTMLElement {
           // ADD GDH TAG TO IDENTIFY WHICH SCENARIOS CAME FROM GDH //
           const tags = new Set([this.#projectPortalItem.tags.concat(['GDH', 'geodesign', 'geodesignScenario'])]);
 
+          // IGC SPECIFIC METADATA //
+          const IGCMetadata = {
+            licenseInfo: 'Restricted use for International Geodesign Collaboration activities only.',
+            accessInformation: 'International Geodesign Collaboration'
+          };
+
           //
           // CREATE NEW PORTAL ITEM FOR THE NEW SCENARIO //
           //
@@ -304,14 +321,15 @@ class DiagramExporter extends HTMLElement {
           //             ALSO, WE CAN USE THE DESCRIPTION TO ADD ANY OTHER
           //             DESIGN RELATED METADATA
           //
+          //
           const newPortalItem = new PortalItem({
             type: this.#projectPortalItem.type,
             url: this.#projectPortalItem.url,
             title: `GDH design ${ designName } by team ${ designTeamName }`,
             snippet: `GDH negotiated design by team ${ designTeamName }`,
             description: `The GDH negotiated design ${ designName } by team ${ designTeamName }.`,
-            licenseInfo: 'Restricted use for International Geodesign Collaboration activities only.',
-            accessInformation: 'International Geodesign Collaboration',
+            licenseInfo: this.#projectPortalItem.licenseInfo,
+            accessInformation: this.#projectPortalItem.accessInformation,
             typeKeywords: scenarioTypeKeywords, // THE PROJECT ID WILL BE IN ONE OF THE TYPEKEYWORDS
             tags: Array.from(tags.values())
           });
@@ -381,22 +399,22 @@ class DiagramExporter extends HTMLElement {
 
                   }).catch(error => {
                     this.#geodesignhub.displayMessage(error.message);
-                  })
+                  });
                 }).catch(error => {
                   this.#geodesignhub.displayMessage(error.message);
-                })
+                });
               }).catch(error => {
                 this.#geodesignhub.displayMessage(error.message);
-              })
+              });
             }).catch(error => {
               this.#geodesignhub.displayMessage(error.message);
-            })
+            });
           }).catch(error => {
             this.#geodesignhub.displayMessage(error.message);
-          })
+          });
         }).catch(error => {
           this.#geodesignhub.displayMessage(error.message);
-        })
+        });
 
       });
     });

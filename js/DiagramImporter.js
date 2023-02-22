@@ -25,76 +25,6 @@
  *
  */
 
-/**
- * @typedef {{ systemName: string, policyName: string, systemCode: string, actionCode: string, policyCode: string, actionName: string, gdhSystemCode: string}} CLIMATE_ACTION
- */
-
-/**
- *
- * CLIMATE ACTIONS DETAILS
- *
- * @type {CLIMATE_ACTION[]}
- */
-/*const CLIMATE_ACTIONS = [
- {
- actionCode: '1.3.4',
- actionName: 'Natural gas power plant closure',
- policyCode: '1.3',
- policyName: 'Close fossil energy generators',
- systemCode: '1',
- systemName: 'Energy',
- gdhSystemCode: 'ENE'
- },
- {
- actionCode: '1.4.1',
- actionName: 'Solar photovoltaics',
- policyCode: '1.4',
- policyName: 'Substitute with renewable energy systems',
- systemCode: '1',
- systemName: 'Energy',
- gdhSystemCode: 'ENE'
- },
- {
- actionCode: '1.4.3',
- actionName: 'Wind power',
- policyCode: '1.4',
- policyName: 'Substitute with renewable energy systems',
- systemCode: '1',
- systemName: 'Energy',
- gdhSystemCode: 'ENE'
- },
- {
- actionCode: '3.1.11',
- actionName: 'Forest protection',
- policyCode: '3.1',
- policyName: 'Manage forests sustainably',
- systemCode: '3',
- systemName: 'Forests, Peatlands, and Grasslands',
- gdhSystemCode: 'FOR'
-
- },
- {
- actionCode: '3.1.12',
- actionName: 'Forest restoration',
- policyCode: '3.1',
- policyName: 'Manage forests sustainably',
- systemCode: '3',
- systemName: 'Forests, Peatlands, and Grasslands',
- gdhSystemCode: 'FOR'
- }
- ];*/
-
-/*static SYSTEMS_INFOS = [
- {"gplSystemCode": 1, 'name': 'ENE', 'color': "#AB507E"},
- {"gplSystemCode": 2, 'name': 'AG', 'color': "#D9CD91"},
- {"gplSystemCode": 3, 'name': 'FOR', 'color': "#80BD75"},
- {"gplSystemCode": 4, 'name': 'OCN', 'color': "#8CCDD1"},
- {"gplSystemCode": 5, 'name': 'STL', 'color': "#E6564E"},
- {"gplSystemCode": 6, 'name': 'IND', 'color': "#916DA3"},
- {"gplSystemCode": 7, 'name': 'TRAN', 'color': "#706666"},
- {"gplSystemCode": 8, 'name': 'WAT', 'color': "#6B9CB0"}
- ];*/
-
 class DiagramImporter extends HTMLElement {
 
   static version = '0.0.1';
@@ -102,7 +32,7 @@ class DiagramImporter extends HTMLElement {
   /**
    * @type {HTMLElement}
    */
-  #container;
+  container;
 
   /**
    * @type {GeodesignhubAPI}
@@ -132,7 +62,7 @@ class DiagramImporter extends HTMLElement {
   /**
    * @type {number}
    */
-  #interventionLayerId;
+  #designLayerId;
 
   /**
    * @type {string}
@@ -171,11 +101,11 @@ class DiagramImporter extends HTMLElement {
   constructor({container, portal, gplProjectGroup, geodesignhub}) {
     super();
 
-    this.#container = (container instanceof HTMLElement) ? container : document.getElementById(container);
+    this.container = (container instanceof HTMLElement) ? container : document.getElementById(container);
 
     this.#portal = portal;
     this.#gplProjectGroup = gplProjectGroup;
-    this.#interventionLayerId = 0;
+    this.#designLayerId = 0;
     this.#geodesignhub = geodesignhub;
 
     const shadowRoot = this.attachShadow({mode: 'open'});
@@ -187,7 +117,7 @@ class DiagramImporter extends HTMLElement {
         }
         :host select,
         :host button {
-           width: 100%;
+          width: 100%;
           margin: 5px 0;
           padding: 5px 10px;
           font-size: 14pt;
@@ -198,11 +128,15 @@ class DiagramImporter extends HTMLElement {
         <div>Select GeoPlanner Scenario</div> 
         <select class="scenario-items-select"></select>
         <div>The '<span class="scenario-name-label">?</span>' GeoPlanner Scenario contains <span class="scenario-diagram-count">---</span> diagrams.</div>         
-        <button class="migrate-btn">Migrate GeoPlanner Scenario as Geodesignhub Diagrams</button>
-      </label>           
+        <button class="migrate-btn">Migrate GeoPlanner Scenario as Geodesignhub Diagrams</button>        
+      </label>
+      <div class="complete-section" hidden>
+        <div>Please click the 'continue' button below and then refresh the Geodesignhub browser window.</div>
+        <button class="close-btn">continue</button>
+      </div>           
     `;
 
-    this.#container?.append(this);
+    this.container?.append(this);
   }
 
   /**
@@ -222,6 +156,10 @@ class DiagramImporter extends HTMLElement {
     this.migrateBtn.addEventListener('click', () => {
       this.migrateSelectedScenario();
     });
+
+    this.completeSection = this.shadowRoot.querySelector('.complete-section');
+    this.closeBtn = this.shadowRoot.querySelector('.close-btn');
+    this.closeBtn.addEventListener('click', () => { close(); });
 
     // INITIALIZE THE UI //
     this.initialize();
@@ -328,7 +266,7 @@ class DiagramImporter extends HTMLElement {
       //console.info("Source Scenario Filter: ", sourceScenarioFilter);
 
       // QUERY REST ENDPOINT //
-      const geoPlannerScenarioLayerQueryUrl = `${ this.#scenarioPortalItem.url }/${ this.#interventionLayerId }/query`;
+      const geoPlannerScenarioLayerQueryUrl = `${ this.#scenarioPortalItem.url }/${ this.#designLayerId }/query`;
       // QUERY WHERE CLAUSE //
       const queryWhereClause = `${ sourceScenarioFilter } AND (ACTION_IDS IS NOT NULL)`;
 
@@ -448,27 +386,11 @@ class DiagramImporter extends HTMLElement {
 
       // GEODESIGNHUB MIGRATE FEATURES AS DIAGRAMS //
       this.#geodesignhub.migrateGPLFeaturesAsDiagrams(diagramsGeoJSON).then(() => {
-        // TODO: CLOSE WINDOW OR SHOW CLOSE BUTTON ??
-        // close();
+        this.completeSection.toggleAttribute('hidden', false);
       });
     });
 
   }
-
-  /**
-   *
-   * GET CLIMATE ACTION DETAILS
-   * - this is just temporary until we can ask GDH for this info...
-   *
-   * @param {string} actionCode
-   * @returns {CLIMATE_ACTION}
-   */
-
-  /* _getClimateAction(actionCode) {
-   return CLIMATE_ACTIONS.find(action => {
-   return (action.actionCode === actionCode);
-   });
-   };*/
 
   /**
    *

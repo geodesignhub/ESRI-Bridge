@@ -23,7 +23,7 @@ header {
   padding: 3px;
   font-size: 11pt;
   position: absolute;
-  right: 0 ;
+  right: 0;
   bottom: 0;
 }
 
@@ -35,27 +35,30 @@ header {
   overflow-x: hidden;
 }
 
-#import-container,
-#export-container {
+.bridge-panel {
   display: flex;
   flex: 1 1 auto;
-  justify-content: flex-start;
+  position: relative;
+  bottom: 0;
+  height: max-content;
+  width: 100%;
+  justify-content: center;
+  opacity: 1.0;
+  transition: opacity 1s linear;
 }
 
+.bridge-panel[hidden] {
+  position: relative;
+  bottom: -100%;
+  height: 0;
+  width: 0;
+  opacity: 0.0;
+  transition: opacity 1s linear;
+}
 
 #gdh-api-container {
   flex: 0 0 auto;
   width: calc(100vw - 20%);
   margin: 0 10% 0 10%;
   border-top: solid 1px #efefef;
-}
-
-.bridge-container:empty {
-  opacity: 0.0;
-  transition: opacity 1s linear;
-}
-
-.bridge-container {
-  opacity: 1.0;
-  transition: opacity 1s linear;
 }
