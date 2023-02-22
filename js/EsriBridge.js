@@ -41,12 +41,10 @@ class EsriBridge extends EventTarget {
    * NOTE: HERE WE CAN MAINTAIN BOTH APP IDS AND WE CAN
    *       SWITCH LOCALLY WHILE TESTING...
    *
-   * @type {{OAUTH_APP_ID: string, PORTAL_URL: string}}
+   * @type {{PORTAL_URL: string}}
    */
   static CONFIG = {
     PORTAL_URL: "https://www.arcgis.com/"
-    //OAUTH_APP_ID: "L7TzVXFYcEkBe7qz"  // HB //
-    //OAUTH_APP_ID: "PZdAgiu187TroTCX"    // JG //
   };
 
   /**
@@ -58,6 +56,8 @@ class EsriBridge extends EventTarget {
     IMPORT: 'import',
     EXPORT: 'export'
   };
+
+  static USE_IGC_BRIDGE_EXTENSIONS = true;
 
   /**
    * @type {Portal}
@@ -92,23 +92,22 @@ class EsriBridge extends EventTarget {
   constructor() {
     super();
 
-    /*if (window.name !== 'bridge') {
-     const size = {
-     width: 1024,
-     height: 700
-     };
-     const pos = {
-     top: ((window.screen.availHeight - size.height) * 0.5),
-     left: ((window.screen.availWidth - size.width) * 0.5)
-     };
-     window.open(location.href, 'bridge', `top=${ pos.top },left=${ pos.left },width=${ size.width },height=${ size.height }`);
-     }*/
-
     //
     // BRIDGE WELCOME //
     // - INITIALLY SHOW WELCOME //
     //
     const bridgeWelcome = new EsriBridgeWelcome({container: 'welcome-container'});
+    let diagramImporter;
+    let diagramExporter;
+
+    // ABOUT BUTTON //
+    const aboutBtn = document.getElementById('about-btn');
+    aboutBtn.addEventListener('click',()=>{
+      const isActive = aboutBtn.toggleAttribute('active');
+      bridgeWelcome.toggleAttribute('hidden', !isActive);
+      diagramImporter?.toggleAttribute('hidden', isActive);
+      diagramExporter?.toggleAttribute('hidden', isActive);
+    })
 
     //
     // URL SEARCH PARAMETERS //
@@ -116,21 +115,20 @@ class EsriBridge extends EventTarget {
     const urlParameters = new URLSearchParams(window.location.search);
     this.#gdhProjectId = urlParameters.get('gdhProjectId') || '184cd61c05e0e2c7';
     this.#gdhAPIToken = urlParameters.get('gdhAPIToken') || 'c0ae02b64a7e0ca453231143ae2fe2d8202e51e8';
-    this.#arcgisToken = urlParameters.get('arcgisToken') || 'XbVAIgYG2gNTuBKecngWU5UYcEJan-L2BWAfE0rWv4FTemnudPn3W4Fy0hc0-p56uuA-ph8wRHS2QjLk4U72SaE7y4lkRqYBeGV-sVZfzo9uyRhpb1589mrn4AsiH5DYGt3slz-N6_qFXTFxGohhyf56Qu8JczSiEKUFIbEgIrrJBiINPrgN55_-di6P1FD-pS0MugJ7mw-M9YzHKMfM5LTooaU0eJiHRacPkMYHa2I.';
-    this.#gplProjectId = urlParameters.get('gplProjectId') || 'bd92225f9c0645e0b1f6a50faa93ef9a'; // 8722fceaa08b4f32bc51896f1dcfa8da
+    this.#gplProjectId = urlParameters.get('gplProjectId') || '8722fceaa08b4f32bc51896f1dcfa8da';
+    this.#arcgisToken = urlParameters.get('arcgisToken') || 'VdNiLhzba1QOujuNNEzS4uE3dKlrk1SeVuK_HY0LydqVqvdjMnijY1kXmpvu4amcg3eZxbHNmDy4dE8TJZSTtNGeuxTkIdkUaqN-bae72A8eTlRb5i26fRLqRR39haCrxeuod6d5yCQfaUxkmVhjxgqJVIggNr0ntQbaCdI9_woegypyBOaVenaS0hC0-rrL5M0ZDDLv9gsQwFP4CT7drs17XgTzZd9OY9MqDpWUotI.';
 
     // ARE ALL VALUES VALID = NOT NULL OR EMPTY STRING //
     const _validate = values => values.every(value => value?.length > 0);
 
+    // GEODESIGNHUB API //
+    const geodesignhub = new GeodesignhubAPI({
+      container: 'gdh-api-container',
+      gdhAPIToken: this.#gdhAPIToken,
+      gdhProjectId: this.#gdhProjectId
+    });
     // VALIDATE GDH API TOKEN AND PROJECT ID //
-    if (_validate([this.#gdhAPIToken, this.#gdhProjectId])) {
-
-      // GEODESIGNHUB API //
-      const geodesignhub = new GeodesignhubAPI({
-        container: 'gdh-api-container',
-        gdhAPIToken: this.#gdhAPIToken,
-        gdhProjectId: this.#gdhProjectId
-      });
+    geodesignhub.addEventListener('ready', () => {
       geodesignhub.toggleAttribute('hidden', true);
 
       // VALIDATE ARCGIS TOKEN //
@@ -152,7 +150,7 @@ class EsriBridge extends EventTarget {
                 //
                 // DIAGRAM IMPORTER //
                 //
-                const diagramImporter = new DiagramImporter({
+                diagramImporter = new DiagramImporter({
                   container: 'import-container',
                   portal: this.#portal,
                   gplProjectGroup: this.#gplProjectGroup,
@@ -166,7 +164,7 @@ class EsriBridge extends EventTarget {
                 //
                 // DIAGRAM EXPORTER
                 //
-                const diagramExporter = new DiagramExporter({
+                diagramExporter = new DiagramExporter({
                   container: 'export-container',
                   portal: this.#portal,
                   gplProjectGroup: this.#gplProjectGroup,
@@ -185,7 +183,8 @@ class EsriBridge extends EventTarget {
       } else {
         geodesignhub.displayMessage("Missing ArcGIS token or GPL Project Id.");
       }
-    }
+    });
+
   }
 
   /**
@@ -211,14 +210,6 @@ class EsriBridge extends EventTarget {
           server: portalSharingURL,
           token: this.#arcgisToken
         });
-
-        // CONFIGURE OAUTH //
-        /*const oauthInfo = new OAuthInfo({
-         portalUrl: EsriBridge.CONFIG.PORTAL_URL,
-         appId: EsriBridge.CONFIG.OAUTH_APP_ID,
-         popup: true
-         });
-         esriId.registerOAuthInfos([oauthInfo]);*/
 
         // PORTAL //
         //  - IGC ORG IN ARCGIS.COM

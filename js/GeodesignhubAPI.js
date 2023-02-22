@@ -84,7 +84,7 @@ class GeodesignhubAPI extends HTMLElement {
         :host .gdh-console {
           width: 100%;
           max-height: 3rem;
-          padding: 0 15px;          
+          padding: 5px 15px;          
           font-size: 11pt;
           overflow-y: auto;        
           color: #666666;
@@ -234,7 +234,7 @@ class GeodesignhubAPI extends HTMLElement {
       });
   };
 
-  __gdhGetProjectTags() {
+  _gdhGetProjectTags() {
     return this.__fetchResource(`projects/${ this.#gdhProjectId }/tags/`,
       {
         method: 'GET',
@@ -307,6 +307,7 @@ class GeodesignhubAPI extends HTMLElement {
 
   displayMessage(message) {
     this.consoleElement.innerHTML = message || '';
+    this.toggleAttribute('hidden', false);
   }
 
   verifyCredentials() {
@@ -357,6 +358,7 @@ class GeodesignhubAPI extends HTMLElement {
 
               this.#allGDHSystems = systemsData;
 
+              this.dispatchEvent(new CustomEvent('ready', {}));
             } else {
               this.consoleElement.innerHTML = "Geodesignhub project is not setup correctly, please contact your administrator";
             }
@@ -368,6 +370,7 @@ class GeodesignhubAPI extends HTMLElement {
         this.consoleElement.innerHTML = `<div>${ error }</div>${ this.consoleElement.innerHTML }`;
       });
     }
+
   }
 
   gdhGPLSystemConverter(gplSystem) {
@@ -453,9 +456,7 @@ class GeodesignhubAPI extends HTMLElement {
             this._gdhUpdateDiagramProperties(diagramID, gdhDiagramProperties).then(propertiesUpdated => {
               this.consoleElement.innerHTML = "Diagram properties updated..";
 
-              setTimeout(() => {
-                resolve();
-              }, 250);
+              setTimeout(resolve, 250);
 
             }).catch(error => this.consoleElement.innerHTML = `<div>${ error }</div>${ this.consoleElement.innerHTML }`);
           }).catch(error => this.consoleElement.innerHTML = `<div>${ error }</div>${ this.consoleElement.innerHTML }`);
