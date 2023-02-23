@@ -29,7 +29,6 @@ class GeodesignhubAPI extends HTMLElement {
 
   static version = '0.0.2';
 
-  //static API_URL = 'http://local.test:8000/api/v1';
   static API_URL = 'https://www.geodesignhub.com/api/v1';
 
   /**

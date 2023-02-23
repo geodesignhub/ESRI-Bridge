@@ -23,8 +23,8 @@ header {
   padding: 3px;
   font-size: 11pt;
   position: absolute;
-  right: 0;
-  bottom: 0;
+  right: 20px;
+  bottom: -40px;
 }
 
 #main-content {

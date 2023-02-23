@@ -59,54 +59,30 @@ class EsriBridge extends EventTarget {
 
   static USE_IGC_BRIDGE_EXTENSIONS = true;
 
-  /**
-   * @type {Portal}
-   */
-  #portal;
-
-  /**
-   * @type {string}
-   */
-  #gdhProjectId;
-
-  /**
-   * @type {string}
-   */
-  #gdhDesignTeamId;
-
-  /**
-   * @type {string}
-   */
-  #gdhDesignId;
-
-  /**
-   * @type {string}
-   */
-  #gplProjectId;
-
-  /**
-   * @type {PortalGroup}
-   */
-  #gplProjectGroup;
-
-  /**
-   * @type {string}
-   */
-  #gdhAPIToken;
-
-  /**
-   * @type {string}
-   */
-  #arcgisToken;
-
   constructor() {
     super();
 
+    //
+    // URL SEARCH PARAMETERS //
+    //
+    const urlParameters = new URLSearchParams(window.location.search);
+    // GEODESIGNHUB SPECIFIC //
+    const gdhAPIToken = urlParameters.get('token') || 'c0ae02b64a7e0ca453231143ae2fe2d8202e51e8';
+    const gdhProjectId = urlParameters.get('projectid') || '184cd61c05e0e2c7';
+    const gdhDesignTeamId = urlParameters.get('cteamid');
+    const gdhDesignId = urlParameters.get('synthesisid');
+    // GEOPLANNER SPECIFIC //
+    const gplProjectId = urlParameters.get('gplProjectId') || '8722fceaa08b4f32bc51896f1dcfa8da';
+    const arcgisToken = urlParameters.get('arcgisToken') || 'VdNiLhzba1QOujuNNEzS4uE3dKlrk1SeVuK_HY0LydqVqvdjMnijY1kXmpvu4amcg3eZxbHNmDy4dE8TJZSTtNGeuxTkIdkUaqN-bae72A8eTlRb5i26fRLqRR39haCrxeuod6d5yCQfaUxkmVhjxgqJVIggNr0ntQbaCdI9_woegypyBOaVenaS0hC0-rrL5M0ZDDLv9gsQwFP4CT7drs17XgTzZd9OY9MqDpWUotI.';
+    // MODE //
+    const mode = urlParameters.get('mode') || 'welcome';
+
+    // IMPORT AND EXPORT MODULES //
     let diagramImporter;
     let diagramExporter;
 
     //
-    // BRIDGE WELCOME //
+    // WELCOME MODULE //
     // - INITIALLY SHOW WELCOME //
     //
     const bridgeWelcome = new EsriBridgeWelcome({container: 'welcome-container'});
@@ -114,22 +90,12 @@ class EsriBridge extends EventTarget {
     // ABOUT BUTTON //
     const aboutBtn = document.getElementById('about-btn');
     aboutBtn.addEventListener('click', () => {
-      const isActive = aboutBtn.toggleAttribute('active');
+      const isActive = aboutBtn.classList.toggle('active');
+      aboutBtn.innerHTML = isActive ? mode : 'about';
       bridgeWelcome.container.toggleAttribute('hidden', !isActive);
       diagramImporter?.container.toggleAttribute('hidden', isActive);
       diagramExporter?.container.toggleAttribute('hidden', isActive);
     });
-
-    //
-    // URL SEARCH PARAMETERS //
-    //
-    const urlParameters = new URLSearchParams(window.location.search);
-    this.#gdhAPIToken = urlParameters.get('gdhAPIToken') || 'c0ae02b64a7e0ca453231143ae2fe2d8202e51e8';
-    this.#gdhProjectId = urlParameters.get('gdhProjectId') || '184cd61c05e0e2c7';
-    this.#gdhDesignTeamId = urlParameters.get('gdhDesignTeamId');
-    this.#gdhDesignId = urlParameters.get('gdhDesignId');
-    this.#gplProjectId = urlParameters.get('gplProjectId') || '8722fceaa08b4f32bc51896f1dcfa8da';
-    this.#arcgisToken = urlParameters.get('arcgisToken') || 'VdNiLhzba1QOujuNNEzS4uE3dKlrk1SeVuK_HY0LydqVqvdjMnijY1kXmpvu4amcg3eZxbHNmDy4dE8TJZSTtNGeuxTkIdkUaqN-bae72A8eTlRb5i26fRLqRR39haCrxeuod6d5yCQfaUxkmVhjxgqJVIggNr0ntQbaCdI9_woegypyBOaVenaS0hC0-rrL5M0ZDDLv9gsQwFP4CT7drs17XgTzZd9OY9MqDpWUotI.';
 
     // ARE ALL VALUES VALID = NOT NULL OR EMPTY STRING //
     const _validate = values => values.every(value => value?.length > 0);
@@ -137,27 +103,22 @@ class EsriBridge extends EventTarget {
     // GEODESIGNHUB API //
     const geodesignhub = new GeodesignhubAPI({
       container: 'gdh-api-container',
-      gdhAPIToken: this.#gdhAPIToken,
-      gdhProjectId: this.#gdhProjectId
+      gdhAPIToken: gdhAPIToken,
+      gdhProjectId: gdhProjectId
     });
     // VALIDATE GDH API TOKEN AND PROJECT ID //
     geodesignhub.addEventListener('ready', () => {
       geodesignhub.toggleAttribute('hidden', true);
 
       // VALIDATE ARCGIS TOKEN //
-      if (_validate([this.#arcgisToken, this.#gplProjectId])) {
+      if (_validate([arcgisToken, gplProjectId])) {
 
         // AUTHENTICATE AND INITIALIZE PORTAL //
-        this.authenticateArcGISOnline().then(({portal}) => {
-          // ARCGIS PORTAL //
-          this.#portal = portal;
-
+        this.authenticateArcGISOnline({arcgisToken}).then(({portal}) => {
           // GEOPLANNER GROUP //
-          this.getGeoPlannerGroup().then(({gplProjectGroup}) => {
-            this.#gplProjectGroup = gplProjectGroup;
+          this.getGeoPlannerGroup({portal, gplProjectId}).then(({gplProjectGroup}) => {
 
             // MODE URL PARAMETER //
-            const mode = urlParameters.get('mode');
             switch (mode) {
               case 'import': // MODE IMPORT //
                 //
@@ -165,31 +126,33 @@ class EsriBridge extends EventTarget {
                 //
                 diagramImporter = new DiagramImporter({
                   container: 'import-container',
-                  portal: this.#portal,
-                  gplProjectGroup: this.#gplProjectGroup,
+                  portal: portal,
+                  gplProjectGroup: gplProjectGroup,
                   geodesignhub: geodesignhub
                 });
                 bridgeWelcome.container.toggleAttribute('hidden', true);
                 diagramImporter.container.toggleAttribute('hidden', false);
                 geodesignhub.toggleAttribute('hidden', false);
+                aboutBtn.toggleAttribute('hidden', false);
                 break;
 
               case 'export': // MODE EXPORT //
-                if (_validate([this.#gdhDesignTeamId, this.#gdhDesignId])) {
+                if (_validate([gdhDesignTeamId, gdhDesignId])) {
                   //
                   // DIAGRAM EXPORTER
                   //
                   diagramExporter = new DiagramExporter({
                     container: 'export-container',
-                    portal: this.#portal,
-                    gplProjectGroup: this.#gplProjectGroup,
-                    gdhDesignTeamId: this.#gdhDesignTeamId,
-                    gdhDesignId: this.#gdhDesignId,
+                    portal: portal,
+                    gplProjectGroup: gplProjectGroup,
+                    gdhDesignTeamId: gdhDesignTeamId,
+                    gdhDesignId: gdhDesignId,
                     geodesignhub: geodesignhub
                   });
                   bridgeWelcome.container.toggleAttribute('hidden', true);
                   diagramExporter.container.toggleAttribute('hidden', false);
                   geodesignhub.toggleAttribute('hidden', false);
+                  aboutBtn.toggleAttribute('hidden', false);
                 } else {
                   geodesignhub.displayMessage(`Missing information about the selected design team and/or design.`);
                 }
@@ -211,25 +174,24 @@ class EsriBridge extends EventTarget {
   /**
    *
    * IdentityManager: https://developers.arcgis.com/javascript/latest/api-reference/esri-identity-IdentityManager.html
-   * OAuthInfo: https://developers.arcgis.com/javascript/latest/api-reference/esri-identity-OAuthInfo.html
    * Portal: https://developers.arcgis.com/javascript/latest/api-reference/esri-portal-Portal.html
    *
-   * @returns {Promise<Portal>}
+   * @param {string} arcgisToken
+   * @returns {Promise<{portal:Portal}>}
    */
-  authenticateArcGISOnline() {
+  authenticateArcGISOnline({arcgisToken}) {
     return new Promise((resolve, reject) => {
       require([
         'esri/identity/IdentityManager',
-        'esri/identity/OAuthInfo',
         'esri/portal/Portal'
-      ], (esriId, OAuthInfo, Portal) => {
+      ], (esriId, Portal) => {
 
         // SHARING URL //
         const portalSharingURL = `${ EsriBridge.CONFIG.PORTAL_URL }/sharing`;
 
         esriId.registerToken({
           server: portalSharingURL,
-          token: this.#arcgisToken
+          token: arcgisToken
         });
 
         // PORTAL //
@@ -256,18 +218,20 @@ class EsriBridge extends EventTarget {
 
   /**
    *
+   * @param {Portal} portal
+   * @param {string} gplProjectId
    * @returns {Promise<{gplProjectGroup:PortalGroup}>}
    * @private
    */
-  getGeoPlannerGroup() {
+  getGeoPlannerGroup({portal, gplProjectId}) {
     return new Promise((resolve, reject) => {
 
       /**
        * ASK PORTAL TO FIND GEOPLANNER GROUP
        *  - group with specific id and tags: geodesign | geodesignScenario
        */
-      this.#portal.queryGroups({
-        query: `id:${ this.#gplProjectId } tags:(geodesign AND geodesignProject)`,
+      portal.queryGroups({
+        query: `id:${ gplProjectId } tags:(geodesign AND geodesignProject)`,
         //query: `id:${ this.#gplProjectId }`,
         num: 1
       }).then(({results}) => {
@@ -280,4 +244,5 @@ class EsriBridge extends EventTarget {
 }
 
 export default new EsriBridge();
+
 
