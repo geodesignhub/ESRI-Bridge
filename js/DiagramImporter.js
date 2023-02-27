@@ -389,9 +389,9 @@ class DiagramImporter extends HTMLElement {
         // GET LIST OF ALL CLIMATE ACTIONS FOR EACH FEATURE //
         const actionCode = feature.properties.type;
         // GET CLIMATE ACTION DETAILS //
-        const systemCode = +actionCode.split('.')[0];
+        const [systemCode] = actionCode.split('.');
         // POLICY ACTIONS //
-        const policyActions = feature.properties.POLICY_ACTION_IDS;
+        const policyActions = feature.properties.POLICY_ACTION_IDS?.split('|') || [];
 
         const newDiagram = {
           type: 'Feature',
@@ -399,8 +399,8 @@ class DiagramImporter extends HTMLElement {
           geometry: feature.geometry,
           properties: {
             ...feature.properties, // HERE WE COULD RESTRICT OR FILTER WHICH PROPERTIES/ATTRIBUTES TO MAINTAIN... //
-            system: systemCode,
-            tags: policyActions.split('|') // ARRAY OF CLIMATE ACTION CODES //
+            system: Number(systemCode) || 1, // JUST ADD TO THE FIRST SYSTEM IF WE CAN'T FIGURE IT OUT (??)
+            tags: policyActions // ARRAY OF CLIMATE ACTION CODES //
           }
         };
         //console.info(newDiagram);
