@@ -20,10 +20,12 @@ As a pre-requisite to using this plugin, you must create a project with ESRI con
 
 ### Import data from Geoplanner
 Available for Project Administrators
+
 ![alt text](readme-images/import.jpg)
 
 ### Export to Geoplanner / ArcGIS
 Available to everyone
+
 ![export](readme-images/export.jpg)
 
 ## Adding the plugin
