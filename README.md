@@ -1,6 +1,6 @@
 # ESRI <-> Geodesignhub Bridge
 
-Simple app showing how to use the ArcGIS API for JavaScript to connect to discover IGC GeoPlanner specific content.
+App using ArcGIS API for JavaScript to connect to discover IGC GeoPlanner specific content.
 
 ### APIs Used
 
