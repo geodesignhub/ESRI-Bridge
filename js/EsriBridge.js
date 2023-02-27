@@ -67,13 +67,13 @@ class EsriBridge extends EventTarget {
     //
     const urlParameters = new URLSearchParams(window.location.search);
     // GEODESIGNHUB SPECIFIC //
-    const gdhAPIToken = urlParameters.get('token') || 'c0ae02b64a7e0ca453231143ae2fe2d8202e51e8';
-    const gdhProjectId = urlParameters.get('projectid') || '184cd61c05e0e2c7';
+    const gdhAPIToken = urlParameters.get('token');
+    const gdhProjectId = urlParameters.get('projectid');
     const gdhDesignTeamId = urlParameters.get('cteamid');
     const gdhDesignId = urlParameters.get('synthesisid');
     // GEOPLANNER SPECIFIC //
-    const gplProjectId = urlParameters.get('gplProjectId') || '8722fceaa08b4f32bc51896f1dcfa8da';
-    const arcgisToken = urlParameters.get('arcgisToken') || 'VdNiLhzba1QOujuNNEzS4uE3dKlrk1SeVuK_HY0LydqVqvdjMnijY1kXmpvu4amcg3eZxbHNmDy4dE8TJZSTtNGeuxTkIdkUaqN-bae72A8eTlRb5i26fRLqRR39haCrxeuod6d5yCQfaUxkmVhjxgqJVIggNr0ntQbaCdI9_woegypyBOaVenaS0hC0-rrL5M0ZDDLv9gsQwFP4CT7drs17XgTzZd9OY9MqDpWUotI.';
+    const gplProjectId = urlParameters.get('gplProjectId');
+    const arcgisToken = urlParameters.get('arcgisToken');
     // MODE //
     const mode = urlParameters.get('mode') || 'welcome';
 
