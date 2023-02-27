@@ -310,7 +310,7 @@ class DiagramImporter extends HTMLElement {
 
       let diagramsGeoJSON;
 
-      if (this.#supportsMultipleActionsPerDiagram) {
+      /*if (this.#supportsMultipleActionsPerDiagram) {
 
         //
         // DECONSTRUCT/DISASSEMBLE FEATURES INTO DIAGRAMS
@@ -382,7 +382,31 @@ class DiagramImporter extends HTMLElement {
 
           return newDiagram;
         });
-      }
+      }*/
+
+      diagramsGeoJSON = features.map((feature, featureIdx) => {
+
+        // GET LIST OF ALL CLIMATE ACTIONS FOR EACH FEATURE //
+        const actionCode = feature.properties.type;
+        // GET CLIMATE ACTION DETAILS //
+        const systemCode = +actionCode.split('.')[0];
+        // POLICY ACTIONS //
+        const policyActions = feature.properties.POLICY_ACTION_IDS;
+
+        const newDiagram = {
+          type: 'Feature',
+          id: (featureIdx + 1),
+          geometry: feature.geometry,
+          properties: {
+            ...feature.properties, // HERE WE COULD RESTRICT OR FILTER WHICH PROPERTIES/ATTRIBUTES TO MAINTAIN... //
+            system: systemCode,
+            tags: policyActions.split('|') // ARRAY OF CLIMATE ACTION CODES //
+          }
+        };
+        //console.info(newDiagram);
+
+        return newDiagram;
+      });
 
       // GEODESIGNHUB MIGRATE FEATURES AS DIAGRAMS //
       this.#geodesignhub.migrateGPLFeaturesAsDiagrams(diagramsGeoJSON).then(() => {

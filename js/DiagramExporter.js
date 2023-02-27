@@ -452,7 +452,10 @@ class DiagramExporter extends HTMLElement {
       //
       // HERE WE CAN ADD OTHER VALIDITY CHECKS TO DIAGRAMS //
       //
-      return (diagramFeature.geometry.rings != null);
+      const hasGeometry = (diagramFeature.geometry.rings != null);
+      const isPolygonGeometry = (diagramFeature.geometry.type === 'polygon');
+
+      return hasGeometry && isPolygonGeometry;
     });
 
     //
@@ -460,65 +463,83 @@ class DiagramExporter extends HTMLElement {
     //
     let newFeaturesToAdd;
 
-    if (this.#supportsMultipleActionsPerDiagram) {
+    /*if (this.#supportsMultipleActionsPerDiagram) {
 
-      //
-      // MULTIPLE ACTIONS PER DIAGRAM
-      //
-      const featuresByGlobalID = validDiagramFeatures.reduce((byGlobalID, diagramFeature) => {
+     //
+     // MULTIPLE ACTIONS PER DIAGRAM
+     //
+     const featuresByGlobalID = validDiagramFeatures.reduce((byGlobalID, diagramFeature) => {
 
-        const globalID = diagramFeature.attributes.notes.globalid || diagramFeature.attributes.notes;
+     const globalID = diagramFeature.attributes.notes.globalid || diagramFeature.attributes.notes;
 
-        let featureByGlobalID;
+     let featureByGlobalID;
 
-        if (globalID?.length && byGlobalID.has(globalID)) {
-          featureByGlobalID = byGlobalID.get(globalID);
-          featureByGlobalID.attributes.ACTION_IDS += `|${ diagramFeature.attributes.tag_codes }`;
-        } else {
-          featureByGlobalID = {
-            geometry: diagramFeature.geometry,
-            attributes: {
-              Geodesign_ProjectID: this.#gplProjectGroup.id,
-              Geodesign_ScenarioID: newScenarioID,
-              SOURCE_ID: globalID,
-              ACTION_IDS: diagramFeature.attributes.tag_codes,
-              name: diagramFeature.attributes.description
-            }
-          };
+     if (globalID?.length && byGlobalID.has(globalID)) {
+     featureByGlobalID = byGlobalID.get(globalID);
+     featureByGlobalID.attributes.ACTION_IDS += `|${ diagramFeature.attributes.tag_codes }`;
+     } else {
+     featureByGlobalID = {
+     geometry: diagramFeature.geometry,
+     attributes: {
+     Geodesign_ProjectID: this.#gplProjectGroup.id,
+     Geodesign_ScenarioID: newScenarioID,
+     SOURCE_ID: globalID,
+     ACTION_IDS: diagramFeature.attributes.tag_codes,
+     name: diagramFeature.attributes.description
+     }
+     };
+     }
+
+     byGlobalID.set(globalID, featureByGlobalID);
+
+     return byGlobalID;
+     }, new Map());
+
+     //
+     // NEW GPL SCENARIO FEATURES TO ADD //
+     //
+     newFeaturesToAdd = Array.from(featuresByGlobalID.values());
+
+     } else {
+     //
+     // SINGLE ACTION PER DIAGRAM
+     //
+     newFeaturesToAdd = validDiagramFeatures.map((diagramFeature) => {
+
+     const globalID = diagramFeature.attributes.notes.globalid || diagramFeature.attributes.notes;
+
+     const newScenarioFeature = {
+     geometry: diagramFeature.geometry,
+     attributes: {
+     Geodesign_ProjectID: this.#gplProjectGroup.id,
+     Geodesign_ScenarioID: newScenarioID,
+     SOURCE_ID: globalID,
+     ACTION_IDS: diagramFeature.attributes.tag_codes,
+     name: diagramFeature.attributes.description
+     }
+     };
+
+     return newScenarioFeature;
+     });
+     }*/
+
+    newFeaturesToAdd = validDiagramFeatures.map((diagramFeature) => {
+
+      const newScenarioFeature = {
+        geometry: diagramFeature.geometry,
+        attributes: {
+          Geodesign_ProjectID: this.#gplProjectGroup.id,
+          Geodesign_ScenarioID: newScenarioID,
+          SOURCE_ID: diagramFeature.attributes.notes.globalid,
+          name: diagramFeature.attributes.description,
+          description: diagramFeature.attributes.description,
+          type: diagramFeature.attributes.notes.globalid,
+          POLICY_ACTION_IDS: diagramFeature.attributes.tag_codes.join('|'),
         }
+      };
 
-        byGlobalID.set(globalID, featureByGlobalID);
-
-        return byGlobalID;
-      }, new Map());
-
-      //
-      // NEW GPL SCENARIO FEATURES TO ADD //
-      //
-      newFeaturesToAdd = Array.from(featuresByGlobalID.values());
-
-    } else {
-      //
-      // SINGLE ACTION PER DIAGRAM
-      //
-      newFeaturesToAdd = validDiagramFeatures.map((diagramFeature) => {
-
-        const globalID = diagramFeature.attributes.notes.globalid || diagramFeature.attributes.notes;
-
-        const newScenarioFeature = {
-          geometry: diagramFeature.geometry,
-          attributes: {
-            Geodesign_ProjectID: this.#gplProjectGroup.id,
-            Geodesign_ScenarioID: newScenarioID,
-            SOURCE_ID: globalID,
-            ACTION_IDS: diagramFeature.attributes.tag_codes,
-            name: diagramFeature.attributes.description
-          }
-        };
-
-        return newScenarioFeature;
-      });
-    }
+      return newScenarioFeature;
+    });
 
     //
     // NEW GPL SCENARIO FEATURES TO ADD //
