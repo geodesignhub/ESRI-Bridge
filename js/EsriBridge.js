@@ -73,11 +73,13 @@ class EsriBridge extends EventTarget {
     const gdhProjectId = urlParameters.get('projectid');
     const gdhDesignTeamId = urlParameters.get('cteamid');
     const gdhDesignId = urlParameters.get('synthesisid');
+
     // GEOPLANNER SPECIFIC //
     const gplProjectId = urlParameters.get('gplProjectId');
     const arcgisToken = urlParameters.get('arcgisToken');
+
     // MODE //
-    const mode = urlParameters.get('mode') || 'welcome';
+    const mode = urlParameters.get('mode') || EsriBridge.MODES.WELCOME;
 
     // IMPORT AND EXPORT MODULES //
     let diagramImporter;
@@ -122,7 +124,7 @@ class EsriBridge extends EventTarget {
 
             // MODE URL PARAMETER //
             switch (mode) {
-              case 'import': // MODE IMPORT //
+              case EsriBridge.MODES.IMPORT:
                 //
                 // DIAGRAM IMPORTER //
                 //
@@ -138,7 +140,7 @@ class EsriBridge extends EventTarget {
                 aboutBtn.toggleAttribute('hidden', false);
                 break;
 
-              case 'export': // MODE EXPORT //
+              case EsriBridge.MODES.EXPORT:
                 if (_validate([gdhDesignTeamId, gdhDesignId])) {
                   //
                   // DIAGRAM EXPORTER
@@ -191,6 +193,7 @@ class EsriBridge extends EventTarget {
         // SHARING URL //
         const portalSharingURL = `${ EsriBridge.CONFIG.PORTAL_URL }/sharing`;
 
+        // REGISTER ARCGIS TOKEN //
         esriId.registerToken({
           server: portalSharingURL,
           token: arcgisToken
