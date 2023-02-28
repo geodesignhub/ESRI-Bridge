@@ -305,12 +305,19 @@ class GeodesignhubAPI extends HTMLElement {
   //
   //
 
+  /**
+   *
+   * @param message
+   */
   displayMessage(message) {
     //this.consoleElement.innerHTML = message || '';
     this.consoleElement.innerHTML = message ? `<div>${ message }</div>${ this.consoleElement.innerHTML }` : '';
     this.toggleAttribute('hidden', false);
   }
 
+  /**
+   *
+   */
   verifyCredentials() {
 
     this.consoleElement.innerHTML = '';
@@ -374,6 +381,11 @@ class GeodesignhubAPI extends HTMLElement {
 
   }
 
+  /**
+   *
+   * @param gplSystem
+   * @returns {number}
+   */
   gdhGPLSystemConverter(gplSystem) {
     // This function takes a "Intervention System" from Geoplanner and returns
     const gplGDHLookup = {
@@ -402,6 +414,11 @@ class GeodesignhubAPI extends HTMLElement {
     return gdhSystemID;
   }
 
+  /**
+   *
+   * @param diagramsGeoJSON
+   * @returns {Promise<unknown>}
+   */
   migrateGPLFeaturesAsDiagrams(diagramsGeoJSON) {
     return new Promise((resolve, reject) => {
 
@@ -467,7 +484,13 @@ class GeodesignhubAPI extends HTMLElement {
     });
   }
 
-  // Source: https://github.com/chris48s/geojson-rewind
+  /**
+   * Source: https://github.com/chris48s/geojson-rewind
+   *
+   * @param gj
+   * @param outer
+   * @returns {*}
+   */
   rewind(gj, outer) {
     var type = gj && gj.type, i;
 
