@@ -525,13 +525,8 @@ class DiagramExporter extends HTMLElement {
 
     newFeaturesToAdd = validDiagramFeatures.map((diagramFeature) => {
 
-      //
-      // TODO: HOW TO HANDLE MULTIPLE TAGS (????)
-      //
-      console.info('tag_codes: ', diagramFeature.attributes.tag_codes, diagramFeature.attributes);
-
-      const actionIDs = diagramFeature.attributes.tag_codes.split('|') || ['unknown'];
-      const [primaryActionId] = actionIDs;
+      const actionIDs = diagramFeature.attributes.tag_codes || ['unknown'];
+      const [primaryActionId] = actionIDs.split('|');
 
       const newScenarioFeature = {
         geometry: diagramFeature.geometry,
@@ -541,7 +536,7 @@ class DiagramExporter extends HTMLElement {
           SOURCE_ID: diagramFeature.attributes.notes.globalid,
           name: diagramFeature.attributes.description,
           description: diagramFeature.attributes.description,
-          POLICY_ACTION_IDS: actionIDs.join('|'),
+          POLICY_ACTION_IDS: actionIDs,
           type: primaryActionId
         }
       };
