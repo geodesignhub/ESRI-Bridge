@@ -364,13 +364,13 @@ function verifyCredentials() {
     gdhProjectID = gdhProjectID_cont.value;
 
   } else {
-    consoleElement.innerHTML = "Please provide a valid API Token and Project ID";
+    consoleElement.innerHTML = "Please provide a valid Geodesignhub API Token and Project ID";
   }
   if (validated) {
     // Check if the API token and the project works (the user has access to the project and the project is of the right tpype)
     gdhVerifyProjectCredentials(gdhProjectID, gdhApiToken).then(data => {
       if (data.external_connection !== 'esri') {
-        consoleElement.innerHTML = `<div>${JSON.stringify(data, null, 2)}</div>${consoleElement.innerHTML}<br>The project is not a ESRI workspace project in Geodesignhub, we cannot migrate data at this time.`;
+        consoleElement.innerHTML = `<div>${JSON.stringify(data, null, 2)}</div>${consoleElement.innerHTML}<br>The project is not configured as a ESRI workspace project in Geodesignhub, we cannot migrate data at this time. Please contact your administrator.`;
         // Reset button text
         this.innerHTML = buttonText;
 
