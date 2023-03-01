@@ -287,7 +287,7 @@ class DiagramExporter extends HTMLElement {
 
         // GET PORTAL ITEM DATA //
         //  - https://developers.arcgis.com/javascript/latest/api-reference/esri-portal-PortalItem.html#fetchData
-        this.#projectPortalItem.fetchData().then((sourceLayerPortalItemData) => {
+        //this.#projectPortalItem.fetchData().then((sourceLayerPortalItemData) => {
 
           // PROJECT TYPEKEYWORD //
           const projectKeyword = this.#projectPortalItem.typeKeywords.find(keyword => keyword.startsWith('geodesignProjectID'));
@@ -361,9 +361,11 @@ class DiagramExporter extends HTMLElement {
               //
               // SET NEW LAYER DEFINITION EXPRESSION //
               //
-              const updatedLayerPortalItemData = {...sourceLayerPortalItemData};
-              updatedLayerPortalItemData.layers[this.interventionLayerId].layerDefinition = {definitionExpression: scenarioFilter};
+              // const updatedLayerPortalItemData = {...sourceLayerPortalItemData};
+              // updatedLayerPortalItemData.layers[this.interventionLayerId].layerDefinition = {definitionExpression: scenarioFilter};
               //console.info("UPDATE to Scenario Portal Item Data", updatedLayerPortalItemData);
+              const updatedLayerPortalItemData = {layers:[]};
+              updatedLayerPortalItemData.layers[this.interventionLayerId].layerDefinition = {definitionExpression: scenarioFilter};
 
               // UPDATE ITEM DATA WITH NEW SUBLAYER DEFINITION
               // - https://developers.arcgis.com/javascript/latest/api-reference/esri-portal-PortalItem.html#update
@@ -412,9 +414,9 @@ class DiagramExporter extends HTMLElement {
           }).catch(error => {
             this.#geodesignhub.displayMessage(error.message);
           });
-        }).catch(error => {
+        /*}).catch(error => {
           this.#geodesignhub.displayMessage(error.message);
-        });
+        });*/
 
       });
     });
