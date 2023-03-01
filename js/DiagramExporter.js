@@ -455,7 +455,7 @@ class DiagramExporter extends HTMLElement {
       const [primaryActionId] = actionIDs.split('|');
 
       // NOTES - CURRENTLY ONLY GLOBALID BEING STORED //
-      const notes = JSON.parse(diagramFeature.attributes.notes)
+      const notes = JSON.parse(diagramFeature.attributes.notes.replace(/'/g,'"'))
 
       const newScenarioFeature = {
         geometry: diagramFeature.geometry,

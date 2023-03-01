@@ -451,14 +451,14 @@ class GeodesignhubAPI extends HTMLElement {
 
         const postJson = {"featuretype": geoJSONGeometryType, "description": gdhDiagramName, "geometry": gj_feature_collection};
 
-        let gplNotes = {'notes': {'globalid': 'ESRI-GPL'}};
+        let gplNotes = {"notes": {"globalid": "ESRI-GPL"}};
         if (current_diagram_feature.properties.hasOwnProperty("GlobalID")) {
-          gplNotes['globalid'] = current_diagram_feature.properties.GlobalID;
+          gplNotes["globalid"] = current_diagram_feature.properties.GlobalID;
         }
 
         if (gdhSystemID !== 0) {
 
-          let gdhDiagramProperties = {'notes': gplNotes};
+          let gdhDiagramProperties = {"notes": gplNotes};
 
           this._gdhMigrateDiagramsToProject(gdhSystemID, 'project', postJson).then(diagram_data => {
             this.consoleElement.innerHTML = `<div>${ JSON.stringify(diagram_data, null, 2) }</div>${ this.consoleElement.innerHTML }`;
