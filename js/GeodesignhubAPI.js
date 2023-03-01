@@ -440,7 +440,7 @@ class GeodesignhubAPI extends HTMLElement {
         const gj = current_diagram_feature['geometry'];
 
         let geoJSONGeometryType = gj['type'].toLowerCase();
-        let rewound = rewind(gj, false);
+        let rewound = this.rewind(gj, false);
         current_diagram_feature['geometry'] = rewound;
 
         let gj_feature_collection = {"type": "FeatureCollection", "features": [current_diagram_feature]};
@@ -504,10 +504,10 @@ class GeodesignhubAPI extends HTMLElement {
       rewind(gj.geometry, outer);
 
     } else if (type === 'Polygon') {
-      rewindRings(gj.coordinates, outer);
+      this.rewindRings(gj.coordinates, outer);
 
     } else if (type === 'MultiPolygon') {
-      for (i = 0; i < gj.coordinates.length; i++) rewindRings(gj.coordinates[i], outer);
+      for (i = 0; i < gj.coordinates.length; i++) this.rewindRings(gj.coordinates[i], outer);
     }
 
     return gj;
@@ -516,9 +516,9 @@ class GeodesignhubAPI extends HTMLElement {
   rewindRings(rings, outer) {
     if (rings.length === 0) return;
 
-    rewindRing(rings[0], outer);
+    this.rewindRing(rings[0], outer);
     for (var i = 1; i < rings.length; i++) {
-      rewindRing(rings[i], !outer);
+      this.rewindRing(rings[i], !outer);
     }
   }
 
