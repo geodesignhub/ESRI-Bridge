@@ -122,8 +122,8 @@ console.info("Diagram Reader created...");
 //
 //
 
-// const API_URL = 'https://www.geodesignhub.com/api/v1';
-const API_URL = 'http://local.test:8000/api/v1'
+const API_URL = 'https://www.geodesignhub.com/api/v1';
+// const API_URL = 'http://local.test:8000/api/v1'
 
 const useIGCSpecificBridgeExtensions = 1;
 let _allGDHSystems = null;
