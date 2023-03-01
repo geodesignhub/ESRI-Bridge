@@ -453,10 +453,7 @@ class DiagramExporter extends HTMLElement {
       //
       // HERE WE CAN ADD OTHER VALIDITY CHECKS TO DIAGRAMS //
       //
-      const hasGeometry = (diagramFeature.geometry.rings != null);
-      const isPolygonGeometry = (diagramFeature.geometry.type === 'polygon');
-
-      return hasGeometry && isPolygonGeometry;
+      return (diagramFeature.geometry.rings != null);
     });
 
     //
