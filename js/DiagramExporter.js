@@ -454,7 +454,7 @@ class DiagramExporter extends HTMLElement {
       const actionIDs = diagramFeature.attributes.tag_codes || ['unknown'];
       const [primaryActionId] = actionIDs.split('|');
 
-      // NOTES //
+      // NOTES - CURRENTLY ONLY GLOBALID BEING STORED //
       const notes = JSON.parse(diagramFeature.attributes.notes)
 
       const newScenarioFeature = {
