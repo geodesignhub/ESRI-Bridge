@@ -121,6 +121,7 @@ class EsriBridge extends EventTarget {
         this.authenticateArcGISOnline({arcgisToken}).then(({portal}) => {
           // GEOPLANNER GROUP //
           this.getGeoPlannerGroup({portal, gplProjectId}).then(({gplProjectGroup}) => {
+            if(gplProjectGroup) {
 
             // MODE URL PARAMETER //
             switch (mode) {
@@ -161,6 +162,10 @@ class EsriBridge extends EventTarget {
                   geodesignhub.displayMessage(`Missing information about the selected design team and/or design.`);
                 }
                 break;
+            }
+
+            } else {
+              geodesignhub.displayMessage("Can't find GeoPlanner Project: ", gplProjectId);
             }
           }).catch(error => {
             geodesignhub.displayMessage(error.message);
