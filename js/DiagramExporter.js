@@ -388,18 +388,16 @@ class DiagramExporter extends HTMLElement {
                   query: {
                     everyone: false,
                     org: false,
-                    groups: this.sourcePortalGroup.id,
+                    groups: this.#gplProjectGroup.id,
                     f: 'json'
                   },
                   method: 'post'
                 }).then((response) => {
-
                   resolve({
                     newPortalItem: updatedScenarioPortalItem,
                     newScenarioID,
                     scenarioFilter
                   });
-
                 }).catch(error => {
                   this.#geodesignhub.displayMessage(error.message);
                 });
