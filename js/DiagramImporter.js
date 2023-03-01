@@ -62,7 +62,7 @@ class DiagramImporter extends HTMLElement {
   /**
    * @type {number}
    */
-  #designLayerId;
+  #actionsLayerId;
 
   /**
    * @type {string}
@@ -91,12 +91,6 @@ class DiagramImporter extends HTMLElement {
 
   /**
    *
-   * @type {boolean}
-   */
-  #supportsMultipleActionsPerDiagram = true;
-
-  /**
-   *
    */
   constructor({container, portal, gplProjectGroup, geodesignhub}) {
     super();
@@ -105,7 +99,7 @@ class DiagramImporter extends HTMLElement {
 
     this.#portal = portal;
     this.#gplProjectGroup = gplProjectGroup;
-    this.#designLayerId = 0;
+    this.#actionsLayerId = 0;
     this.#geodesignhub = geodesignhub;
 
     const shadowRoot = this.attachShadow({mode: 'open'});
@@ -266,7 +260,7 @@ class DiagramImporter extends HTMLElement {
       //console.info("Source Scenario Filter: ", sourceScenarioFilter);
 
       // QUERY REST ENDPOINT //
-      const geoPlannerScenarioLayerQueryUrl = `${ this.#scenarioPortalItem.url }/${ this.#designLayerId }/query`;
+      const geoPlannerScenarioLayerQueryUrl = `${ this.#scenarioPortalItem.url }/${ this.#actionsLayerId }/query`;
       // QUERY WHERE CLAUSE //
       const queryWhereClause = `${ sourceScenarioFilter } AND (type IS NOT NULL)`;
 

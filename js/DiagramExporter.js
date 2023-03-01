@@ -66,9 +66,9 @@ class DiagramExporter extends HTMLElement {
 
   /**
    *
-   * @type {boolean}
+   * @type {number}
    */
-  #supportsMultipleActionsPerDiagram = true;
+  #actionsLayerId = 0;
 
   /**
    *
@@ -362,11 +362,11 @@ class DiagramExporter extends HTMLElement {
             // SET NEW LAYER DEFINITION EXPRESSION //
             //
             // const updatedLayerPortalItemData = {...sourceLayerPortalItemData};
-            // updatedLayerPortalItemData.layers[this.interventionLayerId].layerDefinition = {definitionExpression: scenarioFilter};
+            //
+            const updatedLayerPortalItemData = {layers: []};
+            updatedLayerPortalItemData.layers[this.#actionsLayerId].layerDefinition = {definitionExpression: scenarioFilter};
             //console.info("UPDATE to Scenario Portal Item Data", updatedLayerPortalItemData);
-            const updatedLayerPortalItemData = {
-              layers: [{layerDefinition: {definitionExpression: scenarioFilter}}]
-            };
+            //const updatedLayerPortalItemData = {layers: [{layerDefinition: {definitionExpression: scenarioFilter}}]};
 
             // UPDATE ITEM DATA WITH NEW SUBLAYER DEFINITION
             // - https://developers.arcgis.com/javascript/latest/api-reference/esri-portal-PortalItem.html#update
@@ -503,7 +503,7 @@ class DiagramExporter extends HTMLElement {
         //
         // https://developers.arcgis.com/rest/services-reference/enterprise/apply-edits-feature-service-layer-.htm
         //
-        const geoPlannerScenarioLayerApplyEditsUrl = `${ newPortalItem.url }/${ this.interventionLayerId }/applyEdits`;
+        const geoPlannerScenarioLayerApplyEditsUrl = `${ newPortalItem.url }/${ this.#actionsLayerId }/applyEdits`;
         esriRequest(geoPlannerScenarioLayerApplyEditsUrl, {
           query: {
             adds: JSON.stringify(designFeaturesAsEsriJSON),
