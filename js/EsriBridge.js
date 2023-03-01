@@ -121,7 +121,7 @@ class EsriBridge extends EventTarget {
         this.authenticateArcGISOnline({arcgisToken}).then(({portal}) => {
           // GEOPLANNER GROUP //
           this.getGeoPlannerGroup({portal, gplProjectId}).then(({gplProjectGroup}) => {
-            if (gplProjectGroup) {
+            if (_validate([gplProjectGroup])) {
 
               // MODE URL PARAMETER //
               switch (mode) {
@@ -237,15 +237,18 @@ class EsriBridge extends EventTarget {
 
       /**
        * ASK PORTAL TO FIND GEOPLANNER GROUP
-       *  - group with specific id and tags: geodesign | geodesignScenario
+       *  - group with specific id and tags of geodesign and geodesignScenario
        */
       portal.queryGroups({
         query: `id:${ gplProjectId } tags:(geodesign AND geodesignProject)`,
-        //query: `id:${ this.#gplProjectId }`,
         num: 1
       }).then(({results}) => {
         //console.info(results);
-        resolve({gplProjectGroup: results[0]});
+        if(results.length) {
+          resolve({gplProjectGroup: results[0]});
+        } else {
+          reject(new Error(`Can't find GeoPlanner Project: ${gplProjectId}`))
+        }
       }).catch(reject);
     });
   }
