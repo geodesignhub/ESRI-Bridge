@@ -66,7 +66,7 @@ class EsriBridge extends EventTarget {
     // URL SEARCH PARAMETERS //
     //
     const urlParameters = new URLSearchParams(window.location.search);
-    console.info("URL Parameters: ", urlParameters.toString());
+    console.info("URL Parameters: ", urlParameters);
 
     // GEODESIGNHUB SPECIFIC //
     const gdhAPIToken = urlParameters.get('apitoken');
