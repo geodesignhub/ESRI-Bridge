@@ -188,7 +188,7 @@ class DiagramImporter extends HTMLElement {
 
       this.scenarioSelected();
     }).catch(error => {
-      this.#geodesignhub.displayMessage(error.message);
+      this.#geodesignhub.displayMessage(error.details?.messages?.[0] || error.message);
     });
 
   }
@@ -212,7 +212,7 @@ class DiagramImporter extends HTMLElement {
 
       this.dispatchEvent(new CustomEvent('scenario-change', {detail: {scenarioPortalItem: this.#scenarioPortalItem}}));
     }).catch(error => {
-      this.#geodesignhub.displayMessage(error.message);
+      this.#geodesignhub.displayMessage(error.details?.messages?.[0] || error.message);
     });
   };
 
