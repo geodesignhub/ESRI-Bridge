@@ -451,9 +451,9 @@ class GeodesignhubAPI extends HTMLElement {
 
         const postJson = {"featuretype": geoJSONGeometryType, "description": gdhDiagramName, "geometry": gj_feature_collection};
 
-        let gplNotes = {'notes': {'sourceid': 'ESRI-GPL', 'globalid': 'ESRI-GPL'}};
-        if (current_diagram_feature.properties.hasOwnProperty("GLOBALID")) {
-          gplNotes['globalid'] = current_diagram_feature.properties.GLOBALID;
+        let gplNotes = {'notes': {'globalid': 'ESRI-GPL'}};
+        if (current_diagram_feature.properties.hasOwnProperty("GlobalID")) {
+          gplNotes['globalid'] = current_diagram_feature.properties.GlobalID;
         }
 
         if (gdhSystemID !== 0) {

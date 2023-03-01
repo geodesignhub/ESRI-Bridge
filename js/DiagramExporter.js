@@ -285,10 +285,6 @@ class DiagramExporter extends HTMLElement {
         'esri/portal/PortalItem'
       ], (esriRequest, PortalItem) => {
 
-        // GET PORTAL ITEM DATA //
-        //  - https://developers.arcgis.com/javascript/latest/api-reference/esri-portal-PortalItem.html#fetchData
-        //this.#projectPortalItem.fetchData().then((sourceLayerPortalItemData) => {
-
         // PROJECT TYPEKEYWORD //
         const projectKeyword = this.#projectPortalItem.typeKeywords.find(keyword => keyword.startsWith('geodesignProjectID'));
 
@@ -361,13 +357,8 @@ class DiagramExporter extends HTMLElement {
             //
             // SET NEW LAYER DEFINITION EXPRESSION //
             //
-            // const updatedLayerPortalItemData = {...sourceLayerPortalItemData};
-            //
             const updatedLayerPortalItemData = {layers: []};
-            //updatedLayerPortalItemData.layers[this.#actionsLayerId].layerDefinition = {definitionExpression: scenarioFilter};
             updatedLayerPortalItemData.layers[this.#actionsLayerId] = {layerDefinition: {definitionExpression: scenarioFilter}};
-            //console.info("UPDATE to Scenario Portal Item Data", updatedLayerPortalItemData);
-            //const updatedLayerPortalItemData = {layers: [{layerDefinition: {definitionExpression: scenarioFilter}}]};
 
             // UPDATE ITEM DATA WITH NEW SUBLAYER DEFINITION
             // - https://developers.arcgis.com/javascript/latest/api-reference/esri-portal-PortalItem.html#update
@@ -414,9 +405,6 @@ class DiagramExporter extends HTMLElement {
         }).catch(error => {
           this.#geodesignhub.displayMessage(error.message);
         });
-        /*}).catch(error => {
-         this.#geodesignhub.displayMessage(error.message);
-         });*/
 
       });
     });
@@ -462,15 +450,19 @@ class DiagramExporter extends HTMLElement {
     //
     const newFeaturesToAdd = validDiagramFeatures.map((diagramFeature) => {
 
+      // ACTION ID(S) //
       const actionIDs = diagramFeature.attributes.tag_codes || ['unknown'];
       const [primaryActionId] = actionIDs.split('|');
+
+      // NOTES //
+      const notes = JSON.parse(diagramFeature.attributes.notes)
 
       const newScenarioFeature = {
         geometry: diagramFeature.geometry,
         attributes: {
           Geodesign_ProjectID: this.#gplProjectGroup.id,
           Geodesign_ScenarioID: newScenarioID,
-          SOURCE_ID: diagramFeature.attributes.notes.globalid,
+          SOURCE_ID: notes.globalid,
           name: diagramFeature.attributes.description,
           description: diagramFeature.attributes.description,
           POLICY_ACTION_IDS: actionIDs,
