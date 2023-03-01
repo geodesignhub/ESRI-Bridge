@@ -268,7 +268,7 @@ class DiagramImporter extends HTMLElement {
       // QUERY REST ENDPOINT //
       const geoPlannerScenarioLayerQueryUrl = `${ this.#scenarioPortalItem.url }/${ this.#designLayerId }/query`;
       // QUERY WHERE CLAUSE //
-      const queryWhereClause = `${ sourceScenarioFilter } AND (ACTION_IDS IS NOT NULL)`;
+      const queryWhereClause = `${ sourceScenarioFilter } AND (type IS NOT NULL)`;
 
       //
       // GET MAXIMUM NUMBER OF FEATURES THAT MATCH OUR QUERY FILTER
