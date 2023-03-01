@@ -158,7 +158,7 @@ class DiagramExporter extends HTMLElement {
     this.#geodesignhub._gdhGetProjectDesignTeams().then(teamInfos => {
 
       // FIND SELECTED DESIGN TEAM //
-      const selectedDesignTeam = teamInfos.find(teamInfo => teamInfo.id === this.#gdhDesignTeamId);
+      const selectedDesignTeam = teamInfos.find(teamInfo => teamInfo.id === Number(this.#gdhDesignTeamId));
       this.designTeamInput.value = selectedDesignTeam.title;
 
       // GET DESIGNS //
