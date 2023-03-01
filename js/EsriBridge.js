@@ -121,50 +121,45 @@ class EsriBridge extends EventTarget {
         this.authenticateArcGISOnline({arcgisToken}).then(({portal}) => {
           // GEOPLANNER GROUP //
           this.getGeoPlannerGroup({portal, gplProjectId}).then(({gplProjectGroup}) => {
-            if (_validate([gplProjectGroup])) {
+            // MODE URL PARAMETER //
+            switch (mode) {
+              case EsriBridge.MODES.IMPORT:
+                //
+                // DIAGRAM IMPORTER //
+                //
+                diagramImporter = new DiagramImporter({
+                  container: 'import-container',
+                  portal: portal,
+                  gplProjectGroup: gplProjectGroup,
+                  geodesignhub: geodesignhub
+                });
+                bridgeWelcome.container.toggleAttribute('hidden', true);
+                diagramImporter.container.toggleAttribute('hidden', false);
+                geodesignhub.toggleAttribute('hidden', false);
+                aboutBtn.toggleAttribute('hidden', false);
+                break;
 
-              // MODE URL PARAMETER //
-              switch (mode) {
-                case EsriBridge.MODES.IMPORT:
+              case EsriBridge.MODES.EXPORT:
+                if (_validate([gdhDesignTeamId, gdhDesignId])) {
                   //
-                  // DIAGRAM IMPORTER //
+                  // DIAGRAM EXPORTER
                   //
-                  diagramImporter = new DiagramImporter({
-                    container: 'import-container',
+                  diagramExporter = new DiagramExporter({
+                    container: 'export-container',
                     portal: portal,
                     gplProjectGroup: gplProjectGroup,
+                    gdhDesignTeamId: gdhDesignTeamId,
+                    gdhDesignId: gdhDesignId,
                     geodesignhub: geodesignhub
                   });
                   bridgeWelcome.container.toggleAttribute('hidden', true);
-                  diagramImporter.container.toggleAttribute('hidden', false);
+                  diagramExporter.container.toggleAttribute('hidden', false);
                   geodesignhub.toggleAttribute('hidden', false);
                   aboutBtn.toggleAttribute('hidden', false);
-                  break;
-
-                case EsriBridge.MODES.EXPORT:
-                  if (_validate([gdhDesignTeamId, gdhDesignId])) {
-                    //
-                    // DIAGRAM EXPORTER
-                    //
-                    diagramExporter = new DiagramExporter({
-                      container: 'export-container',
-                      portal: portal,
-                      gplProjectGroup: gplProjectGroup,
-                      gdhDesignTeamId: gdhDesignTeamId,
-                      gdhDesignId: gdhDesignId,
-                      geodesignhub: geodesignhub
-                    });
-                    bridgeWelcome.container.toggleAttribute('hidden', true);
-                    diagramExporter.container.toggleAttribute('hidden', false);
-                    geodesignhub.toggleAttribute('hidden', false);
-                    aboutBtn.toggleAttribute('hidden', false);
-                  } else {
-                    geodesignhub.displayMessage(`Missing information about the selected design team and/or design.`);
-                  }
-                  break;
-              }
-            } else {
-              geodesignhub.displayMessage(`Can't find GeoPlanner Project: ${ gplProjectId }`);
+                } else {
+                  geodesignhub.displayMessage(`Missing information about the selected design team and/or design.`);
+                }
+                break;
             }
           }).catch(error => {
             geodesignhub.displayMessage(error.message);
@@ -234,7 +229,6 @@ class EsriBridge extends EventTarget {
    */
   getGeoPlannerGroup({portal, gplProjectId}) {
     return new Promise((resolve, reject) => {
-
       /**
        * ASK PORTAL TO FIND GEOPLANNER GROUP
        *  - group with specific id and tags of geodesign and geodesignScenario
@@ -244,10 +238,10 @@ class EsriBridge extends EventTarget {
         num: 1
       }).then(({results}) => {
         //console.info(results);
-        if(results.length) {
+        if (results.length) {
           resolve({gplProjectGroup: results[0]});
         } else {
-          reject(new Error(`Can't find GeoPlanner Project: ${gplProjectId}`))
+          reject(new Error(`Can't find GeoPlanner Project: ${ gplProjectId }`));
         }
       }).catch(reject);
     });
