@@ -364,9 +364,8 @@ class DiagramExporter extends HTMLElement {
             // const updatedLayerPortalItemData = {...sourceLayerPortalItemData};
             // updatedLayerPortalItemData.layers[this.interventionLayerId].layerDefinition = {definitionExpression: scenarioFilter};
             //console.info("UPDATE to Scenario Portal Item Data", updatedLayerPortalItemData);
-            const updatedLayerPortalItemData = {layers: []};
-            updatedLayerPortalItemData.layers[this.interventionLayerId] = {
-              layerDefinition: {definitionExpression: scenarioFilter}
+            const updatedLayerPortalItemData = {
+              layers: [{layerDefinition: {definitionExpression: scenarioFilter}}]
             };
 
             // UPDATE ITEM DATA WITH NEW SUBLAYER DEFINITION
