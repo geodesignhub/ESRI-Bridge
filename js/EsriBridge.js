@@ -163,7 +163,6 @@ class EsriBridge extends EventTarget {
                   }
                   break;
               }
-
             } else {
               geodesignhub.displayMessage(`Can't find GeoPlanner Project: ${ gplProjectId }`);
             }
