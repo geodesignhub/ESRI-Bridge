@@ -456,6 +456,7 @@ class DiagramExporter extends HTMLElement {
       //const {notes} = JSON.parse(diagramFeature.attributes.notes.replace(/'/g,'"'))
       const {notes} = JSON.parse(diagramFeature.attributes.notes);
 
+      // NEW SCENARIO FEATURE //
       const newScenarioFeature = {
         geometry: diagramFeature.geometry,
         attributes: {
