@@ -297,7 +297,6 @@ class DiagramExporter extends HTMLElement {
 
         // SCENARIO TYPEKEYWORDS //
         const scenarioTypeKeywords = [
-          'ArcGIS API for JavaScript',
           'ArcGIS Server',
           'Data',
           'Feature Access',
@@ -309,7 +308,7 @@ class DiagramExporter extends HTMLElement {
 
         // SCENARIO TAGS //
         // ADD GDH TAG TO IDENTIFY WHICH SCENARIOS CAME FROM GDH //
-        const tagsSet = new Set([this.#projectPortalItem.tags.concat(['GDH', 'geodesign', 'geodesignScenario'])]);
+        const tagsSet = new Set([this.#projectPortalItem.tags.concat(['geodesignhub', 'geodesign', 'geodesignScenario'])]);
 
         // IGC SPECIFIC METADATA //
         const IGCMetadata = {
