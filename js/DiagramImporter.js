@@ -180,7 +180,6 @@ class DiagramImporter extends HTMLElement {
 
       // GEOPLANNER SCENARIO ITEMS //
       const layerItemNodes = scenarioPortalItems.map(scenarioPortalItem => {
-        console.info(scenarioPortalItem);
 
         const layerItemNode = document.createElement('option');
         layerItemNode.setAttribute('value', scenarioPortalItem.id);
@@ -269,7 +268,6 @@ class DiagramImporter extends HTMLElement {
       // SOURCE SCENARIO FILTER //
       const sourceScenarioID = this.#scenarioPortalItem.id;
       const sourceScenarioFilter = `(Geodesign_ProjectID = '${ projectID }') AND (Geodesign_ScenarioID = '${ sourceScenarioID }')`;
-      //console.info("Source Scenario Filter: ", sourceScenarioFilter);
 
       // QUERY REST ENDPOINT //
       const geoPlannerScenarioLayerQueryUrl = `${ this.#scenarioPortalItem.url }/${ this.#gplConfig.ACTIONS_LAYER_ID }/query`;
@@ -329,7 +327,7 @@ class DiagramImporter extends HTMLElement {
           geometry: feature.geometry,
           properties: {
             ...feature.properties, // HERE WE COULD RESTRICT OR FILTER WHICH PROPERTIES/ATTRIBUTES TO MAINTAIN... //
-            system: Number(systemCode), // JUST ADD TO THE FIRST SYSTEM IF WE CAN'T FIGURE IT OUT (??)
+            system: Number(systemCode),
             tags: policyActions // ARRAY OF CLIMATE ACTION CODES //
           }
         };
@@ -405,7 +403,6 @@ class DiagramImporter extends HTMLElement {
           }).then((response) => {
             // GEOJSON FEATURES //
             const {features} = response.data;
-
             // AGGREGATED FEATURES //
             allFeatures.push(...features);
 
