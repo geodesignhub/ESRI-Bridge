@@ -60,11 +60,6 @@ class DiagramImporter extends HTMLElement {
   #scenarioPortalItem;
 
   /**
-   * @type {number}
-   */
-  #actionsLayerId;
-
-  /**
    * @type {string}
    */
   #projectID;
@@ -90,17 +85,28 @@ class DiagramImporter extends HTMLElement {
   #scenarioDiagramCount;
 
   /**
-   *
+   * @type {GPLConfig}
    */
-  constructor({container, portal, gplProjectGroup, geodesignhub}) {
+  #gplConfig;
+
+  /**
+   *
+   * @param {HTMLElement|string} container
+   * @param {Portal} portal
+   * @param {GPLConfig} gplConfig
+   * @param {PortalGroup} gplProjectGroup
+   * @param {GeodesignhubAPI} geodesignhub
+   */
+  constructor({container, portal, gplConfig, gplProjectGroup, geodesignhub}) {
     super();
 
     this.container = (container instanceof HTMLElement) ? container : document.getElementById(container);
 
+    this.#gplConfig = gplConfig;
+    this.#geodesignhub = geodesignhub;
+
     this.#portal = portal;
     this.#gplProjectGroup = gplProjectGroup;
-    this.#actionsLayerId = 0;
-    this.#geodesignhub = geodesignhub;
 
     const shadowRoot = this.attachShadow({mode: 'open'});
     shadowRoot.innerHTML = `
@@ -155,6 +161,7 @@ class DiagramImporter extends HTMLElement {
     this.closeBtn = this.shadowRoot.querySelector('.close-btn');
     this.closeBtn.addEventListener('click', () => { close(); });
 
+    // BIND TO PROVIDE PROPER CONTEXT //
     this._getFeatureCount = this._getFeatureCount.bind(this);
     this._getAllFeatures = this._getAllFeatures.bind(this);
 
@@ -173,6 +180,7 @@ class DiagramImporter extends HTMLElement {
 
       // GEOPLANNER SCENARIO ITEMS //
       const layerItemNodes = scenarioPortalItems.map(scenarioPortalItem => {
+        console.info(scenarioPortalItem);
 
         const layerItemNode = document.createElement('option');
         layerItemNode.setAttribute('value', scenarioPortalItem.id);
@@ -183,11 +191,12 @@ class DiagramImporter extends HTMLElement {
       // DISPLAY LIST OF ALL GEOPLANNER LAYER ITEMS //
       this.scenarioItemsSelect.replaceChildren(...layerItemNodes);
 
+      // INITIAL SELECTION
       this.scenarioSelected();
+
     }).catch(error => {
       this.#geodesignhub.displayMessage(error.details?.messages?.[0] || error.message);
     });
-
   }
 
   /**
@@ -263,9 +272,9 @@ class DiagramImporter extends HTMLElement {
       //console.info("Source Scenario Filter: ", sourceScenarioFilter);
 
       // QUERY REST ENDPOINT //
-      const geoPlannerScenarioLayerQueryUrl = `${ this.#scenarioPortalItem.url }/${ this.#actionsLayerId }/query`;
+      const geoPlannerScenarioLayerQueryUrl = `${ this.#scenarioPortalItem.url }/${ this.#gplConfig.ACTIONS_LAYER_ID }/query`;
       // QUERY WHERE CLAUSE //
-      const queryWhereClause = `${ sourceScenarioFilter } AND (type IS NOT NULL)`;
+      const queryWhereClause = `${ sourceScenarioFilter } AND (${ this.#gplConfig.FIELD_NAMES.ACTION_ID } IS NOT NULL)`;
 
       //
       // GET MAXIMUM NUMBER OF FEATURES THAT MATCH OUR QUERY FILTER
@@ -320,7 +329,7 @@ class DiagramImporter extends HTMLElement {
           geometry: feature.geometry,
           properties: {
             ...feature.properties, // HERE WE COULD RESTRICT OR FILTER WHICH PROPERTIES/ATTRIBUTES TO MAINTAIN... //
-            system: Number(systemCode) || 1, // JUST ADD TO THE FIRST SYSTEM IF WE CAN'T FIGURE IT OUT (??)
+            system: Number(systemCode), // JUST ADD TO THE FIRST SYSTEM IF WE CAN'T FIGURE IT OUT (??)
             tags: policyActions // ARRAY OF CLIMATE ACTION CODES //
           }
         };

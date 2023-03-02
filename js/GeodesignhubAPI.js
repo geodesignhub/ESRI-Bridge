@@ -57,11 +57,24 @@ class GeodesignhubAPI extends HTMLElement {
    */
   #allGDHSystems;
 
-  constructor({container, gdhAPIToken, gdhProjectId}) {
+  /**
+   * @type {GPLConfig}
+   */
+  #gplConfig;
+
+  /**
+   *
+   * @param {HTMLElement|string} container
+   * @param {GPLConfig} gplConfig
+   * @param {string} gdhAPIToken
+   * @param {string} gdhProjectId
+   */
+  constructor({container, gplConfig, gdhAPIToken, gdhProjectId}) {
     super();
 
     this.#container = (container instanceof HTMLElement) ? container : document.getElementById(container);
 
+    this.#gplConfig = gplConfig;
     this.#gdhAPIToken = gdhAPIToken;
     this.#gdhProjectId = gdhProjectId;
 
@@ -310,12 +323,25 @@ class GeodesignhubAPI extends HTMLElement {
 
   /**
    *
-   * @param message
+   * @param {string} message
+   * @param {boolean} clearConsole
    */
-  displayMessage(message) {
-    //this.consoleElement.innerHTML = message || '';
+  displayMessage(message, clearConsole = false) {
+    clearConsole && (this.consoleElement.innerHTML = '');
     this.consoleElement.innerHTML = message ? `<div>${ message }</div>${ this.consoleElement.innerHTML }` : '';
     this.toggleAttribute('hidden', false);
+  }
+
+  /**
+   *
+   * @param {Error} error
+   * @param {boolean} clearConsole
+   */
+  displayError(error, clearConsole = false) {
+    clearConsole && (this.consoleElement.innerHTML = '');
+    this.consoleElement.innerHTML = error ? `<div>${ error.details?.messages?.[0] || error.message }</div>${ this.consoleElement.innerHTML }` : '';
+    this.toggleAttribute('hidden', false);
+    console.error(error);
   }
 
   /**
@@ -455,8 +481,8 @@ class GeodesignhubAPI extends HTMLElement {
         const postJson = {"featuretype": geoJSONGeometryType, "description": gdhDiagramName, "geometry": gj_feature_collection};
 
         let gplNotes = {"notes": {"globalid": "ESRI-GPL"}};
-        if (current_diagram_feature.properties.hasOwnProperty("GlobalID")) {
-          gplNotes["globalid"] = current_diagram_feature.properties.GlobalID;
+        if (current_diagram_feature.properties.hasOwnProperty(this.#gplConfig.FIELD_NAMES.GLOBAL_ID)) {
+          gplNotes["globalid"] = current_diagram_feature.properties[this.#gplConfig.FIELD_NAMES.GLOBAL_ID];
         }
 
         if (gdhSystemID !== 0) {

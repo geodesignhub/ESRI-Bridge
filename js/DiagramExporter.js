@@ -65,25 +65,32 @@ class DiagramExporter extends HTMLElement {
   #geodesignhub;
 
   /**
-   *
-   * @type {number}
+   * @type {GPLConfig}
    */
-  #actionsLayerId = 0;
+  #gplConfig;
 
   /**
    *
+   * @param {HTMLElement|string} container
+   * @param {Portal} portal
+   * @param {GPLConfig} gplConfig
+   * @param {PortalGroup} gplProjectGroup
+   * @param {string} gdhDesignTeamId
+   * @param {string} gdhDesignId
+   * @param {GeodesignhubAPI} geodesignhub
    */
-  constructor({container, portal, gplProjectGroup, gdhDesignTeamId, gdhDesignId, geodesignhub}) {
+  constructor({container, portal, gplConfig,  gplProjectGroup, gdhDesignTeamId, gdhDesignId, geodesignhub}) {
     super();
 
     this.container = (container instanceof HTMLElement) ? container : document.getElementById(container);
+
+    this.#geodesignhub = geodesignhub;
+    this.#gplConfig = gplConfig;
 
     this.#portal = portal;
     this.#gplProjectGroup = gplProjectGroup;
     this.#gdhDesignTeamId = gdhDesignTeamId;
     this.#gdhDesignId = gdhDesignId;
-
-    this.#geodesignhub = geodesignhub;
 
     const shadowRoot = this.attachShadow({mode: 'open'});
     shadowRoot.innerHTML = `
@@ -358,7 +365,7 @@ class DiagramExporter extends HTMLElement {
             // SET NEW LAYER DEFINITION EXPRESSION //
             //
             const updatedLayerPortalItemData = {layers: []};
-            updatedLayerPortalItemData.layers[this.#actionsLayerId] = {layerDefinition: {definitionExpression: scenarioFilter}};
+            updatedLayerPortalItemData.layers[this.#gplConfig.ACTIONS_LAYER_ID] = {layerDefinition: {definitionExpression: scenarioFilter}};
 
             // UPDATE ITEM DATA WITH NEW SUBLAYER DEFINITION
             // - https://developers.arcgis.com/javascript/latest/api-reference/esri-portal-PortalItem.html#update
@@ -426,14 +433,6 @@ class DiagramExporter extends HTMLElement {
     //
     // - NOTE: ONLY FEATURES WITH POLYGON GEOMETRIES ALLOWED CURRENTLY...
     //
-    // - TODO: AGGREGATE MULTIPLE FEATURES WITH SAME GLOBALID...
-    //         - COMBINE ALL ACTION IDS PER GLOBAL ID
-    //         - GEOMETRY HAS CHANGES? - HOW TO TRACK?
-    //         - NO ACTION ID?
-    //         - DIFFERENT NAMES?
-    //         - MISSING GLOBALID = NEW GDH DIAGRAM
-    //         - ???
-    //
 
     //
     // VALID CANDIDATE FEATURES //
@@ -452,7 +451,7 @@ class DiagramExporter extends HTMLElement {
 
       // ACTION ID(S) //
       const actionIDs = diagramFeature.attributes.tag_codes || ['unknown'];
-      const [primaryActionId] = actionIDs.split('|');
+      const [actionID] = actionIDs.split('|');
 
       // NOTES - CURRENTLY ONLY GLOBALID BEING STORED //
       const {notes} = JSON.parse(diagramFeature.attributes.notes.replace(/'/g,'"'))
@@ -462,11 +461,11 @@ class DiagramExporter extends HTMLElement {
         attributes: {
           Geodesign_ProjectID: this.#gplProjectGroup.id,
           Geodesign_ScenarioID: newScenarioID,
-          SOURCE_ID: notes.globalid,
-          name: diagramFeature.attributes.description,
-          description: diagramFeature.attributes.description,
-          POLICY_ACTION_IDS: actionIDs,
-          type: primaryActionId
+          [this.#gplConfig.FIELD_NAMES.SOURCE_ID]: notes?.globalid || '',
+          [this.#gplConfig.FIELD_NAMES.NAME]: diagramFeature.attributes.description,
+          [this.#gplConfig.FIELD_NAMES.DESCRIPTION]: diagramFeature.attributes.description,
+          [this.#gplConfig.FIELD_NAMES.ACTION_ID]: actionID,
+          [this.#gplConfig.FIELD_NAMES.ACTION_IDS]: actionIDs
         }
       };
 
@@ -491,7 +490,7 @@ class DiagramExporter extends HTMLElement {
         //
         // https://developers.arcgis.com/rest/services-reference/enterprise/apply-edits-feature-service-layer-.htm
         //
-        const geoPlannerScenarioLayerApplyEditsUrl = `${ newPortalItem.url }/${ this.#actionsLayerId }/applyEdits`;
+        const geoPlannerScenarioLayerApplyEditsUrl = `${ newPortalItem.url }/${ this.#gplConfig.ACTIONS_LAYER_ID }/applyEdits`;
         esriRequest(geoPlannerScenarioLayerApplyEditsUrl, {
           query: {
             adds: JSON.stringify(designFeaturesAsEsriJSON),

@@ -38,6 +38,29 @@ class EsriBridge extends EventTarget {
 
   /**
    *
+   * USED TO CONFIGURE LAYER AND FIELD NAMES
+   *
+   * @typedef {{FIELD_NAMES: {ACTION_IDS: string, SOURCE_ID: string, DESCRIPTION: string, ACTION_ID: string, GLOBAL_ID: string, NAME: string}, ACTIONS_LAYER_ID: number}} GPLConfig
+   */
+
+  /**
+   *
+   * @type {GPLConfig}
+   */
+  static GPL_CONFIG = {
+    ACTIONS_LAYER_ID: 0,
+    FIELD_NAMES: {
+      GLOBAL_ID: 'GlobalID',
+      SOURCE_ID: 'SOURCE_ID',
+      NAME: 'Name',
+      DESCRIPTION: 'Description',
+      ACTION_ID: 'Type',
+      ACTION_IDS: 'Policy_Action_IDS'
+    }
+  };
+
+  /**
+   *
    * NOTE: HERE WE CAN MAINTAIN BOTH APP IDS AND WE CAN
    *       SWITCH LOCALLY WHILE TESTING...
    *
@@ -107,6 +130,7 @@ class EsriBridge extends EventTarget {
     // GEODESIGNHUB API //
     const geodesignhub = new GeodesignhubAPI({
       container: 'gdh-api-container',
+      gplConfig: EsriBridge.GPL_CONFIG,
       gdhAPIToken: gdhAPIToken,
       gdhProjectId: gdhProjectId
     });
@@ -130,6 +154,7 @@ class EsriBridge extends EventTarget {
                 diagramImporter = new DiagramImporter({
                   container: 'import-container',
                   portal: portal,
+                  gplConfig: EsriBridge.GPL_CONFIG,
                   gplProjectGroup: gplProjectGroup,
                   geodesignhub: geodesignhub
                 });
@@ -147,6 +172,7 @@ class EsriBridge extends EventTarget {
                   diagramExporter = new DiagramExporter({
                     container: 'export-container',
                     portal: portal,
+                    gplConfig: EsriBridge.GPL_CONFIG,
                     gplProjectGroup: gplProjectGroup,
                     gdhDesignTeamId: gdhDesignTeamId,
                     gdhDesignId: gdhDesignId,
@@ -237,7 +263,6 @@ class EsriBridge extends EventTarget {
         query: `id:${ gplProjectId } tags:(geodesign AND geodesignProject)`,
         num: 1
       }).then(({results}) => {
-        //console.info(results);
         if (results.length) {
           resolve({gplProjectGroup: results[0]});
         } else {
