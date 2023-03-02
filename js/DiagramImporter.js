@@ -358,19 +358,21 @@ class DiagramImporter extends HTMLElement {
   _getFeatureCount({queryUrl, queryFilter}) {
     return new Promise((resolve, reject) => {
       require(['esri/request'], (esriRequest) => {
-        esriRequest(queryUrl, {
-          query: {
-            returnCountOnly: true,
-            where: queryFilter,
-            token: this.#portal.credential.token,
-            f: 'json'
-          }
-        }).then(({data: {count}}) => {
-          //
-          // MAXIMUM NUMBER OF FEATURES THAT MATCH OUR QUERY FILTER //
-          //
-          resolve({maxFeatureCount: count});
-        }).catch(reject);
+        if (queryUrl && queryFilter) {
+          esriRequest(queryUrl, {
+            query: {
+              returnCountOnly: true,
+              where: queryFilter,
+              token: this.#portal.credential.token,
+              f: 'json'
+            }
+          }).then(({data: {count}}) => {
+            // MAXIMUM NUMBER OF FEATURES THAT MATCH OUR QUERY FILTER //
+            resolve({maxFeatureCount: count});
+          }).catch(reject);
+        } else {
+          reject(new Error("Can't query for counts: missing URL or filter parameters."))
+        }
       });
     });
   }
@@ -387,39 +389,43 @@ class DiagramImporter extends HTMLElement {
    * @returns {Promise<{features:Graphic[]}>}
    * @private
    */
-  _getAllFeatures({queryUrl, queryFilter, startOffset = 0, maxFeatureCount, allFeatures = []}) {
+  _getAllFeatures({queryUrl, queryFilter, startOffset = 0, maxFeatureCount = 1000, allFeatures = []}) {
     return new Promise((resolve, reject) => {
       require(['esri/request'], (esriRequest) => {
-        esriRequest(queryUrl, {
-          query: {
-            resultOffset: startOffset,
-            where: queryFilter,
-            outFields: '*',
-            outSR: 4326,
-            token: this.#portal.credential.token,
-            f: 'geojson'
-          }
-        }).then((response) => {
-          // GEOJSON FEATURES //
-          const {features} = response.data;
+        if (queryUrl && queryFilter) {
+          esriRequest(queryUrl, {
+            query: {
+              resultOffset: startOffset,
+              where: queryFilter,
+              outFields: '*',
+              outSR: 4326,
+              token: this.#portal.credential.token,
+              f: 'geojson'
+            }
+          }).then((response) => {
+            // GEOJSON FEATURES //
+            const {features} = response.data;
 
-          // AGGREGATED FEATURES //
-          allFeatures.push(...features);
+            // AGGREGATED FEATURES //
+            allFeatures.push(...features);
 
-          // DO WE NEED TO RETRIEVE MORE FEATURES? //
-          if (allFeatures.length < maxFeatureCount) {
-            this._getAllFeatures({
-              queryUrl,
-              queryFilter,
-              startOffset: allFeatures.length,
-              maxFeatureCount,
-              allFeatures
-            }).then(resolve).catch(reject);
-          } else {
-            // WE HAVE THEM ALL //
-            resolve({features: allFeatures});
-          }
-        }).catch(reject);
+            // DO WE NEED TO RETRIEVE MORE FEATURES? //
+            if (allFeatures.length < maxFeatureCount) {
+              this._getAllFeatures({
+                queryUrl,
+                queryFilter,
+                startOffset: allFeatures.length,
+                maxFeatureCount,
+                allFeatures
+              }).then(resolve).catch(reject);
+            } else {
+              // WE HAVE THEM ALL //
+              resolve({features: allFeatures});
+            }
+          }).catch(reject);
+        } else {
+          reject(new Error("Can't query for features: missing URL or filter parameters."));
+        }
       });
     });
   };
