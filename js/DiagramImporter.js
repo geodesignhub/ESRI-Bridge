@@ -317,11 +317,11 @@ class DiagramImporter extends HTMLElement {
       const diagramsGeoJSON = features.map((feature, featureIdx) => {
 
         // GET LIST OF ALL CLIMATE ACTIONS FOR EACH FEATURE //
-        const actionCode = feature.properties.type;
+        const actionCode = feature.properties[this.#gplConfig.FIELD_NAMES.ACTION_ID];
         // GET CLIMATE ACTION DETAILS //
         const [systemCode] = actionCode.split('.');
         // POLICY ACTIONS //
-        const policyActions = feature.properties.POLICY_ACTION_IDS?.split('|') || [];
+        const policyActions = feature.properties[this.#gplConfig.FIELD_NAMES.ACTION_IDS]?.split('|') || [];
 
         const newDiagram = {
           type: 'Feature',
@@ -363,7 +363,7 @@ class DiagramImporter extends HTMLElement {
             query: {
               returnCountOnly: true,
               where: queryFilter,
-              token: this.#portal.credential.token,
+              token: this.#portal.credential?.token,
               f: 'json'
             }
           }).then(({data: {count}}) => {
@@ -399,7 +399,7 @@ class DiagramImporter extends HTMLElement {
               where: queryFilter,
               outFields: '*',
               outSR: 4326,
-              token: this.#portal.credential.token,
+              token: this.#portal.credential?.token,
               f: 'geojson'
             }
           }).then((response) => {

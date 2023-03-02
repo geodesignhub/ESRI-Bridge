@@ -225,7 +225,6 @@ class EsriBridge extends EventTarget {
         });
 
         // PORTAL //
-        //  - IGC ORG IN ARCGIS.COM
         const portal = new Portal({url: EsriBridge.CONFIG.PORTAL_URL});
 
         // CHECK THE SIGN-IN STATUS
