@@ -155,6 +155,9 @@ class DiagramImporter extends HTMLElement {
     this.closeBtn = this.shadowRoot.querySelector('.close-btn');
     this.closeBtn.addEventListener('click', () => { close(); });
 
+    this._getFeatureCount = this._getFeatureCount.bind(this);
+    this._getAllFeatures = this._getAllFeatures.bind(this);
+
     // INITIALIZE THE UI //
     this.initialize();
 
