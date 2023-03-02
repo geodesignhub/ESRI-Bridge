@@ -100,6 +100,9 @@ class GeodesignhubAPI extends HTMLElement {
     this.#container?.append(this);
   }
 
+  /**
+   *
+   */
   connectedCallback() {
 
     // CONSOLE //
