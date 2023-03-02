@@ -79,7 +79,7 @@ class DiagramExporter extends HTMLElement {
    * @param {string} gdhDesignId
    * @param {GeodesignhubAPI} geodesignhub
    */
-  constructor({container, portal, gplConfig,  gplProjectGroup, gdhDesignTeamId, gdhDesignId, geodesignhub}) {
+  constructor({container, portal, gplConfig, gplProjectGroup, gdhDesignTeamId, gdhDesignId, geodesignhub}) {
     super();
 
     this.container = (container instanceof HTMLElement) ? container : document.getElementById(container);
@@ -454,7 +454,7 @@ class DiagramExporter extends HTMLElement {
 
       // NOTES - CURRENTLY ONLY GLOBALID BEING STORED //
       //const {notes} = JSON.parse(diagramFeature.attributes.notes.replace(/'/g,'"'))
-      const {notes} = JSON.parse(diagramFeature.attributes.notes)
+      const {notes} = JSON.parse(diagramFeature.attributes.notes);
 
       const newScenarioFeature = {
         geometry: diagramFeature.geometry,
@@ -468,6 +468,7 @@ class DiagramExporter extends HTMLElement {
           [this.#gplConfig.FIELD_NAMES.ACTION_IDS]: actionIDs
         }
       };
+      console.info(newScenarioFeature);
 
       return newScenarioFeature;
     });
