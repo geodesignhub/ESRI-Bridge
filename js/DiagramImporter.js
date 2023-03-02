@@ -353,6 +353,7 @@ class DiagramImporter extends HTMLElement {
           query: {
             returnCountOnly: true,
             where: queryFilter,
+            token: this.#portal.credential.token,
             f: 'json'
           }
         }).then(({data: {count}}) => {
@@ -386,6 +387,7 @@ class DiagramImporter extends HTMLElement {
             where: queryFilter,
             outFields: '*',
             outSR: 4326,
+            token: this.#portal.credential.token,
             f: 'geojson'
           }
         }).then((response) => {
