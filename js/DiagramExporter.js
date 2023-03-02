@@ -473,11 +473,6 @@ class DiagramExporter extends HTMLElement {
       return newScenarioFeature;
     });
 
-    //
-    // NEW GPL SCENARIO FEATURES TO ADD //
-    //
-    console.info("Aggregated new features to add: ", newFeaturesToAdd);
-
     return newFeaturesToAdd;
   }
 
