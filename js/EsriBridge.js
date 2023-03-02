@@ -57,7 +57,7 @@ class EsriBridge extends EventTarget {
       NAME: 'Name',
       DESCRIPTION: 'Description',
       ACTION_ID: 'Type',
-      ACTION_IDS: 'Policy_Action_IDS'
+      ACTION_IDS: 'Policy_Actions_IDS'
     }
   };
 
