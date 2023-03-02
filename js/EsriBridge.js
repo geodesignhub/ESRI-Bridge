@@ -153,10 +153,10 @@ class EsriBridge extends EventTarget {
                 //
                 diagramImporter = new DiagramImporter({
                   container: 'import-container',
+                  geodesignhub: geodesignhub,
                   portal: portal,
                   gplConfig: EsriBridge.GPL_CONFIG,
-                  gplProjectGroup: gplProjectGroup,
-                  geodesignhub: geodesignhub
+                  gplProjectGroup: gplProjectGroup
                 });
                 bridgeWelcome.container.toggleAttribute('hidden', true);
                 diagramImporter.container.toggleAttribute('hidden', false);
@@ -171,12 +171,12 @@ class EsriBridge extends EventTarget {
                   //
                   diagramExporter = new DiagramExporter({
                     container: 'export-container',
+                    geodesignhub: geodesignhub,
                     portal: portal,
                     gplConfig: EsriBridge.GPL_CONFIG,
                     gplProjectGroup: gplProjectGroup,
                     gdhDesignTeamId: gdhDesignTeamId,
-                    gdhDesignId: gdhDesignId,
-                    geodesignhub: geodesignhub
+                    gdhDesignId: gdhDesignId
                   });
                   bridgeWelcome.container.toggleAttribute('hidden', true);
                   diagramExporter.container.toggleAttribute('hidden', false);

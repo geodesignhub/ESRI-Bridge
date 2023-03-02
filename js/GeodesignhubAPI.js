@@ -29,6 +29,10 @@ class GeodesignhubAPI extends HTMLElement {
 
   static version = '0.0.2';
 
+  /**
+   *  GEODESIGNHUB API URL
+   * @type {string}
+   */
   static API_URL = 'https://www.geodesignhub.com/api/v1';
 
   /**
