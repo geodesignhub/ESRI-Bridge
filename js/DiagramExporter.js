@@ -428,13 +428,8 @@ class DiagramExporter extends HTMLElement {
    */
   _updateScenarioCandidates({candidateFeatures, newScenarioID}) {
     //
-    // CREATE A FEATURE FOR EACH DIAGRAM
-    //
-    // - NOTE: ONLY FEATURES WITH POLYGON GEOMETRIES ALLOWED CURRENTLY...
-    //
-
-    //
     // VALID CANDIDATE FEATURES //
+    // - NOTE: ONLY FEATURES WITH POLYGON GEOMETRIES ALLOWED CURRENTLY...
     //
     const validDiagramFeatures = candidateFeatures.filter(diagramFeature => {
       //

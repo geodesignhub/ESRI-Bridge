@@ -38,12 +38,14 @@ class EsriBridge extends EventTarget {
 
   /**
    *
-   * USED TO CONFIGURE LAYER AND FIELD NAMES
+   * USED TO CONFIGURE GEOPLANNER LAYER IDS AND FIELD NAMES
    *
    * @typedef {{FIELD_NAMES: {ACTION_IDS: string, SOURCE_ID: string, DESCRIPTION: string, ACTION_ID: string, GLOBAL_ID: string, NAME: string}, ACTIONS_LAYER_ID: number}} GPLConfig
    */
 
   /**
+   *
+   * GEOPLANNER CONFIGURATION
    *
    * @type {GPLConfig}
    */
@@ -158,6 +160,7 @@ class EsriBridge extends EventTarget {
                   gplConfig: EsriBridge.GPL_CONFIG,
                   gplProjectGroup: gplProjectGroup
                 });
+                // UPDATE OTHER UI ELEMENTS
                 bridgeWelcome.container.toggleAttribute('hidden', true);
                 diagramImporter.container.toggleAttribute('hidden', false);
                 geodesignhub.toggleAttribute('hidden', false);
@@ -178,6 +181,7 @@ class EsriBridge extends EventTarget {
                     gdhDesignTeamId: gdhDesignTeamId,
                     gdhDesignId: gdhDesignId
                   });
+                  // UPDATE OTHER UI ELEMENTS
                   bridgeWelcome.container.toggleAttribute('hidden', true);
                   diagramExporter.container.toggleAttribute('hidden', false);
                   geodesignhub.toggleAttribute('hidden', false);
