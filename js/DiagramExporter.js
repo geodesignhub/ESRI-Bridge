@@ -151,7 +151,7 @@ class DiagramExporter extends HTMLElement {
       this.#projectPortalItem = projectPortalItem;
       this.initializeDesignTeams();
     }).catch(error => {
-      this.#geodesignhub.displayMessage(error.message);
+      this.#geodesignhub.displayMessage(error);
     });
 
   }
@@ -178,10 +178,10 @@ class DiagramExporter extends HTMLElement {
         // ENABLE MIGRATE BUTTON //
         this.migrateSelectedBtn.toggleAttribute('disabled', false);
       }).catch(error => {
-        this.#geodesignhub.displayMessage(error.message);
+        this.#geodesignhub.displayMessage(error);
       });
     }).catch(error => {
-      this.#geodesignhub.displayMessage(error.message);
+      this.#geodesignhub.displayMessage(error);
     });
 
   }
@@ -246,13 +246,13 @@ class DiagramExporter extends HTMLElement {
           this.completeSection.toggleAttribute('hidden', false);
 
         }).catch(error => {
-          this.#geodesignhub.displayMessage(error.message);
+          this.#geodesignhub.displayMessage(error);
         });
       }).catch(error => {
-        this.#geodesignhub.displayMessage(error.message);
+        this.#geodesignhub.displayMessage(error);
       });
     }).catch(error => {
-      this.#geodesignhub.displayMessage(error.message);
+      this.#geodesignhub.displayMessage(error);
     });
   }
 
@@ -398,21 +398,20 @@ class DiagramExporter extends HTMLElement {
                     scenarioFilter
                   });
                 }).catch(error => {
-                  this.#geodesignhub.displayMessage(error.message);
+                  this.#geodesignhub.displayMessage(error);
                 });
               }).catch(error => {
-                this.#geodesignhub.displayMessage(error.message);
+                this.#geodesignhub.displayMessage(error);
               });
             }).catch(error => {
-              this.#geodesignhub.displayMessage(error.message);
+              this.#geodesignhub.displayMessage(error);
             });
           }).catch(error => {
-            this.#geodesignhub.displayMessage(error.message);
+            this.#geodesignhub.displayMessage(error);
           });
         }).catch(error => {
-          this.#geodesignhub.displayMessage(error.message);
+          this.#geodesignhub.displayMessage(error);
         });
-
       });
     });
   }

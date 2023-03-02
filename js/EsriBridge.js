@@ -188,10 +188,10 @@ class EsriBridge extends EventTarget {
                 break;
             }
           }).catch(error => {
-            geodesignhub.displayMessage(error.message);
+            geodesignhub.displayMessage(error);
           });
         }).catch(error => {
-          geodesignhub.displayMessage(error.message);
+          geodesignhub.displayMessage(error);
         });
       } else {
         geodesignhub.displayMessage("Missing ArcGIS token or GPL Project Id.");

@@ -323,25 +323,18 @@ class GeodesignhubAPI extends HTMLElement {
 
   /**
    *
-   * @param {string} message
+   * @param {string|Error} messageOrError
    * @param {boolean} clearConsole
    */
-  displayMessage(message, clearConsole = false) {
+  displayMessage(messageOrError, clearConsole = false) {
     clearConsole && (this.consoleElement.innerHTML = '');
+
+    const message = (messageOrError instanceof Error)
+      ? `${ messageOrError.message }: ${ messageOrError.details?.messages?.[0] }`
+      : messageOrError;
+
     this.consoleElement.innerHTML = message ? `<div>${ message }</div>${ this.consoleElement.innerHTML }` : '';
     this.toggleAttribute('hidden', false);
-  }
-
-  /**
-   *
-   * @param {Error} error
-   * @param {boolean} clearConsole
-   */
-  displayError(error, clearConsole = false) {
-    clearConsole && (this.consoleElement.innerHTML = '');
-    this.consoleElement.innerHTML = error ? `<div>${ error.details?.messages?.[0] || error.message }</div>${ this.consoleElement.innerHTML }` : '';
-    this.toggleAttribute('hidden', false);
-    console.error(error);
   }
 
   /**
