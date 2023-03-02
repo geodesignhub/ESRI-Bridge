@@ -309,7 +309,7 @@ class DiagramExporter extends HTMLElement {
 
         // SCENARIO TAGS //
         // ADD GDH TAG TO IDENTIFY WHICH SCENARIOS CAME FROM GDH //
-        const tags = new Set([this.#projectPortalItem.tags.concat(['GDH', 'geodesign', 'geodesignScenario'])]);
+        const tagsSet = new Set([this.#projectPortalItem.tags.concat(['GDH', 'geodesign', 'geodesignScenario'])]);
 
         // IGC SPECIFIC METADATA //
         const IGCMetadata = {
@@ -324,17 +324,16 @@ class DiagramExporter extends HTMLElement {
         //             ALSO, WE CAN USE THE DESCRIPTION TO ADD ANY OTHER
         //             DESIGN RELATED METADATA
         //
-        //
         const newPortalItem = new PortalItem({
           type: this.#projectPortalItem.type,
           url: this.#projectPortalItem.url,
-          title: `GDH design ${ designName } by team ${ designTeamName }`,
+          title: designName,
           snippet: `GDH negotiated design by team ${ designTeamName }`,
-          description: `The GDH negotiated design ${ designName } by team ${ designTeamName }.`,
-          licenseInfo: this.#projectPortalItem.licenseInfo,
-          accessInformation: this.#projectPortalItem.accessInformation,
+          description: `The GDH negotiated design '${ designName }' by team ${ designTeamName } on ${(new Date()).toLocaleString()}`,
+          licenseInfo: this.#projectPortalItem.licenseInfo || IGCMetadata.licenseInfo,
+          accessInformation: this.#projectPortalItem.accessInformation || IGCMetadata.accessInformation,
           typeKeywords: scenarioTypeKeywords, // THE PROJECT ID WILL BE IN ONE OF THE TYPEKEYWORDS
-          tags: Array.from(tags.values())
+          tags: Array.from(tagsSet.values())
         });
 
         // PORTAL USER //
