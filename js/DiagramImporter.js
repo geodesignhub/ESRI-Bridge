@@ -318,14 +318,14 @@ class DiagramImporter extends HTMLElement {
         const diagramName = feature.properties[this.#gplConfig.FIELD_NAMES.NAME];
 
         // GET LIST OF ALL CLIMATE ACTIONS FOR EACH FEATURE //
-        const actionCode = feature.properties[this.#gplConfig.FIELD_NAMES.ACTION_ID];
+        const climateAction = feature.properties[this.#gplConfig.FIELD_NAMES.ACTION_ID];
         // GET CLIMATE ACTION DETAILS //
-        const [systemCode] = actionCode.split('.');
+        const [systemCode] = climateAction.split('.');
 
         // CLIMATE ACTIONS PROPERTY //
         const climateActionsStr = feature.properties[this.#gplConfig.FIELD_NAMES.ACTION_IDS];
         // CLIMATE ACTION CODES //
-        const climateActions = (climateActionsStr?.length) ? climateActionsStr.split('|') : [actionCode];
+        const climateActions = (climateActionsStr?.length) ? climateActionsStr.split('|') : [climateAction];
 
         const newDiagram = {
           type: 'Feature',
@@ -333,6 +333,7 @@ class DiagramImporter extends HTMLElement {
           geometry: feature.geometry,
           properties: {
             ...feature.properties,
+            climateAction: climateAction,
             name: diagramName,
             system: Number(systemCode),
             tags: climateActions

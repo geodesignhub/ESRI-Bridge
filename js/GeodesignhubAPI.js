@@ -481,6 +481,9 @@ class GeodesignhubAPI extends HTMLElement {
         if (current_diagram_feature.properties.hasOwnProperty(this.#gplConfig.FIELD_NAMES.GLOBAL_ID)) {
           gplNotes["globalid"] = current_diagram_feature.properties[this.#gplConfig.FIELD_NAMES.GLOBAL_ID];
         }
+        if (current_diagram_feature.properties.hasOwnProperty('climateAction')) {
+          gplNotes["climateAction"] = current_diagram_feature.properties.climateAction;
+        }
 
         if (gdhSystemID !== 0) {
 
