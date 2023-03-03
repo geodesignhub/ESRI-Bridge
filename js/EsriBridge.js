@@ -142,61 +142,65 @@ class EsriBridge extends EventTarget {
 
       // VALIDATE ARCGIS TOKEN //
       if (_validate([arcgisToken, gplProjectId])) {
+        if (arcgisToken !== "__please_sign_in_first__") {
 
-        // AUTHENTICATE AND INITIALIZE PORTAL //
-        this.authenticateArcGISOnline({arcgisToken}).then(({portal}) => {
-          // GEOPLANNER GROUP //
-          this.getGeoPlannerGroup({portal, gplProjectId}).then(({gplProjectGroup}) => {
-            // MODE URL PARAMETER //
-            switch (mode) {
-              case EsriBridge.MODES.IMPORT:
-                //
-                // DIAGRAM IMPORTER //
-                //
-                diagramImporter = new DiagramImporter({
-                  container: 'import-container',
-                  geodesignhub: geodesignhub,
-                  portal: portal,
-                  gplConfig: EsriBridge.GPL_CONFIG,
-                  gplProjectGroup: gplProjectGroup
-                });
-                // UPDATE OTHER UI ELEMENTS
-                bridgeWelcome.container.toggleAttribute('hidden', true);
-                diagramImporter.container.toggleAttribute('hidden', false);
-                geodesignhub.toggleAttribute('hidden', false);
-                aboutBtn.toggleAttribute('hidden', false);
-                break;
-
-              case EsriBridge.MODES.EXPORT:
-                if (_validate([gdhDesignTeamId, gdhDesignId])) {
+          // AUTHENTICATE AND INITIALIZE PORTAL //
+          this.authenticateArcGISOnline({arcgisToken}).then(({portal}) => {
+            // GEOPLANNER GROUP //
+            this.getGeoPlannerGroup({portal, gplProjectId}).then(({gplProjectGroup}) => {
+              // MODE URL PARAMETER //
+              switch (mode) {
+                case EsriBridge.MODES.IMPORT:
                   //
-                  // DIAGRAM EXPORTER
+                  // DIAGRAM IMPORTER //
                   //
-                  diagramExporter = new DiagramExporter({
-                    container: 'export-container',
+                  diagramImporter = new DiagramImporter({
+                    container: 'import-container',
                     geodesignhub: geodesignhub,
                     portal: portal,
                     gplConfig: EsriBridge.GPL_CONFIG,
-                    gplProjectGroup: gplProjectGroup,
-                    gdhDesignTeamId: gdhDesignTeamId,
-                    gdhDesignId: gdhDesignId
+                    gplProjectGroup: gplProjectGroup
                   });
                   // UPDATE OTHER UI ELEMENTS
                   bridgeWelcome.container.toggleAttribute('hidden', true);
-                  diagramExporter.container.toggleAttribute('hidden', false);
+                  diagramImporter.container.toggleAttribute('hidden', false);
                   geodesignhub.toggleAttribute('hidden', false);
                   aboutBtn.toggleAttribute('hidden', false);
-                } else {
-                  geodesignhub.displayMessage(`Missing information about the selected design team and/or design.`);
-                }
-                break;
-            }
+                  break;
+
+                case EsriBridge.MODES.EXPORT:
+                  if (_validate([gdhDesignTeamId, gdhDesignId])) {
+                    //
+                    // DIAGRAM EXPORTER
+                    //
+                    diagramExporter = new DiagramExporter({
+                      container: 'export-container',
+                      geodesignhub: geodesignhub,
+                      portal: portal,
+                      gplConfig: EsriBridge.GPL_CONFIG,
+                      gplProjectGroup: gplProjectGroup,
+                      gdhDesignTeamId: gdhDesignTeamId,
+                      gdhDesignId: gdhDesignId
+                    });
+                    // UPDATE OTHER UI ELEMENTS
+                    bridgeWelcome.container.toggleAttribute('hidden', true);
+                    diagramExporter.container.toggleAttribute('hidden', false);
+                    geodesignhub.toggleAttribute('hidden', false);
+                    aboutBtn.toggleAttribute('hidden', false);
+                  } else {
+                    geodesignhub.displayMessage(`Missing information about the selected design team and/or design.`);
+                  }
+                  break;
+              }
+            }).catch(error => {
+              geodesignhub.displayMessage(error);
+            });
           }).catch(error => {
             geodesignhub.displayMessage(error);
           });
-        }).catch(error => {
-          geodesignhub.displayMessage(error);
-        });
+        } else {
+          geodesignhub.displayMessage("Please sign in to ArcGIS first.");
+        }
       } else {
         geodesignhub.displayMessage("Missing ArcGIS token or GPL Project Id.");
       }
