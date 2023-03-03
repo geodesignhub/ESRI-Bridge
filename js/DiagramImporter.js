@@ -319,7 +319,7 @@ class DiagramImporter extends HTMLElement {
         // GET CLIMATE ACTION DETAILS //
         const [systemCode] = actionCode.split('.');
         // POLICY ACTIONS //
-        const policyActions = feature.properties[this.#gplConfig.FIELD_NAMES.ACTION_IDS]?.split('|') || [];
+        const policyActions = feature.properties[this.#gplConfig.FIELD_NAMES.ACTION_IDS]?.split('|') || [actionCode];
 
         const newDiagram = {
           type: 'Feature',

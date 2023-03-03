@@ -442,7 +442,7 @@ class DiagramExporter extends HTMLElement {
     const newFeaturesToAdd = validDiagramFeatures.map((diagramFeature) => {
 
       // ACTION ID(S) //
-      const actionIDs = diagramFeature.attributes.tag_codes || ['unknown'];
+      const actionIDs = diagramFeature.attributes.tag_codes.split('|') || ['unknown'];
       const [actionID] = actionIDs.split('|');
 
       // NOTES - CURRENTLY ONLY GLOBALID BEING STORED //
