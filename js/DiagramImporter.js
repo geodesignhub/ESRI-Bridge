@@ -317,9 +317,9 @@ class DiagramImporter extends HTMLElement {
         // GET LIST OF ALL CLIMATE ACTIONS FOR EACH FEATURE //
         const actionCode = feature.properties[this.#gplConfig.FIELD_NAMES.ACTION_ID];
         // GET CLIMATE ACTION DETAILS //
-        const [systemCode] = actionCode.split('.');
-        // POLICY ACTIONS //
-        const policyActions = feature.properties[this.#gplConfig.FIELD_NAMES.ACTION_IDS]?.split('|') || [actionCode];
+        const [systemCode] = actionCode.split('.') || [0];
+        // CLIMATE ACTIONS //
+        const climateActions = feature.properties[this.#gplConfig.FIELD_NAMES.ACTION_IDS]?.split('|') || [actionCode];
 
         const newDiagram = {
           type: 'Feature',
@@ -328,7 +328,7 @@ class DiagramImporter extends HTMLElement {
           properties: {
             ...feature.properties, // HERE WE COULD RESTRICT OR FILTER WHICH PROPERTIES/ATTRIBUTES TO MAINTAIN... //
             system: Number(systemCode),
-            tags: policyActions // ARRAY OF CLIMATE ACTION CODES //
+            tags: climateActions // ARRAY OF CLIMATE ACTION CODES //
           }
         };
         //console.info(newDiagram);

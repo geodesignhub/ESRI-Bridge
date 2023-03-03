@@ -307,14 +307,7 @@ class DiagramExporter extends HTMLElement {
         ];
 
         // SCENARIO TAGS //
-        // ADD GDH TAG TO IDENTIFY WHICH SCENARIOS CAME FROM GDH //
-        const tagsSet = new Set([this.#projectPortalItem.tags.concat(['geodesignhub', 'geodesign', 'geodesignScenario'])]);
-
-        // IGC SPECIFIC METADATA //
-        const IGCMetadata = {
-          licenseInfo: 'Restricted use for International Geodesign Collaboration activities only.',
-          accessInformation: 'International Geodesign Collaboration'
-        };
+        const scenarioTags = ['geodesignhub', 'geodesign', 'geodesignScenario'];
 
         //
         // CREATE NEW PORTAL ITEM FOR THE NEW SCENARIO //
@@ -328,11 +321,11 @@ class DiagramExporter extends HTMLElement {
           url: this.#projectPortalItem.url,
           title: designName,
           snippet: `GDH negotiated design by team ${ designTeamName }`,
-          description: `The GDH negotiated design '${ designName }' by team ${ designTeamName } on ${(new Date()).toLocaleString()}`,
-          licenseInfo: this.#projectPortalItem.licenseInfo || IGCMetadata.licenseInfo,
-          accessInformation: this.#projectPortalItem.accessInformation || IGCMetadata.accessInformation,
-          typeKeywords: scenarioTypeKeywords, // THE PROJECT ID WILL BE IN ONE OF THE TYPEKEYWORDS
-          tags: Array.from(tagsSet.values())
+          description: `The GDH negotiated design '${ designName }' by team ${ designTeamName } on ${ (new Date()).toLocaleString() }`,
+          licenseInfo: this.#projectPortalItem.licenseInfo,
+          accessInformation: this.#projectPortalItem.accessInformation,
+          typeKeywords: scenarioTypeKeywords,
+          tags: scenarioTags
         });
 
         // PORTAL USER //
@@ -440,15 +433,14 @@ class DiagramExporter extends HTMLElement {
     // FEATURES TO BE ADDED TO NEW GPL SCENARIO //
     //
     const newFeaturesToAdd = validDiagramFeatures.map((diagramFeature) => {
-
-      console.info(diagramFeature.attributes)
+      console.info(diagramFeature.attributes);
 
       // ACTION ID(S) //
       const actionIDs = diagramFeature.attributes.tag_codes.split('|') || ['unknown'];
       const [actionID] = actionIDs;
 
       // NOTES - CURRENTLY ONLY GLOBALID BEING STORED //
-      const {notes} = JSON.parse(diagramFeature.attributes.notes.replace(/'/g,'"'))
+      const {notes} = JSON.parse(diagramFeature.attributes.notes.replace(/'/g, '"'));
       //const {notes} = JSON.parse(diagramFeature.attributes.notes);
 
       // NEW SCENARIO FEATURE //
