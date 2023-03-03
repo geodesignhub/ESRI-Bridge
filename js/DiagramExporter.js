@@ -436,12 +436,11 @@ class DiagramExporter extends HTMLElement {
       console.info(diagramFeature.attributes);
 
       // ACTION ID(S) //
-      const actionIDs = diagramFeature.attributes.tag_codes.split('|') || ['unknown'];
+      const actionIDs = diagramFeature.attributes.tag_codes?.split('|') || ['unknown'];
       const [actionID] = actionIDs;
 
       // NOTES - CURRENTLY ONLY GLOBALID BEING STORED //
-      const {notes} = JSON.parse(diagramFeature.attributes.notes.replace(/'/g, '"'));
-      //const {notes} = JSON.parse(diagramFeature.attributes.notes);
+      const notes = JSON.parse(diagramFeature.attributes.notes.replace(/'/g, '"'));
 
       // NEW SCENARIO FEATURE //
       const newScenarioFeature = {
