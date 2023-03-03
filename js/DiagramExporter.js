@@ -307,7 +307,7 @@ class DiagramExporter extends HTMLElement {
         ];
 
         // SCENARIO TAGS //
-        const scenarioTags = ['geodesignhub', 'geodesign', 'geodesignScenario'];
+        const scenarioTags = ['geodesign', 'geodesignScenario', 'Geodesignhub'];
 
         //
         // CREATE NEW PORTAL ITEM FOR THE NEW SCENARIO //
@@ -453,7 +453,7 @@ class DiagramExporter extends HTMLElement {
           [this.#gplConfig.FIELD_NAMES.NAME]: diagramFeature.attributes.description,
           [this.#gplConfig.FIELD_NAMES.DESCRIPTION]: diagramFeature.attributes.description,
           [this.#gplConfig.FIELD_NAMES.ACTION_ID]: actionID,
-          [this.#gplConfig.FIELD_NAMES.ACTION_IDS]: actionIDs
+          [this.#gplConfig.FIELD_NAMES.ACTION_IDS]: actionIDs.join('|')
         }
       };
       console.info(newScenarioFeature);
