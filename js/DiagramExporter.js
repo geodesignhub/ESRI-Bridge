@@ -448,6 +448,9 @@ class DiagramExporter extends HTMLElement {
       const [actionID] = actionIDs;
 
       // NOTES - CURRENTLY ONLY GLOBALID BEING STORED //
+
+      // "{'notes': {'globalid': 'ESRI-GPL'}, 'globalid': '3ea71c27-362e-4694-ac50-e2b33f644359'}"
+
       //const {notes} = JSON.parse(diagramFeature.attributes.notes.replace(/'/g,'"'))
       const {notes} = JSON.parse(diagramFeature.attributes.notes);
 

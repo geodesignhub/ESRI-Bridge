@@ -477,7 +477,7 @@ class GeodesignhubAPI extends HTMLElement {
 
         const postJson = {"featuretype": geoJSONGeometryType, "description": gdhDiagramName, "geometry": gj_feature_collection};
 
-        let gplNotes = {"notes": {"globalid": "ESRI-GPL"}};
+        let gplNotes = {"globalid": "ESRI-GPL"};
         if (current_diagram_feature.properties.hasOwnProperty(this.#gplConfig.FIELD_NAMES.GLOBAL_ID)) {
           gplNotes["globalid"] = current_diagram_feature.properties[this.#gplConfig.FIELD_NAMES.GLOBAL_ID];
         }
