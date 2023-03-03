@@ -436,7 +436,7 @@ class DiagramExporter extends HTMLElement {
       console.info(diagramFeature.attributes);
 
       // ACTION ID(S) //
-      const actionIDs = diagramFeature.attributes.tag_codes?.split('|') || ['unknown'];
+      const actionIDs = diagramFeature.attributes.tag_codes?.split('|') || ['0.0.0'];
       const [actionID] = actionIDs;
 
       // NOTES - CURRENTLY ONLY GLOBALID BEING STORED //
@@ -450,7 +450,7 @@ class DiagramExporter extends HTMLElement {
           Geodesign_ScenarioID: newScenarioID,
           [this.#gplConfig.FIELD_NAMES.SOURCE_ID]: notes?.globalid || '',
           [this.#gplConfig.FIELD_NAMES.NAME]: diagramFeature.attributes.description,
-          [this.#gplConfig.FIELD_NAMES.DESCRIPTION]: diagramFeature.attributes.description,
+          [this.#gplConfig.FIELD_NAMES.DESCRIPTION]: '', // diagramFeature.attributes.description,
           [this.#gplConfig.FIELD_NAMES.ACTION_ID]: actionID,
           [this.#gplConfig.FIELD_NAMES.ACTION_IDS]: actionIDs.join('|')
         }

@@ -314,21 +314,28 @@ class DiagramImporter extends HTMLElement {
 
       const diagramsGeoJSON = features.map((feature, featureIdx) => {
 
+        // DIAGRAM NAME //
+        const diagramName = feature.properties[this.#gplConfig.FIELD_NAMES.NAME];
+
         // GET LIST OF ALL CLIMATE ACTIONS FOR EACH FEATURE //
         const actionCode = feature.properties[this.#gplConfig.FIELD_NAMES.ACTION_ID];
         // GET CLIMATE ACTION DETAILS //
         const [systemCode] = actionCode.split('.') || [0];
-        // CLIMATE ACTIONS //
-        const climateActions = feature.properties[this.#gplConfig.FIELD_NAMES.ACTION_IDS]?.split('|') || [actionCode];
+
+        // CLIMATE ACTIONS PROPERTY //
+        const climateActionsStr = feature.properties[this.#gplConfig.FIELD_NAMES.ACTION_IDS];
+        // CLIMATE ACTION CODES //
+        const climateActions = (climateActionsStr?.length) ? climateActionsStr.split('|') : [actionCode];
 
         const newDiagram = {
           type: 'Feature',
           id: (featureIdx + 1),
           geometry: feature.geometry,
           properties: {
-            ...feature.properties, // HERE WE COULD RESTRICT OR FILTER WHICH PROPERTIES/ATTRIBUTES TO MAINTAIN... //
+            ...feature.properties,
+            name: diagramName,
             system: Number(systemCode),
-            tags: climateActions // ARRAY OF CLIMATE ACTION CODES //
+            tags: climateActions
           }
         };
         //console.info(newDiagram);
@@ -369,7 +376,7 @@ class DiagramImporter extends HTMLElement {
             resolve({maxFeatureCount: count});
           }).catch(reject);
         } else {
-          reject(new Error("Can't query for counts: missing URL or filter parameters."))
+          reject(new Error("Can't query for counts: missing URL or filter parameters."));
         }
       });
     });
