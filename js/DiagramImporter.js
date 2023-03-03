@@ -320,7 +320,7 @@ class DiagramImporter extends HTMLElement {
         // GET LIST OF ALL CLIMATE ACTIONS FOR EACH FEATURE //
         const actionCode = feature.properties[this.#gplConfig.FIELD_NAMES.ACTION_ID];
         // GET CLIMATE ACTION DETAILS //
-        const [systemCode] = actionCode.split('.') || [0];
+        const [systemCode] = actionCode.split('.');
 
         // CLIMATE ACTIONS PROPERTY //
         const climateActionsStr = feature.properties[this.#gplConfig.FIELD_NAMES.ACTION_IDS];
@@ -338,7 +338,7 @@ class DiagramImporter extends HTMLElement {
             tags: climateActions
           }
         };
-        //console.info(newDiagram);
+        console.info(newDiagram);
 
         return newDiagram;
       });
