@@ -69,7 +69,8 @@ class EsriBridge extends EventTarget {
    * @type {{PORTAL_URL: string}}
    */
   static CONFIG = {
-    PORTAL_URL: "https://www.arcgis.com/"
+    PORTAL_URL: "https://www.arcgis.com/",
+    SIGN_IN_NEEDED: "__please_sign_in_first__"
   };
 
   /**
@@ -142,7 +143,8 @@ class EsriBridge extends EventTarget {
 
       // VALIDATE ARCGIS TOKEN //
       if (_validate([arcgisToken, gplProjectId])) {
-        if (arcgisToken !== "__please_sign_in_first__") {
+        // VERIFY NOT INVALID TOKEN //
+        if (arcgisToken !== EsriBridge.CONFIG.SIGN_IN_NEEDED) {
 
           // AUTHENTICATE AND INITIALIZE PORTAL //
           this.authenticateArcGISOnline({arcgisToken}).then(({portal}) => {
