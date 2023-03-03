@@ -443,7 +443,7 @@ class DiagramExporter extends HTMLElement {
 
       // ACTION ID(S) //
       const actionIDs = diagramFeature.attributes.tag_codes.split('|') || ['unknown'];
-      const [actionID] = actionIDs.split('|');
+      const [actionID] = actionIDs;
 
       // NOTES - CURRENTLY ONLY GLOBALID BEING STORED //
       //const {notes} = JSON.parse(diagramFeature.attributes.notes.replace(/'/g,'"'))
