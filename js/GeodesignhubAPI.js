@@ -333,12 +333,15 @@ class GeodesignhubAPI extends HTMLElement {
   displayMessage(messageOrError, clearConsole = false) {
     clearConsole && (this.consoleElement.innerHTML = '');
 
-    const message = (messageOrError instanceof Error)
-      ? `${ messageOrError.message }: ${ messageOrError.details?.messages?.[0] }`
-      : messageOrError;
+    if (messageOrError) {
 
-    this.consoleElement.innerHTML = message ? `<div>${ message }</div>${ this.consoleElement.innerHTML }` : '';
-    this.toggleAttribute('hidden', false);
+      const message = (messageOrError instanceof Error)
+        ? `${ messageOrError.message }: ${ messageOrError.details?.messages?.[0] }`
+        : messageOrError;
+
+      this.consoleElement.innerHTML = message ? `<div>${ message }</div><br>============================<br>${ this.consoleElement.innerHTML }` : '';
+      this.toggleAttribute('hidden', false);
+    }
   }
 
   /**
@@ -346,17 +349,15 @@ class GeodesignhubAPI extends HTMLElement {
    */
   verifyCredentials() {
 
-    this.consoleElement.innerHTML = '';
-
     let validated = (this.#gdhAPIToken && this.#gdhProjectId);
     if (!validated) {
-      this.consoleElement.innerHTML = "Please provide a valid API Token and Project ID";
+      this.displayMessage("Please provide a valid API Token and Project ID");
 
     } else {
       // Check if the API token and the project works (the user has access to the project and the project is of the right tpype)
       this._gdhVerifyProjectCredentials().then(data => {
         if (data.external_connection !== 'esri') {
-          this.consoleElement.innerHTML = `<div>${ JSON.stringify(data, null, 2) }</div>${ this.consoleElement.innerHTML }<br>The project is not a ESRI workspace project in Geodesignhub, we cannot migrate data at this time.`;
+          this.displayMessage(`<div>${ JSON.stringify(data, null, 2) }</div><br><div>The project is not a ESRI workspace project in Geodesignhub, we cannot migrate data at this time.</div>`);
 
         } else {
           this._gdhVerifyProjectSystems().then(systemsData => {
@@ -387,22 +388,17 @@ class GeodesignhubAPI extends HTMLElement {
 
             const isAllOne = allSysNameColorsFound.every(item => item === 1);
             if (isAllOne) {
-
-              this.consoleElement.innerHTML = `<div>Project successfully verified, ready for data migration..</div>${ this.consoleElement.innerHTML }`;
+              this.displayMessage('Project successfully verified, ready for data migration...');
 
               this.#allGDHSystems = systemsData;
 
               this.dispatchEvent(new CustomEvent('ready', {}));
             } else {
-              this.consoleElement.innerHTML = "Geodesignhub project is not setup correctly, please contact your administrator";
+              this.displayMessage("Geodesignhub project is not setup correctly, please contact your administrator");
             }
-          }).catch(error => {
-            this.consoleElement.innerHTML = `<div>${ error }</div>${ this.consoleElement.innerHTML }`;
-          });
+          }).catch(this.displayMessage);
         }
-      }).catch(error => {
-        this.consoleElement.innerHTML = `<div>${ error }</div>${ this.consoleElement.innerHTML }`;
-      });
+      }).catch(this.displayMessage);
     }
 
   }
@@ -448,8 +444,6 @@ class GeodesignhubAPI extends HTMLElement {
   migrateGPLFeaturesAsDiagrams(diagramsGeoJSON) {
     return new Promise((resolve, reject) => {
 
-      this.consoleElement.innerHTML = '';
-
       let source_diagrams_len = diagramsGeoJSON.length;
 
       for (let index = 0; index < source_diagrams_len; index++) {
@@ -477,20 +471,26 @@ class GeodesignhubAPI extends HTMLElement {
 
         const postJson = {"featuretype": geoJSONGeometryType, "description": gdhDiagramName, "geometry": gj_feature_collection};
 
-        let gplNotes = {"globalid": "ESRI-GPL"};
-        if (current_diagram_feature.properties.hasOwnProperty(this.#gplConfig.FIELD_NAMES.GLOBAL_ID)) {
-          gplNotes["globalid"] = current_diagram_feature.properties[this.#gplConfig.FIELD_NAMES.GLOBAL_ID];
-        }
-        if (current_diagram_feature.properties.hasOwnProperty('climateAction')) {
-          gplNotes["climateAction"] = current_diagram_feature.properties.climateAction;
-        }
+        /**
+         * NOTES IS A PLACE TO SAVE ADDITIONAL INFORMATION
+         *  - LETS SAVE ALL PROPERTIES?
+         */
+        let gplNotes = current_diagram_feature.properties;
+
+        /*let gplNotes = {"globalid": "ESRI-GPL"};
+         if (current_diagram_feature.properties.hasOwnProperty(this.#gplConfig.FIELD_NAMES.GLOBAL_ID)) {
+         gplNotes["globalid"] = current_diagram_feature.properties[this.#gplConfig.FIELD_NAMES.GLOBAL_ID];
+         }
+         if (current_diagram_feature.properties.hasOwnProperty('climateAction')) {
+         gplNotes["climateAction"] = current_diagram_feature.properties.climateAction;
+         }*/
 
         if (gdhSystemID !== 0) {
 
           let gdhDiagramProperties = {"notes": gplNotes};
 
           this._gdhMigrateDiagramsToProject(gdhSystemID, 'project', postJson).then(diagram_data => {
-            this.consoleElement.innerHTML = `<div>${ JSON.stringify(diagram_data, null, 2) }</div>${ this.consoleElement.innerHTML }`;
+            this.displayMessage(JSON.stringify(diagram_data, null, 2));
             return diagram_data;
           }).then(diagram_data => {
             // Assign Diagram Tags
@@ -501,13 +501,12 @@ class GeodesignhubAPI extends HTMLElement {
             }
             // Assign GPL Object ID
             this._gdhUpdateDiagramProperties(diagramID, gdhDiagramProperties).then(propertiesUpdated => {
-              this.consoleElement.innerHTML = "Diagram properties updated..";
+              this.displayMessage("Diagram properties updated..");
 
               setTimeout(resolve, 250);
 
-            }).catch(error => this.consoleElement.innerHTML = `<div>${ error }</div>${ this.consoleElement.innerHTML }`);
-          }).catch(error => this.consoleElement.innerHTML = `<div>${ error }</div>${ this.consoleElement.innerHTML }`);
-
+            }).catch(this.displayMessage);
+          }).catch(this.displayMessage);
         }
       }
     });

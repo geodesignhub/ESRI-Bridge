@@ -143,7 +143,7 @@ class EsriBridge extends EventTarget {
 
       // VALIDATE ARCGIS TOKEN //
       if (_validate([arcgisToken, gplProjectId])) {
-        // VERIFY NOT INVALID TOKEN //
+        // VERIFY VALID TOKEN //
         if (arcgisToken !== EsriBridge.CONFIG.SIGN_IN_NEEDED) {
 
           // AUTHENTICATE AND INITIALIZE PORTAL //
