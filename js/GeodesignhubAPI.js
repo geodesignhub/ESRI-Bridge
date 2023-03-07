@@ -473,7 +473,8 @@ class GeodesignhubAPI extends HTMLElement {
 
         /**
          * NOTES IS A PLACE TO SAVE ADDITIONAL INFORMATION
-         *  - LETS SAVE ALL PROPERTIES?
+         *
+         *  - IF WE SAVE ALL PROPERTIES WE CAN THEN LATER ON REHYDRATE THE FEATURES ON THE WAY OUT BASED ON NEEDS...
          */
         //let gplNotes = current_diagram_feature.properties;
 
