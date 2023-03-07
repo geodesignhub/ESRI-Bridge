@@ -475,15 +475,15 @@ class GeodesignhubAPI extends HTMLElement {
          * NOTES IS A PLACE TO SAVE ADDITIONAL INFORMATION
          *  - LETS SAVE ALL PROPERTIES?
          */
-        let gplNotes = current_diagram_feature.properties;
+        //let gplNotes = current_diagram_feature.properties;
 
-        /*let gplNotes = {"globalid": "ESRI-GPL"};
-         if (current_diagram_feature.properties.hasOwnProperty(this.#gplConfig.FIELD_NAMES.GLOBAL_ID)) {
-         gplNotes["globalid"] = current_diagram_feature.properties[this.#gplConfig.FIELD_NAMES.GLOBAL_ID];
-         }
-         if (current_diagram_feature.properties.hasOwnProperty('climateAction')) {
-         gplNotes["climateAction"] = current_diagram_feature.properties.climateAction;
-         }*/
+        let gplNotes = {"globalid": "ESRI-GPL"};
+        if (current_diagram_feature.properties.hasOwnProperty(this.#gplConfig.FIELD_NAMES.GLOBAL_ID)) {
+          gplNotes["globalid"] = current_diagram_feature.properties[this.#gplConfig.FIELD_NAMES.GLOBAL_ID];
+        }
+        if (current_diagram_feature.properties.hasOwnProperty('climateAction')) {
+          gplNotes["climateAction"] = current_diagram_feature.properties.climateAction;
+        }
 
         if (gdhSystemID !== 0) {
 
