@@ -482,12 +482,7 @@ class GeodesignhubAPI extends HTMLElement {
          *
          *  - IF WE SAVE ALL PROPERTIES WE CAN THEN LATER ON REHYDRATE THE FEATURES ON THE WAY OUT BASED ON NEEDS...
          */
-        let gplNotes = JSON.parse(current_diagram_feature.properties.source);
-
-        /*let gplNotes = {"globalid": "ESRI-GPL"};
-         if (current_diagram_feature.properties.hasOwnProperty(this.#gplConfig.FIELD_NAMES.GLOBAL_ID)) {
-         gplNotes["globalid"] = current_diagram_feature.properties[this.#gplConfig.FIELD_NAMES.GLOBAL_ID];
-         }*/
+        let gplNotes = JSON.parse(current_diagram_feature.properties.source) || {"globalid": current_diagram_feature.properties[this.#gplConfig.FIELD_NAMES.GLOBAL_ID]};
 
         if (gdhSystemID !== 0) {
 
