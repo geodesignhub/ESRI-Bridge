@@ -458,9 +458,8 @@ class GeodesignhubAPI extends HTMLElement {
         const gdhStartDate = current_diagram_feature.properties.start_date;
         const gdhEndDate = current_diagram_feature.properties.end_date;
 
-
         // METADATA //
-        let gplAdditionalMetadata; //= JSON.parse(current_diagram_feature.properties.metadata);
+        let gplAdditionalMetadata = current_diagram_feature.properties.metadata;
         if (!gplAdditionalMetadata) {
           gplAdditionalMetadata = {"globalid": current_diagram_feature.properties[this.#gplConfig.FIELD_NAMES.GLOBAL_ID]};
         }

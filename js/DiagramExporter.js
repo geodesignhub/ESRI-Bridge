@@ -221,6 +221,9 @@ class DiagramExporter extends HTMLElement {
 
     this.#geodesignhub._gdhGetDesignESRIJSON(gdhDesignTeamID, gdhDesignID).then(designFeaturesAsEsriJSON => {
 
+      console.info(designFeaturesAsEsriJSON)
+
+
       //
       // CREATE TARGET SCENARIO PORTAL ITEM //
       //  - THIS WILL GIVE US THE NECESSARY NEW SCENARIO ID...
