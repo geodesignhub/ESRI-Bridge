@@ -457,6 +457,8 @@ class DiagramExporter extends HTMLElement {
       const nameChanged = (description !== additional_metadata[this.#gplConfig.FIELD_NAMES.NAME]);
       const actionChanged = (actionID !== additional_metadata[this.#gplConfig.FIELD_NAMES.ACTION_ID]);
       if (actionChanged) {
+        // IF THE ACTION ID HAS CHANGED BUT THE NAME HAS //
+        // NOT THEN WE SHOULD NOT USE THE PREVIOUS NAME  //
         !nameChanged && (description = "[climate action changed]");
       }
 
