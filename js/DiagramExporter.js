@@ -475,7 +475,7 @@ class DiagramExporter extends HTMLElement {
         attributes: {
           Geodesign_ProjectID: this.#gplProjectGroup.id,                 // GPL PROJECT ID - SHOULD BE THE SAME //
           Geodesign_ScenarioID: newScenarioID,                           // GPL SCENARIO ID  //
-          [this.#gplConfig.FIELD_NAMES.NAME]: description,                      // GPL DIAGRAM NAME //
+          [this.#gplConfig.FIELD_NAMES.NAME]: description,               // GPL DIAGRAM NAME //
           [this.#gplConfig.FIELD_NAMES.ACTION_ID]: actionID,             // ACTION ID  //
           [this.#gplConfig.FIELD_NAMES.ACTION_IDS]: actionIDs.join('|'), // ACTION IDS //
           [this.#gplConfig.FIELD_NAMES.SOURCE_ID]: additional_metadata[this.#gplConfig.FIELD_NAMES.GLOBAL_ID],   // SOURCE ID = GLOBAL ID //
