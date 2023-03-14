@@ -460,9 +460,9 @@ class GeodesignhubAPI extends HTMLElement {
 
 
         // METADATA //
-        let gplNotes; //= JSON.parse(current_diagram_feature.properties.metadata);
-        if (!gplNotes) {
-          gplNotes = {"globalid": current_diagram_feature.properties[this.#gplConfig.FIELD_NAMES.GLOBAL_ID]};
+        let gplAdditionalMetadata; //= JSON.parse(current_diagram_feature.properties.metadata);
+        if (!gplAdditionalMetadata) {
+          gplAdditionalMetadata = {"globalid": current_diagram_feature.properties[this.#gplConfig.FIELD_NAMES.GLOBAL_ID]};
         }
         // REMOVE METADATA //
         delete current_diagram_feature.properties.metadata;
@@ -482,7 +482,7 @@ class GeodesignhubAPI extends HTMLElement {
         if (gdhSystemID !== 0) {
 
           let gdhDiagramProperties = {
-            "notes": gplNotes,
+            "additional_metadata": gplAdditionalMetadata,
             "tag_codes": gdhTagCodes,
             "title": gdhDiagramName,
             "start_date": gdhStartDate,

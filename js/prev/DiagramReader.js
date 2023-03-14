@@ -626,7 +626,7 @@ class DiagramReader extends EventTarget {
     //
     const featuresByGlobalID = validDiagramFeatures.reduce((byGlobalID, diagramFeature) => {
 
-      const globalID = diagramFeature.attributes.notes.globalid || diagramFeature.attributes.notes;
+      const globalID = diagramFeature.attributes.additional_metadata.globalid || diagramFeature.attributes.additional_metadata;
 
       let featureByGlobalID;
 
@@ -657,7 +657,7 @@ class DiagramReader extends EventTarget {
     const newFeaturesToAdd = Array.from(featuresByGlobalID.values());
 
     /*const newFeaturesToAdd = validDiagramFeatures.map(diagramFeature => {
-     const globalID = diagramFeature.attributes.notes.globalid;
+     const globalID = diagramFeature.attributes.additional_metadata.globalid;
      return {
      geometry: diagramFeature.geometry,
      attributes: {
