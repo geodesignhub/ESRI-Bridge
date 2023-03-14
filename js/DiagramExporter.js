@@ -431,11 +431,8 @@ class DiagramExporter extends HTMLElement {
       // DIAGRAM INFORMATION //
       const {description, tag_codes, additional_metadata} = diagramFeature.attributes;
 
-      // IF WE STORE ALL SOURCE ATTRIBUTES WE CAN THEN DECIDE HERE WHICH ONES TO SEND BACK //
-      const sourceAttributes = JSON.parse(additional_metadata.replace(/'/g, '"'));
-
       // NAME //
-      const name = description || sourceAttributes[this.#gplConfig.FIELD_NAMES.NAME];
+      const name = description || additional_metadata[this.#gplConfig.FIELD_NAMES.NAME];
 
       // ACTION ID(S) //
       let actionIDs;
@@ -445,15 +442,15 @@ class DiagramExporter extends HTMLElement {
         [actionID] = actionIDs;
       } else {
         // IF tag_codes IS EMPTY THEN FALL BACK TO ORIGINAL VALUES //
-        actionIDs = sourceAttributes[this.#gplConfig.FIELD_NAMES.ACTION_IDS].split('|');
-        actionID = sourceAttributes[this.#gplConfig.FIELD_NAMES.ACTION_ID];
+        actionIDs = additional_metadata[this.#gplConfig.FIELD_NAMES.ACTION_IDS].split('|');
+        actionID = additional_metadata[this.#gplConfig.FIELD_NAMES.ACTION_ID];
       }
 
       // COEFFICIENT ATTRIBUTES //
       // - ONLY SAVE IF THE ACTION ID HAS NOT CHANGED //
       const coefficientAttributes = this.#gplConfig.COEFFICIENT_FIELD_NAMES.reduce((infos, coefficientAttribute) => {
-        infos[coefficientAttribute] = (sourceAttributes[this.#gplConfig.FIELD_NAMES.ACTION_ID] === actionID)
-          ? sourceAttributes[coefficientAttribute]
+        infos[coefficientAttribute] = (additional_metadata[this.#gplConfig.FIELD_NAMES.ACTION_ID] === actionID)
+          ? additional_metadata[coefficientAttribute]
           : null;
         return infos;
       }, {});
@@ -467,9 +464,9 @@ class DiagramExporter extends HTMLElement {
           [this.#gplConfig.FIELD_NAMES.NAME]: name,                      // GPL DIAGRAM NAME //
           [this.#gplConfig.FIELD_NAMES.ACTION_ID]: actionID,             // ACTION ID  //
           [this.#gplConfig.FIELD_NAMES.ACTION_IDS]: actionIDs.join('|'), // ACTION IDS //
-          [this.#gplConfig.FIELD_NAMES.SOURCE_ID]: sourceAttributes[this.#gplConfig.FIELD_NAMES.GLOBAL_ID],   // SOURCE ID = GLOBAL ID //
-          [this.#gplConfig.FIELD_NAMES.START_DATE]: sourceAttributes[this.#gplConfig.FIELD_NAMES.START_DATE], // START DATE //
-          [this.#gplConfig.FIELD_NAMES.END_DATE]: sourceAttributes[this.#gplConfig.FIELD_NAMES.END_DATE],     // END DATE   //
+          [this.#gplConfig.FIELD_NAMES.SOURCE_ID]: additional_metadata[this.#gplConfig.FIELD_NAMES.GLOBAL_ID],   // SOURCE ID = GLOBAL ID //
+          [this.#gplConfig.FIELD_NAMES.START_DATE]: additional_metadata[this.#gplConfig.FIELD_NAMES.START_DATE], // START DATE //
+          [this.#gplConfig.FIELD_NAMES.END_DATE]: additional_metadata[this.#gplConfig.FIELD_NAMES.END_DATE],     // END DATE   //
           ...coefficientAttributes                                       // COEFFICIENTS THAT HAVEN'T CHANGED //
         }
       };
