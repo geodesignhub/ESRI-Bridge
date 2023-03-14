@@ -569,18 +569,18 @@ function migrateGPLFeaturesAsDiagrams() {
     var postJson = { "featuretype": geoJSONGeometryType, "description": gdhDiagramName, "geometry": gj_feature_collection };
 
     // JG - CHARLIE NEEDS GLOBALID //
-    let gplNotes = { 'notes': { 'sourceid': 'ESRI-GPL', 'globalid': 'ESRI-GPL' } };
+    let gplAdditionalMetadata = { 'additional_metadata': { 'sourceid': 'ESRI-GPL', 'globalid': 'ESRI-GPL' } };
     if (current_diagram_feature.properties.hasOwnProperty("GLOBALID")) {
-      gplNotes['globalid'] = current_diagram_feature.properties.GLOBALID;
+      gplAdditionalMetadata['globalid'] = current_diagram_feature.properties.GLOBALID;
     }
     // JG - SOURCE_ID WILL BE AN ATTRIBUTE WE POPULATE WITH THE GLOBALID VALUE BEFORE ADDING NEW FEATURES...
     // if (current_diagram_feature.properties.hasOwnProperty("SOURCE_ID")) {
-    //   gplNotes['sourceid'] = current_diagram_feature.properties.SOURCE_ID;
+    //   gplAdditionalMetadata['sourceid'] = current_diagram_feature.properties.SOURCE_ID;
     // }
 
     if (gdhSystemID !== 0) {
 
-      let gdhDiagramProperties = { 'notes': gplNotes };
+      let gdhDiagramProperties = { 'additional_metadata': gplAdditionalMetadata };
 
       gdhMigrateDiagramsToProject(gdhProjectID, gdhApiToken, gdhSystemID, 'project', postJson).then(diagram_data => {
         consoleElement.innerHTML = `<div>${JSON.stringify(diagram_data, null, 2)}</div>${consoleElement.innerHTML}`;
