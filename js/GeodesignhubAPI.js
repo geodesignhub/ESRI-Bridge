@@ -99,7 +99,7 @@ class GeodesignhubAPI extends HTMLElement {
         }
         :host .gdh-console {
           width: 100%;
-          max-height: 3rem;
+          max-height: 4rem;
           padding: 5px 15px;          
           font-size: 11pt;
           overflow-y: auto;        
@@ -466,13 +466,16 @@ class GeodesignhubAPI extends HTMLElement {
         // REMOVE METADATA //
         delete current_diagram_feature.properties.metadata;
 
-        // CREATE FEATURE COLLECTION //
+        // SYSTEM ID //
         const gdhSystemID = this.gdhGPLSystemConverter(gplSystem);
+
+        // REWIND GEOMETRY //
         const gj = current_diagram_feature['geometry'];
         let geoJSONGeometryType = gj['type'].toLowerCase();
         let rewound = this.rewind(gj, false);
         current_diagram_feature['geometry'] = rewound;
 
+        // CREATE FEATURE COLLECTION //
         let gj_feature_collection = {"type": "FeatureCollection", "features": [current_diagram_feature]};
         if (geoJSONGeometryType === 'LineString') { geoJSONGeometryType = 'polyline'; }
 

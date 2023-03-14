@@ -221,8 +221,7 @@ class DiagramExporter extends HTMLElement {
 
     this.#geodesignhub._gdhGetDesignESRIJSON(gdhDesignTeamID, gdhDesignID).then(designFeaturesAsEsriJSON => {
 
-      console.info(designFeaturesAsEsriJSON)
-
+      console.info(designFeaturesAsEsriJSON);
 
       //
       // CREATE TARGET SCENARIO PORTAL ITEM //
@@ -427,20 +426,22 @@ class DiagramExporter extends HTMLElement {
     // FEATURES TO BE ADDED TO NEW GPL SCENARIO //
     //
     const newFeaturesToAdd = validDiagramFeatures.map((diagramFeature) => {
-      console.info(diagramFeature.attributes);
+      //console.info(diagramFeature.attributes);
+
+      // DIAGRAM INFORMATION //
+      const {description, tag_codes, additional_metadata} = diagramFeature.attributes;
 
       // IF WE STORE ALL SOURCE ATTRIBUTES WE CAN THEN DECIDE HERE WHICH ONES TO SEND BACK //
-      const sourceAttributes = JSON.parse(diagramFeature.attributes.additional_metadata.replace(/'/g, '"'));
+      const sourceAttributes = JSON.parse(additional_metadata.replace(/'/g, '"'));
 
       // NAME //
-      const name = diagramFeature.attributes.description || sourceAttributes[this.#gplConfig.FIELD_NAMES.NAME];
+      const name = description || sourceAttributes[this.#gplConfig.FIELD_NAMES.NAME];
 
       // ACTION ID(S) //
       let actionIDs;
       let actionID;
-      const tagCodes = diagramFeature.attributes.tag_codes;
-      if (tagCodes?.length) {
-        actionIDs = tagCodes.split('|');
+      if (tag_codes?.length) {
+        actionIDs = tag_codes.split('|');
         [actionID] = actionIDs;
       } else {
         // IF tag_codes IS EMPTY THEN FALL BACK TO ORIGINAL VALUES //
@@ -461,14 +462,15 @@ class DiagramExporter extends HTMLElement {
       const newScenarioFeature = {
         geometry: diagramFeature.geometry,
         attributes: {
-          ...sourceAttributes,                                           // START WITH ALL SOURCE FEATURES ATTRIBUTES   //
-          ...coefficientAttributes,                                      // OVERRIDE COEFFICIENTS THAT HAVEN'T CHANGED  //
-          Geodesign_ProjectID: this.#gplProjectGroup.id,                 // OVERRIDE GPL PROJECT ID - SHOULD BE THE SAME //
-          Geodesign_ScenarioID: newScenarioID,                           // OVERRIDE GPL SCENARIO ID  //
-          [this.#gplConfig.FIELD_NAMES.NAME]: name,                      // OVERRIDE GPL DIAGRAM NAME //
-          [this.#gplConfig.FIELD_NAMES.ACTION_ID]: actionID,             // OVERRIDE ACTION ID  //
-          [this.#gplConfig.FIELD_NAMES.ACTION_IDS]: actionIDs.join('|'), // OVERRIDE ACTION IDS //
-          [this.#gplConfig.FIELD_NAMES.SOURCE_ID]: sourceAttributes[this.#gplConfig.FIELD_NAMES.GLOBAL_ID] // SET SOURCE ID TO SOURCE GLOBAL ID //
+          Geodesign_ProjectID: this.#gplProjectGroup.id,                 // GPL PROJECT ID - SHOULD BE THE SAME //
+          Geodesign_ScenarioID: newScenarioID,                           // GPL SCENARIO ID  //
+          [this.#gplConfig.FIELD_NAMES.NAME]: name,                      // GPL DIAGRAM NAME //
+          [this.#gplConfig.FIELD_NAMES.ACTION_ID]: actionID,             // ACTION ID  //
+          [this.#gplConfig.FIELD_NAMES.ACTION_IDS]: actionIDs.join('|'), // ACTION IDS //
+          [this.#gplConfig.FIELD_NAMES.SOURCE_ID]: sourceAttributes[this.#gplConfig.FIELD_NAMES.GLOBAL_ID],   // SOURCE ID = GLOBAL ID //
+          [this.#gplConfig.FIELD_NAMES.START_DATE]: sourceAttributes[this.#gplConfig.FIELD_NAMES.START_DATE], // START DATE //
+          [this.#gplConfig.FIELD_NAMES.END_DATE]: sourceAttributes[this.#gplConfig.FIELD_NAMES.END_DATE],     // END DATE   //
+          ...coefficientAttributes                                       // COEFFICIENTS THAT HAVEN'T CHANGED //
         }
       };
       console.info(newScenarioFeature);
