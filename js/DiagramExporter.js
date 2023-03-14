@@ -445,25 +445,19 @@ class DiagramExporter extends HTMLElement {
         actionID = sourceAttributes[this.#gplConfig.FIELD_NAMES.ACTION_ID];
       }
 
-      // COEFFICIENT ATTRIBUTES //
-      const coefficientAttributes =  this.#gplConfig.COEFFICIENT_FIELD_NAMES.reduce((infos,coefficientAttribute)=>{
-        infos[coefficientAttribute] = sourceAttributes[coefficientAttribute];
-        return infos;
-      },{})
-
       // NEW SCENARIO FEATURE //
       const newScenarioFeature = {
         geometry: diagramFeature.geometry,
         attributes: {
           Geodesign_ProjectID: this.#gplProjectGroup.id,
           Geodesign_ScenarioID: newScenarioID,
+          ...sourceAttributes,
           [this.#gplConfig.FIELD_NAMES.NAME]: name,
           [this.#gplConfig.FIELD_NAMES.ACTION_IDS]: actionIDs.join('|'),
           [this.#gplConfig.FIELD_NAMES.ACTION_ID]: actionID,
           [this.#gplConfig.FIELD_NAMES.SOURCE_ID]: sourceAttributes[this.#gplConfig.FIELD_NAMES.GLOBAL_ID],
           [this.#gplConfig.FIELD_NAMES.START_DATE]: sourceAttributes[this.#gplConfig.FIELD_NAMES.START_DATE], // TODO: CHECK TYPE
-          [this.#gplConfig.FIELD_NAMES.END_DATE]: sourceAttributes[this.#gplConfig.FIELD_NAMES.END_DATE],     // TODO: CHECK TYPE
-          ...coefficientAttributes
+          [this.#gplConfig.FIELD_NAMES.END_DATE]: sourceAttributes[this.#gplConfig.FIELD_NAMES.END_DATE]     // TODO: CHECK TYPE
         }
       };
       console.info(newScenarioFeature);
