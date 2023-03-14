@@ -234,15 +234,17 @@ class DiagramExporter extends HTMLElement {
 
         // UPDATE NEW SCENARIO FEATURES //
         const updatedDesignFeaturesAsEsriJSON = this._updateScenarioCandidates({candidateFeatures: designFeaturesAsEsriJSON, newScenarioID});
-        console.info("Updated negotiated GDH diagrams as Esri features: ", updatedDesignFeaturesAsEsriJSON);
+        //console.info("Updated negotiated GDH diagrams as Esri features: ", updatedDesignFeaturesAsEsriJSON);
 
         // ADD NEW GEOPLANNER SCENARIO FEATURES //
         this._addNewGeoPlannerScenarioFeatures({designFeaturesAsEsriJSON: updatedDesignFeaturesAsEsriJSON, newPortalItem}).then(({addFeaturesOIDs}) => {
           //resolve({newPortalItem, newScenarioID, scenarioFilter, addFeaturesOIDs});
-          console.info('New GeoPlanner Scenario Feature OIDs: ', addFeaturesOIDs);
+          //console.info('New GeoPlanner Scenario Feature OIDs: ', addFeaturesOIDs);
 
           this.newScenarioLink.setAttribute('href', `https://${ this.#portal.urlKey }.${ this.#portal.customBaseUrl }/apps/mapviewer/index.html?layers=${ newScenarioID }`);
           this.completeSection.toggleAttribute('hidden', false);
+
+          this.#geodesignhub.displayMessage(`New GeoPlanner scenario created: ${gdhDesignName}`);
 
         }).catch(error => {
           this.#geodesignhub.displayMessage(error);
