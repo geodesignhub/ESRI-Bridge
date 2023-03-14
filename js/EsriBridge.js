@@ -59,7 +59,13 @@ class EsriBridge extends EventTarget {
       ACTION_IDS: 'Policy_Actions_IDS',
       START_DATE: 'Start_Date',
       END_DATE: 'End_Date'
-    }
+    },
+    COEFFICIENT_FIELD_NAMES: [
+      'Sink_Coefficient_HE',
+      'Sink_Coefficient_ZT',
+      'Sink_Coefficient_PF',
+      'Sink_Coefficient_GP'
+    ]
   };
 
   /**

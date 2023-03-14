@@ -445,6 +445,14 @@ class DiagramExporter extends HTMLElement {
         actionID = sourceAttributes[this.#gplConfig.FIELD_NAMES.ACTION_ID];
       }
 
+      // COEFFICIENT ATTRIBUTES //
+      const coefficientAttributes =  this.#gplConfig.COEFFICIENT_FIELD_NAMES.reduce((infos,coefficientAttribute)=>{
+        if(sourceAttributes[this.#gplConfig.FIELD_NAMES.ACTION_ID] === actionID) {
+          infos[coefficientAttribute] = sourceAttributes[coefficientAttribute];
+        }
+        return infos;
+      },{})
+
       // NEW SCENARIO FEATURE //
       const newScenarioFeature = {
         geometry: diagramFeature.geometry,
@@ -457,7 +465,8 @@ class DiagramExporter extends HTMLElement {
           [this.#gplConfig.FIELD_NAMES.ACTION_ID]: actionID,
           [this.#gplConfig.FIELD_NAMES.SOURCE_ID]: sourceAttributes[this.#gplConfig.FIELD_NAMES.GLOBAL_ID],
           [this.#gplConfig.FIELD_NAMES.START_DATE]: sourceAttributes[this.#gplConfig.FIELD_NAMES.START_DATE], // TODO: CHECK TYPE
-          [this.#gplConfig.FIELD_NAMES.END_DATE]: sourceAttributes[this.#gplConfig.FIELD_NAMES.END_DATE]     // TODO: CHECK TYPE
+          [this.#gplConfig.FIELD_NAMES.END_DATE]: sourceAttributes[this.#gplConfig.FIELD_NAMES.END_DATE],     // TODO: CHECK TYPE
+          ...coefficientAttributes
         }
       };
       console.info(newScenarioFeature);
