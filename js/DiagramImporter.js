@@ -339,8 +339,8 @@ class DiagramImporter extends HTMLElement {
             source: JSON.stringify(feature.properties),
             system: Number(systemCode),
             tags: climateActions,
-            start_date: startDate.toUTCString(),
-            end_date: endDate.toUTCString(),
+            start_date: startDate.toISOString(),
+            end_date: endDate.toISOString(),
             name: diagramName
           }
         };

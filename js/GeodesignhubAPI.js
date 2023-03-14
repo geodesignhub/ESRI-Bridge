@@ -125,6 +125,9 @@ class GeodesignhubAPI extends HTMLElement {
     // CONSOLE //
     this.consoleElement = this.shadowRoot.querySelector('.gdh-console');
 
+    // BIND MESSAGE DISPLAY //
+    this.displayMessage = this.displayMessage.bind(this);
+
     // VERIFY CREDENTIALS //
     this.verifyCredentials();
 
@@ -339,7 +342,7 @@ class GeodesignhubAPI extends HTMLElement {
         ? `${ messageOrError.message }: ${ messageOrError.details?.messages?.[0] }`
         : messageOrError;
 
-      this.consoleElement.innerHTML = message ? `<div>${ message }</div><br>============================<br>${ this.consoleElement.innerHTML }` : '';
+      this.consoleElement.innerHTML = message ? `<div>${ message }</div><div>============================</div>${ this.consoleElement.innerHTML }` : '';
       this.toggleAttribute('hidden', false);
     }
   }
@@ -455,7 +458,7 @@ class GeodesignhubAPI extends HTMLElement {
         const gdhEndDate = current_diagram_feature.properties.end_date;
         let gdhDiagramName = current_diagram_feature.properties.name;
 
-        if (gdhDiagramName?.length) {
+        if (!gdhDiagramName?.length) {
           gdhDiagramName = "Test Migration";
         }
 
