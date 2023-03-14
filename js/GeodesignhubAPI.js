@@ -452,40 +452,32 @@ class GeodesignhubAPI extends HTMLElement {
       for (let index = 0; index < source_diagrams_len; index++) {
         const current_diagram_feature = diagramsGeoJSON[index];
 
+        const gdhDiagramName = current_diagram_feature.properties.name || "GPL Migration";
         const gplSystem = current_diagram_feature.properties.system;
         const gdhTagCodes = current_diagram_feature.properties.tags;
         const gdhStartDate = current_diagram_feature.properties.start_date;
         const gdhEndDate = current_diagram_feature.properties.end_date;
-        let gdhDiagramName = current_diagram_feature.properties.name;
 
-        if (!gdhDiagramName?.length) {
-          gdhDiagramName = "Test Migration";
+
+        // METADATA //
+        let gplNotes; //= JSON.parse(current_diagram_feature.properties.metadata);
+        if (!gplNotes) {
+          gplNotes = {"globalid": current_diagram_feature.properties[this.#gplConfig.FIELD_NAMES.GLOBAL_ID]};
         }
+        // REMOVE METADATA //
+        delete current_diagram_feature.properties.metadata;
 
+        // CREATE FEATURE COLLECTION //
         const gdhSystemID = this.gdhGPLSystemConverter(gplSystem);
         const gj = current_diagram_feature['geometry'];
-
         let geoJSONGeometryType = gj['type'].toLowerCase();
         let rewound = this.rewind(gj, false);
         current_diagram_feature['geometry'] = rewound;
 
         let gj_feature_collection = {"type": "FeatureCollection", "features": [current_diagram_feature]};
-
-        if (geoJSONGeometryType === 'LineString') {
-          geoJSONGeometryType = 'polyline';
-        }
+        if (geoJSONGeometryType === 'LineString') { geoJSONGeometryType = 'polyline'; }
 
         const postJson = {"featuretype": geoJSONGeometryType, "description": gdhDiagramName, "geometry": gj_feature_collection};
-
-        /**
-         * NOTES IS A PLACE TO SAVE ADDITIONAL INFORMATION
-         *
-         *  - IF WE SAVE ALL PROPERTIES WE CAN THEN LATER ON REHYDRATE THE FEATURES ON THE WAY OUT BASED ON NEEDS...
-         */
-        let gplNotes = JSON.parse(current_diagram_feature.properties.source);
-        if (!gplNotes) {
-          gplNotes = {"globalid": current_diagram_feature.properties[this.#gplConfig.FIELD_NAMES.GLOBAL_ID]};
-        }
 
         if (gdhSystemID !== 0) {
 

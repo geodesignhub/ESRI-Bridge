@@ -427,7 +427,7 @@ class DiagramExporter extends HTMLElement {
       console.info(diagramFeature.attributes);
 
       // IF WE STORE ALL SOURCE ATTRIBUTES WE CAN THEN DECIDE HERE WHICH ONES TO SEND BACK //
-      const sourceAttributes = JSON.parse(diagramFeature.attributes.notes.replace(/'/g, '"'));
+      const sourceAttributes = JSON.parse(diagramFeature.attributes.metadata.replace(/'/g, '"'));
 
       // NAME //
       const name = diagramFeature.attributes.description || sourceAttributes[this.#gplConfig.FIELD_NAMES.NAME];
@@ -446,27 +446,26 @@ class DiagramExporter extends HTMLElement {
       }
 
       // COEFFICIENT ATTRIBUTES //
-      const coefficientAttributes =  this.#gplConfig.COEFFICIENT_FIELD_NAMES.reduce((infos,coefficientAttribute)=>{
-        if(sourceAttributes[this.#gplConfig.FIELD_NAMES.ACTION_ID] === actionID) {
-          infos[coefficientAttribute] = sourceAttributes[coefficientAttribute];
-        }
+      // - ONLY SAVE IF THE ACTION ID HAS NOT CHANGED //
+      const coefficientAttributes = this.#gplConfig.COEFFICIENT_FIELD_NAMES.reduce((infos, coefficientAttribute) => {
+        infos[coefficientAttribute] = (sourceAttributes[this.#gplConfig.FIELD_NAMES.ACTION_ID] === actionID)
+          ? sourceAttributes[coefficientAttribute]
+          : null;
         return infos;
-      },{})
+      }, {});
 
       // NEW SCENARIO FEATURE //
       const newScenarioFeature = {
         geometry: diagramFeature.geometry,
         attributes: {
-          Geodesign_ProjectID: this.#gplProjectGroup.id,
-          Geodesign_ScenarioID: newScenarioID,
-          ...sourceAttributes,
-          [this.#gplConfig.FIELD_NAMES.NAME]: name,
-          [this.#gplConfig.FIELD_NAMES.ACTION_IDS]: actionIDs.join('|'),
-          [this.#gplConfig.FIELD_NAMES.ACTION_ID]: actionID,
-          [this.#gplConfig.FIELD_NAMES.SOURCE_ID]: sourceAttributes[this.#gplConfig.FIELD_NAMES.GLOBAL_ID],
-          [this.#gplConfig.FIELD_NAMES.START_DATE]: sourceAttributes[this.#gplConfig.FIELD_NAMES.START_DATE], // TODO: CHECK TYPE
-          [this.#gplConfig.FIELD_NAMES.END_DATE]: sourceAttributes[this.#gplConfig.FIELD_NAMES.END_DATE],     // TODO: CHECK TYPE
-          ...coefficientAttributes
+          ...sourceAttributes,                                           // START WITH ALL SOURCE FEATURES ATTRIBUTES   //
+          ...coefficientAttributes,                                      // OVERRIDE COEFFICIENTS THAT HAVEN'T CHANGED  //
+          Geodesign_ProjectID: this.#gplProjectGroup.id,                 // OVERRIDE GPL PROJECT ID - SHOULD BE THE SAME //
+          Geodesign_ScenarioID: newScenarioID,                           // OVERRIDE GPL SCENARIO ID  //
+          [this.#gplConfig.FIELD_NAMES.NAME]: name,                      // OVERRIDE GPL DIAGRAM NAME //
+          [this.#gplConfig.FIELD_NAMES.ACTION_ID]: actionID,             // OVERRIDE ACTION ID  //
+          [this.#gplConfig.FIELD_NAMES.ACTION_IDS]: actionIDs.join('|'), // OVERRIDE ACTION IDS //
+          [this.#gplConfig.FIELD_NAMES.SOURCE_ID]: sourceAttributes[this.#gplConfig.FIELD_NAMES.GLOBAL_ID] // SET SOURCE ID TO SOURCE GLOBAL ID //
         }
       };
       console.info(newScenarioFeature);

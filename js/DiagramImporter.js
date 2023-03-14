@@ -341,7 +341,7 @@ class DiagramImporter extends HTMLElement {
             tags: climateActions,
             start_date: startDate.toISOString(),
             end_date: endDate.toISOString(),
-            source: JSON.stringify(feature.properties)
+            metadata: {...feature.properties}
           }
         };
         console.info(newDiagram);
