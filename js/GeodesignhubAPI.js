@@ -448,11 +448,14 @@ class GeodesignhubAPI extends HTMLElement {
 
       for (let index = 0; index < source_diagrams_len; index++) {
         const current_diagram_feature = diagramsGeoJSON[index];
+
         const gplSystem = current_diagram_feature.properties.system;
         const gdhTagCodes = current_diagram_feature.properties.tags;
+        const gdhStartDate = current_diagram_feature.properties.start_date;
+        const gdhEndDate = current_diagram_feature.properties.end_date;
         let gdhDiagramName = current_diagram_feature.properties.name;
 
-        if (gdhDiagramName === "") {
+        if (gdhDiagramName?.length) {
           gdhDiagramName = "Test Migration";
         }
 
@@ -476,31 +479,30 @@ class GeodesignhubAPI extends HTMLElement {
          *
          *  - IF WE SAVE ALL PROPERTIES WE CAN THEN LATER ON REHYDRATE THE FEATURES ON THE WAY OUT BASED ON NEEDS...
          */
-        //let gplNotes = current_diagram_feature.properties;
+        let gplNotes = JSON.parse(current_diagram_feature.properties.source);
 
-        let gplNotes = {"globalid": "ESRI-GPL"};
-        if (current_diagram_feature.properties.hasOwnProperty(this.#gplConfig.FIELD_NAMES.GLOBAL_ID)) {
-          gplNotes["globalid"] = current_diagram_feature.properties[this.#gplConfig.FIELD_NAMES.GLOBAL_ID];
-        }
-        if (current_diagram_feature.properties.hasOwnProperty('climateAction')) {
-          gplNotes["climateAction"] = current_diagram_feature.properties.climateAction;
-        }
+        /*let gplNotes = {"globalid": "ESRI-GPL"};
+         if (current_diagram_feature.properties.hasOwnProperty(this.#gplConfig.FIELD_NAMES.GLOBAL_ID)) {
+         gplNotes["globalid"] = current_diagram_feature.properties[this.#gplConfig.FIELD_NAMES.GLOBAL_ID];
+         }*/
 
         if (gdhSystemID !== 0) {
 
-          let gdhDiagramProperties = {"notes": gplNotes};
+          let gdhDiagramProperties = {
+            "notes": gplNotes,
+            "tag_codes": gdhTagCodes,
+            "title": gdhDiagramName,
+            "start_date": gdhStartDate,
+            "end_date": gdhEndDate
+          };
 
           this._gdhMigrateDiagramsToProject(gdhSystemID, 'project', postJson).then(diagram_data => {
             this.displayMessage(JSON.stringify(diagram_data, null, 2));
             return diagram_data;
           }).then(diagram_data => {
-            // Assign Diagram Tags
             const dd = JSON.parse(diagram_data);
             let diagramID = dd['diagram_id'];
-            if (gdhTagCodes.length > 0) {
-              gdhDiagramProperties['tag_codes'] = gdhTagCodes;
-            }
-            // Assign GPL Object ID
+
             this._gdhUpdateDiagramProperties(diagramID, gdhDiagramProperties).then(propertiesUpdated => {
               this.displayMessage("Diagram properties updated..");
 

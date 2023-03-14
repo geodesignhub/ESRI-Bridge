@@ -40,7 +40,7 @@ class EsriBridge extends EventTarget {
    *
    * USED TO CONFIGURE GEOPLANNER LAYER IDS AND FIELD NAMES
    *
-   * @typedef {{FIELD_NAMES: {ACTION_IDS: string, SOURCE_ID: string, DESCRIPTION: string, ACTION_ID: string, GLOBAL_ID: string, NAME: string}, ACTIONS_LAYER_ID: number}} GPLConfig
+   * @typedef {{ACTIONS_LAYER_ID: number, FIELD_NAMES: {ACTION_IDS: string, SOURCE_ID: string, DESCRIPTION: string, ACTION_ID: string, GLOBAL_ID: string, NAME: string,START_DATE: string, END_DATE: string}, COEFFICIENT_FIELD_NAMES: string[]}} GPLConfig
    */
 
   /**
@@ -55,10 +55,17 @@ class EsriBridge extends EventTarget {
       GLOBAL_ID: 'GlobalID',
       SOURCE_ID: 'SOURCE_ID',
       NAME: 'Name',
-      DESCRIPTION: 'Description',
       ACTION_ID: 'Type',
-      ACTION_IDS: 'Policy_Actions_IDS'
-    }
+      ACTION_IDS: 'Policy_Actions_IDS',
+      START_DATE: 'Start_Date',
+      END_DATE: 'End_Date'
+    },
+    COEFFICIENT_FIELD_NAMES: [
+      'Sink_Coefficient_HE',
+      'Sink_Coefficient_ZT',
+      'Sink_Coefficient_PF',
+      'Sink_Coefficient_GP'
+    ]
   };
 
   /**

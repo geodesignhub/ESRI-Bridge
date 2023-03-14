@@ -317,10 +317,14 @@ class DiagramImporter extends HTMLElement {
         // DIAGRAM NAME //
         const diagramName = feature.properties[this.#gplConfig.FIELD_NAMES.NAME];
 
-        // GET LIST OF ALL CLIMATE ACTIONS FOR EACH FEATURE //
+        // START AND END DATES //
+        const startDate = new Date(feature.properties[this.#gplConfig.FIELD_NAMES.START_DATE] || 'January 1, 2024');
+        const endDate = new Date(feature.properties[this.#gplConfig.FIELD_NAMES.NAME.END_DATE] || 'December 31, 2049');
+
+        // GET CLIMATE ACTION //
         const climateAction = feature.properties[this.#gplConfig.FIELD_NAMES.ACTION_ID];
-        // GET CLIMATE ACTION DETAILS //
-        const [systemCode] = climateAction.split('.');
+        // GET CLIMATE ACTION SYSTEM //
+        const [systemCode] = climateAction?.split('.');
 
         // CLIMATE ACTIONS PROPERTY //
         const climateActionsStr = feature.properties[this.#gplConfig.FIELD_NAMES.ACTION_IDS];
@@ -332,11 +336,12 @@ class DiagramImporter extends HTMLElement {
           id: (featureIdx + 1),
           geometry: feature.geometry,
           properties: {
-            ...feature.properties,
-            climateAction: climateAction,
-            name: diagramName,
+            source: JSON.stringify(feature.properties),
             system: Number(systemCode),
-            tags: climateActions
+            tags: climateActions,
+            start_date: startDate.toUTCString(),
+            end_date: endDate.toUTCString(),
+            name: diagramName
           }
         };
         console.info(newDiagram);

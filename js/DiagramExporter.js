@@ -231,9 +231,6 @@ class DiagramExporter extends HTMLElement {
       }).then(({newPortalItem, newScenarioID, scenarioFilter}) => {
 
         // UPDATE NEW SCENARIO FEATURES //
-        //
-        // - TODO: THESE MODIFICATIONS WILL HAVE TO HAPPEN AND WILL CHANGE AS WE MOVE THE PROJECT FORWARD...
-        //
         const updatedDesignFeaturesAsEsriJSON = this._updateScenarioCandidates({candidateFeatures: designFeaturesAsEsriJSON, newScenarioID});
         console.info("Updated negotiated GDH diagrams as Esri features: ", updatedDesignFeaturesAsEsriJSON);
 
@@ -368,11 +365,8 @@ class DiagramExporter extends HTMLElement {
               updatedScenarioPortalItem.fetchData().then((updatedLayerPortalItemData) => {
                 //console.info("UPDATED Scenario Portal Item Data: ", updatedLayerPortalItemData);
 
-                //
                 // UPDATING PORTAL ITEM SHARING
-                //
                 // https://developers.arcgis.com/rest/users-groups-and-items/share-item-as-item-owner-.htm
-                //
                 const portalItemShareUrl = `${ updatedScenarioPortalItem.userItemUrl }/share`;
                 esriRequest(portalItemShareUrl, {
                   query: {
@@ -418,14 +412,11 @@ class DiagramExporter extends HTMLElement {
    * @returns {{geometry:{}, attributes:{}}[]}
    */
   _updateScenarioCandidates({candidateFeatures, newScenarioID}) {
-    //
+
     // VALID CANDIDATE FEATURES //
     // - NOTE: ONLY FEATURES WITH POLYGON GEOMETRIES ALLOWED CURRENTLY...
-    //
     const validDiagramFeatures = candidateFeatures.filter(diagramFeature => {
-      //
       // HERE WE CAN ADD OTHER VALIDITY CHECKS TO DIAGRAMS //
-      //
       return (diagramFeature.geometry.rings != null);
     });
 
@@ -435,12 +426,30 @@ class DiagramExporter extends HTMLElement {
     const newFeaturesToAdd = validDiagramFeatures.map((diagramFeature) => {
       console.info(diagramFeature.attributes);
 
-      // ACTION ID(S) //
-      const actionIDs = diagramFeature.attributes.tag_codes?.split('|') || ['0.0.0'];
-      const [actionID] = actionIDs;
+      // IF WE STORE ALL SOURCE ATTRIBUTES WE CAN THEN DECIDE HERE WHICH ONES TO SEND BACK //
+      const sourceAttributes = JSON.parse(diagramFeature.attributes.notes.replace(/'/g, '"'));
 
-      // NOTES - CURRENTLY ONLY GLOBALID BEING STORED //
-      const notes = JSON.parse(diagramFeature.attributes.notes.replace(/'/g, '"'));
+      // NAME //
+      const name = diagramFeature.attributes.description || sourceAttributes[this.#gplConfig.FIELD_NAMES.NAME];
+
+      // ACTION ID(S) //
+      let actionIDs;
+      let actionID;
+      const tagCodes = diagramFeature.attributes.tag_codes;
+      if (tagCodes?.length) {
+        actionIDs = tagCodes.split('|');
+        [actionID] = actionIDs;
+      } else {
+        // IF tag_codes IS EMPTY THEN FALL BACK TO ORIGINAL VALUES //
+        actionIDs = sourceAttributes[this.#gplConfig.FIELD_NAMES.ACTION_IDS].split('|');
+        actionID = sourceAttributes[this.#gplConfig.FIELD_NAMES.ACTION_ID];
+      }
+
+      // COEFFICIENT ATTRIBUTES //
+      const coefficientAttributes =  this.#gplConfig.COEFFICIENT_FIELD_NAMES.reduce((infos,coefficientAttribute)=>{
+        infos[coefficientAttribute] = sourceAttributes[coefficientAttribute];
+        return infos;
+      },{})
 
       // NEW SCENARIO FEATURE //
       const newScenarioFeature = {
@@ -448,10 +457,13 @@ class DiagramExporter extends HTMLElement {
         attributes: {
           Geodesign_ProjectID: this.#gplProjectGroup.id,
           Geodesign_ScenarioID: newScenarioID,
-          [this.#gplConfig.FIELD_NAMES.SOURCE_ID]: notes?.globalid || '',
-          [this.#gplConfig.FIELD_NAMES.NAME]: diagramFeature.attributes.description,
+          [this.#gplConfig.FIELD_NAMES.NAME]: name,
+          [this.#gplConfig.FIELD_NAMES.ACTION_IDS]: actionIDs.join('|'),
           [this.#gplConfig.FIELD_NAMES.ACTION_ID]: actionID,
-          [this.#gplConfig.FIELD_NAMES.ACTION_IDS]: actionIDs.join('|')
+          [this.#gplConfig.FIELD_NAMES.SOURCE_ID]: sourceAttributes[this.#gplConfig.FIELD_NAMES.GLOBAL_ID],
+          [this.#gplConfig.FIELD_NAMES.START_DATE]: sourceAttributes[this.#gplConfig.FIELD_NAMES.START_DATE], // TODO: CHECK TYPE
+          [this.#gplConfig.FIELD_NAMES.END_DATE]: sourceAttributes[this.#gplConfig.FIELD_NAMES.END_DATE],     // TODO: CHECK TYPE
+          ...coefficientAttributes
         }
       };
       console.info(newScenarioFeature);
