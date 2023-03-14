@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>GDH Viewer</title>
+    <script
+      src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+      integrity="sha512-Dqm3h1Y4qiHUjbhxTuBGQsza0Tfppn53SHlu/uj1f+RT+xfShfe7r6czRf5r2NmllO2aKx+tYJgoxboOkn1Scg=="
+      crossorigin=""></script>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+      integrity="sha512-mD70nAW2ThLsWH0zif8JPbfraZ8hbCtjQ+5RU1m4+ztZq6/MymyZeB55pWsi4YAX+73yvcaJyk61mzfYMvtm9w=="
+      crossorigin=""/>
+    <script
+      src="https://unpkg.com/esri-leaflet@3.0.10/dist/esri-leaflet.js"
+      integrity="sha512-i9mZ/0lnBMdKZjkVQXImtZbWzrhomyyQzXarfT4ki1eD/Bi+rcV4lFyzX52lbRQtqj070JQea4p8QNCMrHzuYg=="
+      crossorigin=""></script>
+    <script
+      src="https://unpkg.com/esri-leaflet-vector@4.0.1/dist/esri-leaflet-vector.js"
+      integrity="sha512-1rJumtWIar3IH4f12WTGted5uGWSc5d8TFH8JVlk3hnCpZCVc2SccJSSNRMUo0AUwzlLeUgNEXvYyivVmhWlZg=="
+      crossorigin=""></script>
+    <script
+      src="https://unpkg.com/esri-leaflet-renderers@3.0.0/dist/esri-leaflet-renderers.js"
+      integrity="sha512-tqY7QUz7UHKLqhBX1SVYBsn6EKeadkSqYXsdj3RbzZdY8jUq1t0Hi+CS7vylbMIM/jcmN4PgelBhiKvCjTJ7GQ=="
+      crossorigin=""></script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+      }
+      
+      #maps-container {
+        flex: 1 1 60%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      
+      #map {
+        flex: 1 1 0;
+      }
+      
+      #layers-list {
+        padding: 10px;
+        flex: 1 1 40%;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 14px;
+        color: #323232;
+      }
+      
+      #layers-list h3 {
+        border-bottom: solid 2px #666666;
+      }
+      
+      .details-node {
+        padding: 3px;
+        border-bottom: solid 1px #666666;
+      }
+      
+      .title-node {
+        padding: 2px 0;
+        font-weight: 600;
+      }
+      
+      .message-node {
+        padding: 2px;
+      }
+      
+      .message-error {
+        padding: 2px 4px;
+        color: darkred;
+      }
+    
+    </style>
+  </head>
+  <body>
+    <div id="maps-container">
+      <div id="map"></div>
+    </div>
+    <div id="layers-list">
+      <h3>IGC Supporting Layers</h3>
+    </div>
+    <script src="index.js" type="module"></script>
+  </body>
+</html>

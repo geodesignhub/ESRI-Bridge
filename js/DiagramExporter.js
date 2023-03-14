@@ -238,13 +238,12 @@ class DiagramExporter extends HTMLElement {
 
         // ADD NEW GEOPLANNER SCENARIO FEATURES //
         this._addNewGeoPlannerScenarioFeatures({designFeaturesAsEsriJSON: updatedDesignFeaturesAsEsriJSON, newPortalItem}).then(({addFeaturesOIDs}) => {
-          //resolve({newPortalItem, newScenarioID, scenarioFilter, addFeaturesOIDs});
           //console.info('New GeoPlanner Scenario Feature OIDs: ', addFeaturesOIDs);
 
           this.newScenarioLink.setAttribute('href', `https://${ this.#portal.urlKey }.${ this.#portal.customBaseUrl }/apps/mapviewer/index.html?layers=${ newScenarioID }`);
           this.completeSection.toggleAttribute('hidden', false);
 
-          this.#geodesignhub.displayMessage(`New GeoPlanner scenario created: ${gdhDesignName}`);
+          this.#geodesignhub.displayMessage(`New GeoPlanner scenario created: ${ gdhDesignName }`);
 
         }).catch(error => {
           this.#geodesignhub.displayMessage(error);
@@ -438,10 +437,7 @@ class DiagramExporter extends HTMLElement {
       //console.info(diagramFeature.attributes);
 
       // DIAGRAM INFORMATION //
-      const {description, tag_codes, additional_metadata} = diagramFeature.attributes;
-
-      // NAME //
-      const name = description || additional_metadata[this.#gplConfig.FIELD_NAMES.NAME];
+      let {description, tag_codes, additional_metadata} = diagramFeature.attributes;
 
       // ACTION ID(S) //
       let actionIDs;
@@ -453,6 +449,15 @@ class DiagramExporter extends HTMLElement {
         // IF tag_codes IS EMPTY THEN FALL BACK TO ORIGINAL VALUES //
         actionIDs = additional_metadata[this.#gplConfig.FIELD_NAMES.ACTION_IDS].split('|');
         actionID = additional_metadata[this.#gplConfig.FIELD_NAMES.ACTION_ID];
+      }
+
+      //
+      // TODO: WHAT DO WE DO WHEN ACTION ID HAS CHANGED AND/OR NAME CHANGED ???
+      //
+      const nameChanged = (description !== additional_metadata[this.#gplConfig.FIELD_NAMES.NAME]);
+      const actionChanged = (actionID !== additional_metadata[this.#gplConfig.FIELD_NAMES.ACTION_ID]);
+      if (actionChanged) {
+        !nameChanged && (description = "[climate action changed]");
       }
 
       // COEFFICIENT ATTRIBUTES //
@@ -470,7 +475,7 @@ class DiagramExporter extends HTMLElement {
         attributes: {
           Geodesign_ProjectID: this.#gplProjectGroup.id,                 // GPL PROJECT ID - SHOULD BE THE SAME //
           Geodesign_ScenarioID: newScenarioID,                           // GPL SCENARIO ID  //
-          [this.#gplConfig.FIELD_NAMES.NAME]: name,                      // GPL DIAGRAM NAME //
+          [this.#gplConfig.FIELD_NAMES.NAME]: description,                      // GPL DIAGRAM NAME //
           [this.#gplConfig.FIELD_NAMES.ACTION_ID]: actionID,             // ACTION ID  //
           [this.#gplConfig.FIELD_NAMES.ACTION_IDS]: actionIDs.join('|'), // ACTION IDS //
           [this.#gplConfig.FIELD_NAMES.SOURCE_ID]: additional_metadata[this.#gplConfig.FIELD_NAMES.GLOBAL_ID],   // SOURCE ID = GLOBAL ID //
