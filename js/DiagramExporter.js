@@ -352,12 +352,13 @@ class DiagramExporter extends HTMLElement {
             const scenarioFilter = `(Geodesign_ProjectID = '${ this.#gplProjectGroup.id }') AND (Geodesign_ScenarioID = '${ newScenarioID }')`;
 
             //
-            // SET NEW LAYER DEFINITION EXPRESSION //
+            // SET NEW SUBLAYER INFOS - DEFINITION EXPRESSION //
             //
-            const updatedLayerPortalItemData = {layers: []};
-            updatedLayerPortalItemData.layers[this.#gplConfig.ACTIONS_LAYER_ID] = {
-              id: this.#gplConfig.ACTIONS_LAYER_ID,
-              layerDefinition: {definitionExpression: scenarioFilter}
+            const updatedLayerPortalItemData = {
+              layers: [
+                {id: this.#gplConfig.ACTIONS_LAYER_ID, layerDefinition: {definitionExpression: scenarioFilter}},
+                {id: this.#gplConfig.AOI_LAYER_ID, layerDefinition: {}}
+              ]
             };
 
             // UPDATE ITEM DATA WITH NEW SUBLAYER DEFINITION

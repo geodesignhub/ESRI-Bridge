@@ -40,7 +40,7 @@ class EsriBridge extends EventTarget {
    *
    * USED TO CONFIGURE GEOPLANNER LAYER IDS AND FIELD NAMES
    *
-   * @typedef {{ACTIONS_LAYER_ID: number, FIELD_NAMES: {ACTION_IDS: string, SOURCE_ID: string, DESCRIPTION: string, ACTION_ID: string, GLOBAL_ID: string, NAME: string,START_DATE: string, END_DATE: string}, COEFFICIENT_FIELD_NAMES: string[]}} GPLConfig
+   * @typedef {{ACTIONS_LAYER_ID: number, AOI_LAYER_ID: number, FIELD_NAMES: {ACTION_IDS: string, SOURCE_ID: string, DESCRIPTION: string, ACTION_ID: string, GLOBAL_ID: string, NAME: string,START_DATE: string, END_DATE: string}, COEFFICIENT_FIELD_NAMES: string[]}} GPLConfig
    */
 
   /**
@@ -51,6 +51,7 @@ class EsriBridge extends EventTarget {
    */
   static GPL_CONFIG = {
     ACTIONS_LAYER_ID: 0,
+    AOI_LAYER_ID: 1,
     FIELD_NAMES: {
       GLOBAL_ID: 'GlobalID',
       SOURCE_ID: 'SOURCE_ID',
