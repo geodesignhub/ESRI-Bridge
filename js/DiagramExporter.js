@@ -430,7 +430,7 @@ class DiagramExporter extends HTMLElement {
       console.info(diagramFeature.attributes);
 
       // IF WE STORE ALL SOURCE ATTRIBUTES WE CAN THEN DECIDE HERE WHICH ONES TO SEND BACK //
-      const sourceAttributes = JSON.parse(diagramFeature.attributes.metadata.replace(/'/g, '"'));
+      const sourceAttributes = JSON.parse(diagramFeature.attributes.additional_metadata.replace(/'/g, '"'));
 
       // NAME //
       const name = diagramFeature.attributes.description || sourceAttributes[this.#gplConfig.FIELD_NAMES.NAME];
