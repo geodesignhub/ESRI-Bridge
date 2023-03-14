@@ -377,7 +377,7 @@ class DiagramExporter extends HTMLElement {
                 esriRequest(portalItemShareUrl, {
                   query: {
                     everyone: false,
-                    org: false,
+                    org: true,
                     groups: this.#gplProjectGroup.id,
                     f: 'json'
                   },
