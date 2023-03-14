@@ -355,7 +355,10 @@ class DiagramExporter extends HTMLElement {
             // SET NEW LAYER DEFINITION EXPRESSION //
             //
             const updatedLayerPortalItemData = {layers: []};
-            updatedLayerPortalItemData.layers[this.#gplConfig.ACTIONS_LAYER_ID] = {layerDefinition: {definitionExpression: scenarioFilter}};
+            updatedLayerPortalItemData.layers[this.#gplConfig.ACTIONS_LAYER_ID] = {
+              id: this.#gplConfig.ACTIONS_LAYER_ID,
+              layerDefinition: {definitionExpression: scenarioFilter}
+            };
 
             // UPDATE ITEM DATA WITH NEW SUBLAYER DEFINITION
             // - https://developers.arcgis.com/javascript/latest/api-reference/esri-portal-PortalItem.html#update
@@ -415,8 +418,11 @@ class DiagramExporter extends HTMLElement {
    */
   _updateScenarioCandidates({candidateFeatures, newScenarioID}) {
 
+    //
     // VALID CANDIDATE FEATURES //
+    //
     // - NOTE: ONLY FEATURES WITH POLYGON GEOMETRIES ALLOWED CURRENTLY...
+    //
     const validDiagramFeatures = candidateFeatures.filter(diagramFeature => {
       // HERE WE CAN ADD OTHER VALIDITY CHECKS TO DIAGRAMS //
       return (diagramFeature.geometry.rings != null);
@@ -470,7 +476,7 @@ class DiagramExporter extends HTMLElement {
           ...coefficientAttributes                                       // COEFFICIENTS THAT HAVEN'T CHANGED //
         }
       };
-      console.info(newScenarioFeature);
+      //console.info(newScenarioFeature);
 
       return newScenarioFeature;
     });
@@ -509,7 +515,7 @@ class DiagramExporter extends HTMLElement {
           // LIST OF OBJECTIDS OF NEWLY ADDED FEATURES //
           // - APPLY EDITS RETURNS THE NEW OBJECTIDS OF ADDED FEATURES - OR ERROR IF FAILED //
           const addFeaturesOIDs = addResults.reduce((oids, addFeatureResult) => {
-            console.assert(!addFeatureResult.error, addFeatureResult.error);
+            //console.assert(!addFeatureResult.error, addFeatureResult.error);
             return addFeatureResult.error ? oids : oids.concat(addFeatureResult.objectId);
           }, []);
 
