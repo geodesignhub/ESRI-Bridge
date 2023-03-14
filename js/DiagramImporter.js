@@ -336,12 +336,12 @@ class DiagramImporter extends HTMLElement {
           id: (featureIdx + 1),
           geometry: feature.geometry,
           properties: {
-            source: JSON.stringify(feature.properties),
+            name: diagramName,
             system: Number(systemCode),
             tags: climateActions,
             start_date: startDate.toISOString(),
             end_date: endDate.toISOString(),
-            name: diagramName
+            source: JSON.stringify(feature.properties)
           }
         };
         console.info(newDiagram);
