@@ -235,16 +235,13 @@ class DiagramExporter extends HTMLElement {
 
         // UPDATE NEW SCENARIO FEATURES //
         const updatedDesignFeaturesAsEsriJSON = this._updateScenarioCandidates({candidateFeatures: designFeaturesAsEsriJSON, newScenarioID});
-        //console.info("Updated negotiated GDH diagrams as Esri features: ", updatedDesignFeaturesAsEsriJSON);
 
         // ADD NEW GEOPLANNER SCENARIO FEATURES //
         this._addNewGeoPlannerScenarioFeatures({designFeaturesAsEsriJSON: updatedDesignFeaturesAsEsriJSON, newPortalItem}).then(({addFeaturesOIDs}) => {
-          //console.info('New GeoPlanner Scenario Feature OIDs: ', addFeaturesOIDs);
+          this.#geodesignhub.displayMessage(`Migration process complete: ${ addFeaturesOIDs.length } diagrams`);
 
           this.newScenarioLink.setAttribute('href', `https://${ this.#portal.urlKey }.${ this.#portal.customBaseUrl }/apps/mapviewer/index.html?layers=${ newScenarioID }`);
           this.completeSection.toggleAttribute('hidden', false);
-
-          this.#geodesignhub.displayMessage(`Migration process complete.`);
 
         }).catch(error => {
           this.#geodesignhub.displayMessage(error);
@@ -453,7 +450,7 @@ class DiagramExporter extends HTMLElement {
       }
 
       //
-      // TODO: WHAT DO WE DO WHEN ACTION ID HAS CHANGED AND/OR NAME CHANGED ???
+      // IF ACTION CHANGED BUT THE NAME HAS NOT THEN CHANGE NAME TO INDICATE STATE //
       //
       const nameChanged = (description !== additional_metadata[this.#gplConfig.FIELD_NAMES.NAME]);
       const actionChanged = (actionID !== additional_metadata[this.#gplConfig.FIELD_NAMES.ACTION_ID]);
@@ -466,9 +463,7 @@ class DiagramExporter extends HTMLElement {
       // COEFFICIENT ATTRIBUTES //
       // - ONLY SAVE IF THE ACTION ID HAS NOT CHANGED //
       const coefficientAttributes = this.#gplConfig.COEFFICIENT_FIELD_NAMES.reduce((infos, coefficientAttribute) => {
-        infos[coefficientAttribute] = (additional_metadata[this.#gplConfig.FIELD_NAMES.ACTION_ID] === actionID)
-          ? additional_metadata[coefficientAttribute]
-          : null;
+        infos[coefficientAttribute] = actionChanged ? null : additional_metadata[coefficientAttribute];
         return infos;
       }, {});
 
@@ -526,7 +521,6 @@ class DiagramExporter extends HTMLElement {
           // LIST OF OBJECTIDS OF NEWLY ADDED FEATURES //
           // - APPLY EDITS RETURNS THE NEW OBJECTIDS OF ADDED FEATURES - OR ERROR IF FAILED //
           const addFeaturesOIDs = addResults.reduce((oids, addFeatureResult) => {
-            //console.assert(!addFeatureResult.error, addFeatureResult.error);
             return addFeatureResult.error ? oids : oids.concat(addFeatureResult.objectId);
           }, []);
 
