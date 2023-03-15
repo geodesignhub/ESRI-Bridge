@@ -9,8 +9,11 @@
 // create a custom layer type extending from the LeafletJS GridLayer
 // https://github.com/jwasilgeo/leaflet-experiments/blob/master/lerc-landcover/script.js
 // INSPIRED HEAVILY BY https://github.com/jgravois/lerc-leaflet
+//
+// https://github.com/GIAPspzoo/L.TileLayer.Canvas/blob/master/index.js
+//
 
-const Lerc8bitColorLayer = L.GridLayer.extend({
+const LercLayer = L.GridLayer.extend({
 
   createTile: function (coords, done) {
     let tileError;
@@ -20,16 +23,17 @@ const Lerc8bitColorLayer = L.GridLayer.extend({
 
     const tileUrl = `${ this.options.url }/tile/${ coords.z }/${ coords.y }/${ coords.x }`;
 
-    fetch(tileUrl, {method: "GET"})
-    .then((response) => response.arrayBuffer())
-    .then((arrayBuffer) => {
+    fetch(tileUrl, {method: "GET"}).then((response) => {
+      return response.ok ? response.arrayBuffer() : Error(response);
+    }).then((arrayBuffer) => {
       try {
-        // decode the response's arrayBuffer (Lerc global comes from an imported script)
-        tile.decodedPixels = Lerc.decode(arrayBuffer);
-        tile.decodedPixels.coords = coords;
+        if (arrayBuffer instanceof ArrayBuffer) {
 
-        // display newly decoded pixel data as canvas context image data
-        this.draw.call(this, tile);
+          tile.decodedPixels = Lerc.decode(arrayBuffer);
+          tile.decodedPixels.coords = coords;
+
+          this.draw.call(this, tile);
+        }
       } catch (error) {
         console.error(error);
         // displaying error text in the canvas tile is for debugging/demo purposes
@@ -37,8 +41,7 @@ const Lerc8bitColorLayer = L.GridLayer.extend({
         this.drawError(tile);
       }
       done(tileError, tile);
-    })
-    .catch((error) => {
+    }).catch((error) => {
       console.error(error);
       // displaying error text in the canvas tile is for debugging/demo purposes
       // we could instead call `this.draw.call(this, tile);` to bring less visual attention to any errors
@@ -66,9 +69,9 @@ const Lerc8bitColorLayer = L.GridLayer.extend({
       const pixelValue = pixels[i];
 
       // set RGB values in the pixel array
-      data[i * 4] = attributes.Red;
-      data[i * 4 + 1] = attributes.Green;
-      data[i * 4 + 2] = attributes.Blue;
+      data[i * 4] = (pixelValue / maxPixelValue) * 255;
+      data[i * 4 + 1] = 0.0;
+      data[i * 4 + 2] = 0.0;
 
       // make the pixel transparent when either missing data exists for the decoded mask value
       // or for this particular ImageServer when the ClassName raster attribute is "No Data"
@@ -107,14 +110,14 @@ class App {
 
   // LAYER INFOS //
   igcLeafletLayers = [
-    {
-      name: 'Global Predominant Ecosystem BSUs',
-      type: 'Feature Layer',
-      source: 'Feature Service',
-      spatialReference: 4326,
-      itemUrl: 'https://igcollab.maps.arcgis.com/home/item.html?id=e88e311f56ea42f39a4bde531bd95097',
-      url: 'https://services9.arcgis.com/vBCQ4PWZkZBueexC/arcgis/rest/services/Global_BSU/FeatureServer/0'
-    },
+    /*{
+     name: 'Global Predominant Ecosystem BSUs',
+     type: 'Feature Layer',
+     source: 'Feature Service',
+     spatialReference: 4326,
+     itemUrl: 'https://igcollab.maps.arcgis.com/home/item.html?id=e88e311f56ea42f39a4bde531bd95097',
+     url: 'https://services9.arcgis.com/vBCQ4PWZkZBueexC/arcgis/rest/services/Global_BSU/FeatureServer/0'
+     },*/
     {
       name: 'CAMS CO2 Anthropogenic Emissions v4.2 2018 (Mg/ha)',
       type: 'Tiled Imagery Layer',
@@ -152,22 +155,21 @@ class App {
 
     // LAYER CONTROL //
     const layerControl = L.control.layers({"Esri Topographic": topoBasemap}, {}, {collapsed: false});
-    layerControl.addTo(map);
+    //layerControl.addTo(map);
 
     // LAYERS LIST //
     this.layersList = document.getElementById('layers-list');
 
     // TRY TO LOAD EACH LAYER //
-    this.igcLeafletLayers.forEach(layerInfo => {
+    const layerInfos = this.igcLeafletLayers.reduce((list, layerInfo) => {
 
       let details = '------------------';
 
       try {
 
         // LAYER PROPERTIES FOR ALL LAYERS //
-        const layerProperties = {url: layerInfo.url};
+        const layerProperties = {url: layerInfo.url, crs: L.CRS.EPSG4326};
         // LINKS //
-        //const links = `<a href="${ layerInfo.itemUrl }" target="_blank">item</a> | <a href="${ layerInfo.url }" target="_blank">url</a> | <a href="${ layerInfo.url }?token=${ accessToken }" target="_blank">url w token</a>`;
         const links = `<a href="${ layerInfo.itemUrl }" target="_blank">item</a> | <a href="${ layerInfo.url }" target="_blank">url</a>`;
         // DETAILS //
         details = `${ links } | Type: ${ layerInfo.type } | Source: ${ layerInfo.source } | Spatial Reference: ${ layerInfo.spatialReference || 'unknown' }`;
@@ -183,14 +185,16 @@ class App {
             layer = L.esri.tiledMapLayer(layerProperties);
             break;
 
-          case 'Imagery Tiled Layer':
-            layer = L.esri.tiledMapLayer(layerProperties);
+          case 'Tiled Imagery Layer':
+            layer = new LercLayer(layerProperties);
             break;
 
           case 'Imagery Layer':
             layer = L.esri.imageMapLayer(layerProperties);
             break;
         }
+
+        list.push({[layerInfo.name]: layer});
 
         // ADD TO MAP //
         layer.addTo(map);
@@ -201,7 +205,11 @@ class App {
       } catch (error) {
         this._addMessage({title: layerInfo.name, message: details, error});
       }
-    });
+
+      return list;
+    }, []);
+
+    layerControl.addBaseLayer(topoBasemap, "Esri Topographic");
 
   }
 
@@ -255,5 +263,7 @@ class App {
  redirectUri: callbackPage
  }).then(authenticationManager => {
  accessToken = authenticationManager.token;*/
+
+//const links = `<a href="${ layerInfo.itemUrl }" target="_blank">item</a> | <a href="${ layerInfo.url }" target="_blank">url</a> | <a href="${ layerInfo.url }?token=${ accessToken }" target="_blank">url w token</a>`;
 
 export default new App();

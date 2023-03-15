@@ -219,9 +219,9 @@ class DiagramExporter extends HTMLElement {
     const gdhDesignID = this.#gdhDesignId;
     const gdhDesignName = this.designInput.value;
 
+    this.#geodesignhub.displayMessage("Migration process started...");
     this.#geodesignhub._gdhGetDesignESRIJSON(gdhDesignTeamID, gdhDesignID).then(designFeaturesAsEsriJSON => {
-
-      console.info(designFeaturesAsEsriJSON);
+      //console.info(designFeaturesAsEsriJSON);
 
       //
       // CREATE TARGET SCENARIO PORTAL ITEM //
@@ -231,6 +231,7 @@ class DiagramExporter extends HTMLElement {
         designTeamName: gdhDesignTeamName,
         designName: gdhDesignName
       }).then(({newPortalItem, newScenarioID, scenarioFilter}) => {
+        this.#geodesignhub.displayMessage(`New GeoPlanner scenario created: ${ gdhDesignName }`);
 
         // UPDATE NEW SCENARIO FEATURES //
         const updatedDesignFeaturesAsEsriJSON = this._updateScenarioCandidates({candidateFeatures: designFeaturesAsEsriJSON, newScenarioID});
@@ -243,7 +244,7 @@ class DiagramExporter extends HTMLElement {
           this.newScenarioLink.setAttribute('href', `https://${ this.#portal.urlKey }.${ this.#portal.customBaseUrl }/apps/mapviewer/index.html?layers=${ newScenarioID }`);
           this.completeSection.toggleAttribute('hidden', false);
 
-          this.#geodesignhub.displayMessage(`New GeoPlanner scenario created: ${ gdhDesignName }`);
+          this.#geodesignhub.displayMessage(`Migration process complete.`);
 
         }).catch(error => {
           this.#geodesignhub.displayMessage(error);
