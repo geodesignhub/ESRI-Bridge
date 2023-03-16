@@ -266,8 +266,7 @@ class DiagramExporter extends HTMLElement {
     return new Promise((resolve, reject) => {
       portalUser.fetchFolders().then((userFolders) => {
 
-        const geoPlannerFolderName = `_ Geoplanner ${ geoPlannerProjectID }`;
-        const geoPlannerFolder = userFolders.find(folder => folder.title === geoPlannerFolderName);
+        const geoPlannerFolder = userFolders.find(folder => folder.title.endsWith(geoPlannerProjectID));
 
         resolve({portalFolder: geoPlannerFolder});
       }).catch(reject);
