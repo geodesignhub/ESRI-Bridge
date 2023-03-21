@@ -315,7 +315,7 @@ class DiagramImporter extends HTMLElement {
       const diagramsGeoJSON = features.map((feature, featureIdx) => {
 
         // DIAGRAM NAME //
-        const diagramName = feature.properties[this.#gplConfig.FIELD_NAMES.NAME];
+        const diagramName = feature.properties[this.#gplConfig.FIELD_NAMES.NAME] || "GPL Migration";
 
         // START AND END DATES //
         const startDate = new Date(feature.properties[this.#gplConfig.FIELD_NAMES.START_DATE] || 'January 1, 2024');
@@ -344,7 +344,7 @@ class DiagramImporter extends HTMLElement {
             metadata: {...feature.properties}
           }
         };
-        console.info(newDiagram);
+        //console.info(newDiagram);
 
         return newDiagram;
       });

@@ -452,7 +452,7 @@ class GeodesignhubAPI extends HTMLElement {
       for (let index = 0; index < source_diagrams_len; index++) {
         const current_diagram_feature = diagramsGeoJSON[index];
 
-        const gdhDiagramName = current_diagram_feature.properties.name || "GPL Migration";
+        const gdhDiagramName = current_diagram_feature.properties.name;
         const gplSystem = current_diagram_feature.properties.system;
         const gdhTagCodes = current_diagram_feature.properties.tags;
         const gdhStartDate = current_diagram_feature.properties.start_date;
@@ -461,7 +461,7 @@ class GeodesignhubAPI extends HTMLElement {
         // METADATA //
         let gplAdditionalMetadata = current_diagram_feature.properties.metadata;
         if (!gplAdditionalMetadata) {
-          gplAdditionalMetadata = {"globalid": current_diagram_feature.properties[this.#gplConfig.FIELD_NAMES.GLOBAL_ID]};
+          gplAdditionalMetadata = {"globalid": ""};
         }
         // REMOVE METADATA //
         delete current_diagram_feature.properties.metadata;
