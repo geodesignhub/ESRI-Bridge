@@ -220,9 +220,11 @@ class DiagramExporter extends HTMLElement {
     const gdhDesignName = this.designInput.value;
 
     this.#geodesignhub.displayMessage("Migration process started...");
-    this.#geodesignhub._gdhGetDesignESRIJSON(gdhDesignTeamID, gdhDesignID).then(designFeaturesAsEsriJSON => {
-      //console.info(designFeaturesAsEsriJSON);
-
+    this.#geodesignhub._gdhGetDesignESRIJSON(gdhDesignTeamID, gdhDesignID).then(_designFeaturesAsEsriJSON => {
+    // This filters out the design features that have "empty" tag_codes, meaning that these features dont have a climate action tag attached to them. 
+    let designFeaturesAsEsriJSON = _designFeaturesAsEsriJSON.filter(function( _esri_json_feature ) {
+        return _esri_json_feature['attributes']['tag_codes'] !== '';
+      });
       //
       // CREATE TARGET SCENARIO PORTAL ITEM //
       //  - THIS WILL GIVE US THE NECESSARY NEW SCENARIO ID...
