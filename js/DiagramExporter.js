@@ -221,8 +221,8 @@ class DiagramExporter extends HTMLElement {
 
     this.#geodesignhub.displayMessage("Migration process started...");
     this.#geodesignhub._gdhGetDesignESRIJSON(gdhDesignTeamID, gdhDesignID).then(_designFeaturesAsEsriJSON => {
-    // This filters out the design features that have "empty" tag_codes, meaning that these features dont have a climate action tag attached to them. 
-    let designFeaturesAsEsriJSON = _designFeaturesAsEsriJSON.filter(function( _esri_json_feature ) {
+      // This filters out the design features that have "empty" tag_codes, meaning that these features dont have a climate action tag attached to them.
+      let designFeaturesAsEsriJSON = _designFeaturesAsEsriJSON.filter(function (_esri_json_feature) {
         return _esri_json_feature['attributes']['tag_codes'] !== '';
       });
       //
@@ -412,6 +412,24 @@ class DiagramExporter extends HTMLElement {
    * THESE ARE UPDATES THAT WILL HAVE TO BE MADE TO ALL SCENARIO FEATURES BEFORE
    * ADDING THEM BACK TO THE FEATURE LAYER
    *
+   * VALIDITY CHECKS
+   *  - POLYGON GEOMETRY ONLY
+   *    - OPTION #1: DO NOT EXPORT
+   *  - ACTION_ID MISSING
+   *    - OPTION #1: DO NOT EXPORT
+   *    - OPTION #2: IF ORIGINATED IN GPL, USE ORIGINAL CLIMATE ACTIONS
+   *    - OPTION #3: INFORM USER AND ALLOW TO CANCEL EXPORT
+   *  - IF ORIGINATED IN GPL
+   *    - IF CLIMATE ACTION HAS CHANGED
+   *      - NAME HAS NOT CHANGED
+   *        - OPTION #1: LEAVE NAME ALONE
+   *        - OPTION #2: CLEAR NAME
+   *        - OPTION #3: RESET NAME TO ORIGINAL
+   *      - COEFFICIENTS
+   *        - OPTION #1: RESET COEFFICIENTS TO NULL
+   *    - IF CLIMATE ACTION HAVE NOT CHANGED
+   *      - OPTION #1: RESET COEFFICIENTS TO ORIGINAL
+   *
    *
    * @param {{}[]} candidateFeatures
    * @param {string} newScenarioID
@@ -420,9 +438,9 @@ class DiagramExporter extends HTMLElement {
   _updateScenarioCandidates({candidateFeatures, newScenarioID}) {
 
     //
-    // VALID CANDIDATE FEATURES //
+    // POLYGON CANDIDATE FEATURES //
     //
-    // - NOTE: ONLY FEATURES WITH POLYGON GEOMETRIES ALLOWED CURRENTLY...
+    // - ONLY FEATURES WITH POLYGON GEOMETRIES ALLOWED CURRENTLY...
     //
     const validDiagramFeatures = candidateFeatures.filter(diagramFeature => {
       // HERE WE CAN ADD OTHER VALIDITY CHECKS TO DIAGRAMS //
@@ -444,29 +462,55 @@ class DiagramExporter extends HTMLElement {
       if (tag_codes?.length) {
         actionIDs = tag_codes.split('|');
         [actionID] = actionIDs;
-      } else {
-        // IF tag_codes IS EMPTY THEN FALL BACK TO ORIGINAL VALUES //
-        actionIDs = additional_metadata[this.#gplConfig.FIELD_NAMES.ACTION_IDS].split('|');
-        actionID = additional_metadata[this.#gplConfig.FIELD_NAMES.ACTION_ID];
       }
 
-      //
-      // IF ACTION CHANGED BUT THE NAME HAS NOT THEN CHANGE NAME TO INDICATE STATE //
-      //
-      const nameChanged = (description !== additional_metadata[this.#gplConfig.FIELD_NAMES.NAME]);
-      const actionChanged = (actionID !== additional_metadata[this.#gplConfig.FIELD_NAMES.ACTION_ID]);
-      if (actionChanged) {
-        // IF THE ACTION ID HAS CHANGED BUT THE NAME HAS //
-        // NOT THEN WE SHOULD NOT USE THE PREVIOUS NAME  //
-        !nameChanged && (description = "[climate action changed]");
-      }
+      // SOURCE ID = GLOBAL ID //
+      let sourceID = null;
+
+      // START AND END DATES //
+      let startDate = (new Date('January 1, 2024').valueOf());
+      let endDate = (new Date('December 31, 2049').valueOf());
 
       // COEFFICIENT ATTRIBUTES //
-      // - ONLY SAVE IF THE ACTION ID HAS NOT CHANGED //
-      const coefficientAttributes = this.#gplConfig.COEFFICIENT_FIELD_NAMES.reduce((infos, coefficientAttribute) => {
-        infos[coefficientAttribute] = actionChanged ? null : additional_metadata[coefficientAttribute];
-        return infos;
-      }, {});
+      let coefficientAttributes = {};
+
+      // ORIGINAL VALUES //
+      if (additional_metadata) {
+
+        // ACTION ID(S) //
+        if (!tag_codes?.length) {
+          // IF tag_codes IS EMPTY THEN FALL BACK TO ORIGINAL VALUES //
+          actionIDs = additional_metadata[this.#gplConfig.FIELD_NAMES.ACTION_IDS].split('|');
+          [actionID] = actionIDs;
+          //actionID = additional_metadata[this.#gplConfig.FIELD_NAMES.ACTION_ID];
+        }
+
+        //
+        // IF CLIMATE ACTION CHANGED BUT THE NAME HAS NOT, THEN UPDATE THE NAME TO INDICATE STATE //
+        //
+        const nameChanged = (description !== additional_metadata[this.#gplConfig.FIELD_NAMES.NAME]);
+        const actionChanged = (actionID !== additional_metadata[this.#gplConfig.FIELD_NAMES.ACTION_ID]);
+        if (actionChanged) {
+          // IF THE ACTION ID HAS CHANGED BUT THE NAME HAS //
+          // NOT THEN WE SHOULD NOT USE THE PREVIOUS NAME  //
+          !nameChanged && (description = "[climate action changed]");
+        }
+
+        // SOURCE ID = GLOBAL ID //
+        sourceID = additional_metadata[this.#gplConfig.FIELD_NAMES.GLOBAL_ID];
+
+        // START AND END DATES //
+        startDate = additional_metadata[this.#gplConfig.FIELD_NAMES.START_DATE];
+        endDate = additional_metadata[this.#gplConfig.FIELD_NAMES.END_DATE];
+
+        // COEFFICIENT ATTRIBUTES //
+        // - ONLY SAVE IF THE ACTION ID HAS NOT CHANGED //
+        coefficientAttributes = this.#gplConfig.COEFFICIENT_FIELD_NAMES.reduce((infos, coefficientAttribute) => {
+          infos[coefficientAttribute] = actionChanged ? null : additional_metadata[coefficientAttribute];
+          return infos;
+        }, {});
+
+      }
 
       // NEW SCENARIO FEATURE //
       const newScenarioFeature = {
@@ -477,9 +521,9 @@ class DiagramExporter extends HTMLElement {
           [this.#gplConfig.FIELD_NAMES.NAME]: description,               // GPL DIAGRAM NAME //
           [this.#gplConfig.FIELD_NAMES.ACTION_ID]: actionID,             // ACTION ID  //
           [this.#gplConfig.FIELD_NAMES.ACTION_IDS]: actionIDs.join('|'), // ACTION IDS //
-          [this.#gplConfig.FIELD_NAMES.SOURCE_ID]: additional_metadata[this.#gplConfig.FIELD_NAMES.GLOBAL_ID],   // SOURCE ID = GLOBAL ID //
-          [this.#gplConfig.FIELD_NAMES.START_DATE]: additional_metadata[this.#gplConfig.FIELD_NAMES.START_DATE], // START DATE //
-          [this.#gplConfig.FIELD_NAMES.END_DATE]: additional_metadata[this.#gplConfig.FIELD_NAMES.END_DATE],     // END DATE   //
+          [this.#gplConfig.FIELD_NAMES.SOURCE_ID]: sourceID,             // SOURCE ID = GLOBAL ID //
+          [this.#gplConfig.FIELD_NAMES.START_DATE]: startDate,           // START DATE //
+          [this.#gplConfig.FIELD_NAMES.END_DATE]: endDate,               // END DATE   //
           ...coefficientAttributes                                       // COEFFICIENTS THAT HAVEN'T CHANGED //
         }
       };
