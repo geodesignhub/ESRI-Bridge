@@ -223,12 +223,18 @@ class DiagramExporter extends HTMLElement {
     this.#geodesignhub._gdhGetDesignESRIJSON(gdhDesignTeamID, gdhDesignID).then(_designFeaturesAsEsriJSON => {
 
       // This filters out the design features that have "empty" tag_codes, meaning that these features dont have a climate action tag attached to them.
-      let designFeaturesAsEsriJSON = _designFeaturesAsEsriJSON.filter(function (_esri_json_feature) {
-        return _esri_json_feature['attributes']['tag_codes'] !== '';
+      let designFeaturesAsEsriJSON = _designFeaturesAsEsriJSON.filter((_esri_json_feature) => {
+        const {tag_codes} = _esri_json_feature.attributes;
+        const isValid = (tag_codes?.length > 0);
+        if (!isValid) {
+          //console.info('diagram with no climate action: ', _esri_json_feature.attributes);
+          this.#geodesignhub.displayMessage("Warning: diagram with no climate action.");
+        }
+        return isValid;
       });
 
       // MAKE SURE WE HAVE AT LEAST ONE DIAGRAM AVAILABLE TO EXPORT //
-      if(designFeaturesAsEsriJSON.length) {
+      if (designFeaturesAsEsriJSON.length) {
 
         //
         // CREATE TARGET SCENARIO PORTAL ITEM //
