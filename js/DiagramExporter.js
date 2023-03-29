@@ -221,36 +221,44 @@ class DiagramExporter extends HTMLElement {
 
     this.#geodesignhub.displayMessage("Migration process started...");
     this.#geodesignhub._gdhGetDesignESRIJSON(gdhDesignTeamID, gdhDesignID).then(_designFeaturesAsEsriJSON => {
+
       // This filters out the design features that have "empty" tag_codes, meaning that these features dont have a climate action tag attached to them.
       let designFeaturesAsEsriJSON = _designFeaturesAsEsriJSON.filter(function (_esri_json_feature) {
         return _esri_json_feature['attributes']['tag_codes'] !== '';
       });
-      //
-      // CREATE TARGET SCENARIO PORTAL ITEM //
-      //  - THIS WILL GIVE US THE NECESSARY NEW SCENARIO ID...
-      //
-      this._createNewGeoPlannerScenarioPortalItem({
-        designTeamName: gdhDesignTeamName,
-        designName: gdhDesignName
-      }).then(({newPortalItem, newScenarioID, scenarioFilter}) => {
-        this.#geodesignhub.displayMessage(`New GeoPlanner scenario created: ${ gdhDesignName }`);
 
-        // UPDATE NEW SCENARIO FEATURES //
-        const updatedDesignFeaturesAsEsriJSON = this._updateScenarioCandidates({candidateFeatures: designFeaturesAsEsriJSON, newScenarioID});
+      // MAKE SURE WE HAVE AT LEAST ONE DIAGRAM AVAILABLE TO EXPORT //
+      if(designFeaturesAsEsriJSON.length) {
 
-        // ADD NEW GEOPLANNER SCENARIO FEATURES //
-        this._addNewGeoPlannerScenarioFeatures({designFeaturesAsEsriJSON: updatedDesignFeaturesAsEsriJSON, newPortalItem}).then(({addFeaturesOIDs}) => {
-          this.#geodesignhub.displayMessage(`Migration process complete: ${ addFeaturesOIDs.length } diagrams`);
+        //
+        // CREATE TARGET SCENARIO PORTAL ITEM //
+        //  - THIS WILL GIVE US THE NECESSARY NEW SCENARIO ID...
+        //
+        this._createNewGeoPlannerScenarioPortalItem({
+          designTeamName: gdhDesignTeamName,
+          designName: gdhDesignName
+        }).then(({newPortalItem, newScenarioID, scenarioFilter}) => {
+          this.#geodesignhub.displayMessage(`New GeoPlanner scenario created: ${ gdhDesignName }`);
 
-          this.newScenarioLink.setAttribute('href', `https://${ this.#portal.urlKey }.${ this.#portal.customBaseUrl }/apps/mapviewer/index.html?layers=${ newScenarioID }`);
-          this.completeSection.toggleAttribute('hidden', false);
+          // UPDATE NEW SCENARIO FEATURES //
+          const updatedDesignFeaturesAsEsriJSON = this._updateScenarioCandidates({candidateFeatures: designFeaturesAsEsriJSON, newScenarioID});
 
+          // ADD NEW GEOPLANNER SCENARIO FEATURES //
+          this._addNewGeoPlannerScenarioFeatures({designFeaturesAsEsriJSON: updatedDesignFeaturesAsEsriJSON, newPortalItem}).then(({addFeaturesOIDs}) => {
+            this.#geodesignhub.displayMessage(`Migration process complete: ${ addFeaturesOIDs.length } diagrams`);
+
+            this.newScenarioLink.setAttribute('href', `https://${ this.#portal.urlKey }.${ this.#portal.customBaseUrl }/apps/mapviewer/index.html?layers=${ newScenarioID }`);
+            this.completeSection.toggleAttribute('hidden', false);
+
+          }).catch(error => {
+            this.#geodesignhub.displayMessage(error);
+          });
         }).catch(error => {
           this.#geodesignhub.displayMessage(error);
         });
-      }).catch(error => {
-        this.#geodesignhub.displayMessage(error);
-      });
+      } else {
+        this.#geodesignhub.displayMessage(new Error("All diagrams missing at least one Climate Action. No diagrams available for export."));
+      }
     }).catch(error => {
       this.#geodesignhub.displayMessage(error);
     });
@@ -478,6 +486,9 @@ class DiagramExporter extends HTMLElement {
       if (additional_metadata) {
 
         // ACTION ID(S) //
+        //
+        // NOTE: THIS SHOULD NOT HAPPEN NOW THAT WE FILTER THESE OUT BEFORE WE GET HERE... //
+        //
         if (!tag_codes?.length) {
           // IF tag_codes IS EMPTY THEN FALL BACK TO ORIGINAL VALUES //
           actionIDs = additional_metadata[this.#gplConfig.FIELD_NAMES.ACTION_IDS].split('|');
