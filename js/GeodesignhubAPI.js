@@ -297,6 +297,16 @@ class GeodesignhubAPI extends HTMLElement {
       });
   };
 
+  /*_gdhGetDiagramProperties(diagramId) {
+    return this.__fetchResource(`projects/${ this.#gdhProjectId }/diagrams/${ diagramId }/`,
+      {
+        method: 'GET',
+        headers: {
+          "Authorization": `Token ${ this.#gdhAPIToken }`
+        }
+      });
+  }*/
+
   _gdhUpdateDiagramProperties(diagramID, postJson) {
     return this.__fetchResource(`projects/${ this.#gdhProjectId }/diagrams/${ diagramID }/`,
       {

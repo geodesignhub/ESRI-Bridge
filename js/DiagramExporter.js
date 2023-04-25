@@ -467,7 +467,7 @@ class DiagramExporter extends HTMLElement {
     // FEATURES TO BE ADDED TO NEW GPL SCENARIO //
     //
     const newFeaturesToAdd = validDiagramFeatures.map((diagramFeature) => {
-      //console.info(diagramFeature.attributes);
+      console.info(diagramFeature.attributes);
 
       // DIAGRAM INFORMATION //
       let {description, tag_codes, additional_metadata} = diagramFeature.attributes;
@@ -484,6 +484,7 @@ class DiagramExporter extends HTMLElement {
       let sourceID = null;
 
       // START AND END DATES //
+      //  - TODO: DOES THE DIAGRAM HAVE START/END DATES???
       let startDate = (new Date('January 1, 2024').valueOf());
       let endDate = (new Date('December 31, 2049').valueOf());
 
@@ -523,9 +524,11 @@ class DiagramExporter extends HTMLElement {
         endDate = additional_metadata[this.#gplConfig.FIELD_NAMES.END_DATE];
 
         // COEFFICIENT ATTRIBUTES //
-        // - ONLY SAVE IF THE ACTION ID HAS NOT CHANGED //
         coefficientAttributes = this.#gplConfig.COEFFICIENT_FIELD_NAMES.reduce((infos, coefficientAttribute) => {
-          infos[coefficientAttribute] = actionChanged ? null : additional_metadata[coefficientAttribute];
+          // - ONLY SAVE IF THE ACTION ID HAS NOT CHANGED //
+          //infos[coefficientAttribute] = actionChanged ? null : additional_metadata[coefficientAttribute];
+          // PER CHARLIE: KEEP THEM ALL //
+          infos[coefficientAttribute] = additional_metadata[coefficientAttribute];
           return infos;
         }, {});
 
@@ -535,6 +538,7 @@ class DiagramExporter extends HTMLElement {
       const newScenarioFeature = {
         geometry: diagramFeature.geometry,
         attributes: {
+          ...additional_metadata,                                        // START WITH ANY ADDITIONAL ATTRIBUTES //
           Geodesign_ProjectID: this.#gplProjectGroup.id,                 // GPL PROJECT ID - SHOULD BE THE SAME //
           Geodesign_ScenarioID: newScenarioID,                           // GPL SCENARIO ID  //
           [this.#gplConfig.FIELD_NAMES.NAME]: description,               // GPL DIAGRAM NAME //
