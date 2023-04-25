@@ -467,7 +467,7 @@ class DiagramExporter extends HTMLElement {
     // FEATURES TO BE ADDED TO NEW GPL SCENARIO //
     //
     const newFeaturesToAdd = validDiagramFeatures.map((diagramFeature) => {
-      console.info(diagramFeature.attributes);
+      console.info("diagramFeature: ", diagramFeature.attributes);
 
       // DIAGRAM INFORMATION //
       let {description, tag_codes, additional_metadata} = diagramFeature.attributes;
@@ -552,7 +552,7 @@ class DiagramExporter extends HTMLElement {
           [this.#gplConfig.FIELD_NAMES.END_DATE]: endDate                // END DATE   //
         }
       };
-      //console.info(newScenarioFeature);
+      console.info("newScenarioFeature: ", newScenarioFeature.attributes);
 
       return newScenarioFeature;
     });
