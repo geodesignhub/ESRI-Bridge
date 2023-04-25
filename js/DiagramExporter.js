@@ -527,11 +527,13 @@ class DiagramExporter extends HTMLElement {
         coefficientAttributes = this.#gplConfig.COEFFICIENT_FIELD_NAMES.reduce((infos, coefficientAttribute) => {
           // - ONLY SAVE IF THE ACTION ID HAS NOT CHANGED //
           //infos[coefficientAttribute] = actionChanged ? null : additional_metadata[coefficientAttribute];
-          // PER CHARLIE: KEEP THEM ALL //
+          // - PER CHARLIE: KEEP THEM ALL //
           infos[coefficientAttribute] = additional_metadata[coefficientAttribute];
           return infos;
         }, {});
 
+      } else {
+        additional_metadata = {};
       }
 
       // NEW SCENARIO FEATURE //
@@ -539,6 +541,7 @@ class DiagramExporter extends HTMLElement {
         geometry: diagramFeature.geometry,
         attributes: {
           ...additional_metadata,                                        // START WITH ANY ADDITIONAL ATTRIBUTES //
+          ...coefficientAttributes,                                      // COEFFICIENTS //
           Geodesign_ProjectID: this.#gplProjectGroup.id,                 // GPL PROJECT ID - SHOULD BE THE SAME //
           Geodesign_ScenarioID: newScenarioID,                           // GPL SCENARIO ID  //
           [this.#gplConfig.FIELD_NAMES.NAME]: description,               // GPL DIAGRAM NAME //
@@ -546,8 +549,7 @@ class DiagramExporter extends HTMLElement {
           [this.#gplConfig.FIELD_NAMES.ACTION_IDS]: actionIDs.join('|'), // ACTION IDS //
           [this.#gplConfig.FIELD_NAMES.SOURCE_ID]: sourceID,             // SOURCE ID = GLOBAL ID //
           [this.#gplConfig.FIELD_NAMES.START_DATE]: startDate,           // START DATE //
-          [this.#gplConfig.FIELD_NAMES.END_DATE]: endDate,               // END DATE   //
-          ...coefficientAttributes                                       // COEFFICIENTS THAT HAVEN'T CHANGED //
+          [this.#gplConfig.FIELD_NAMES.END_DATE]: endDate                // END DATE   //
         }
       };
       //console.info(newScenarioFeature);
