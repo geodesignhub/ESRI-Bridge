@@ -426,27 +426,6 @@ class DiagramExporter extends HTMLElement {
    * THESE ARE UPDATES THAT WILL HAVE TO BE MADE TO ALL SCENARIO FEATURES BEFORE
    * ADDING THEM BACK TO THE FEATURE LAYER
    *
-   * VALIDITY CHECKS
-   *  - POLYGON GEOMETRY ONLY
-   *    - OPTION #1: DO NOT EXPORT
-   *  - ACTION_ID MISSING
-   *    - OPTION #1: DO NOT EXPORT
-   *    - OPTION #2: IF ORIGINATED IN GPL, USE ORIGINAL CLIMATE ACTIONS
-   *    - OPTION #3: INFORM USER AND ALLOW TO CANCEL EXPORT
-   *    - OPTION #4: ALLOW EXPORT OF DIAGRAM
-   *  - IF ORIGINATED IN GPL
-   *    - IF CLIMATE ACTION HAS CHANGED
-   *      - NAME HAS NOT CHANGED
-   *        - OPTION #1: LEAVE NAME ALONE
-   *        - OPTION #2: CLEAR NAME
-   *        - OPTION #3: RESET NAME TO ORIGINAL
-   *        - OPTION #4: CHANGE TO INFORMATIVE MESSAGE
-   *      - COEFFICIENTS
-   *        - OPTION #1: RESET COEFFICIENTS TO NULL
-   *    - IF CLIMATE ACTION HAVE NOT CHANGED
-   *      - OPTION #1: RESET COEFFICIENTS TO ORIGINAL
-   *
-   *
    * @param {{}[]} candidateFeatures
    * @param {string} newScenarioID
    * @returns {{geometry:{}, attributes:{}}[]}
@@ -467,10 +446,10 @@ class DiagramExporter extends HTMLElement {
     // FEATURES TO BE ADDED TO NEW GPL SCENARIO //
     //
     const newFeaturesToAdd = validDiagramFeatures.map((diagramFeature) => {
-      console.info("diagramFeature: ", diagramFeature.attributes);
+      //console.info("diagramFeature: ", diagramFeature.attributes);
 
       // DIAGRAM INFORMATION //
-      let {description, tag_codes, additional_metadata} = diagramFeature.attributes;
+      let {description, tag_codes, additional_metadata} = diagramFeature.attributes;  // start_date, end_date,
 
       // ACTION ID(S) //
       let actionIDs;
@@ -484,25 +463,19 @@ class DiagramExporter extends HTMLElement {
       let sourceID = null;
 
       // START AND END DATES //
-      //  - TODO: DOES THE DIAGRAM HAVE START/END DATES???
-      let startDate = (new Date('January 1, 2024').valueOf());
-      let endDate = (new Date('December 31, 2049').valueOf());
-
-      // COEFFICIENT ATTRIBUTES //
-      let coefficientAttributes = {};
+      // let startDate = new Date(start_date || 'January 1, 2024').valueOf();
+      // let endDate = new Date(end_date || 'December 31, 2049').valueOf();
 
       // ORIGINAL VALUES //
       if (additional_metadata) {
 
-        // ACTION ID(S) //
         //
-        // NOTE: THIS SHOULD NOT HAPPEN NOW THAT WE FILTER THESE OUT BEFORE WE GET HERE... //
+        // ACTION ID(S) //
         //
         if (!tag_codes?.length) {
           // IF tag_codes IS EMPTY THEN FALL BACK TO ORIGINAL VALUES //
           actionIDs = additional_metadata[this.#gplConfig.FIELD_NAMES.ACTION_IDS].split('|');
           [actionID] = actionIDs;
-          //actionID = additional_metadata[this.#gplConfig.FIELD_NAMES.ACTION_ID];
         }
 
         //
@@ -520,17 +493,8 @@ class DiagramExporter extends HTMLElement {
         sourceID = additional_metadata[this.#gplConfig.FIELD_NAMES.GLOBAL_ID];
 
         // START AND END DATES //
-        startDate = additional_metadata[this.#gplConfig.FIELD_NAMES.START_DATE];
-        endDate = additional_metadata[this.#gplConfig.FIELD_NAMES.END_DATE];
-
-        // COEFFICIENT ATTRIBUTES //
-        coefficientAttributes = this.#gplConfig.COEFFICIENT_FIELD_NAMES.reduce((infos, coefficientAttribute) => {
-          // - ONLY SAVE IF THE ACTION ID HAS NOT CHANGED //
-          //infos[coefficientAttribute] = actionChanged ? null : additional_metadata[coefficientAttribute];
-          // - PER CHARLIE: KEEP THEM ALL //
-          infos[coefficientAttribute] = additional_metadata[coefficientAttribute];
-          return infos;
-        }, {});
+        // startDate = additional_metadata[this.#gplConfig.FIELD_NAMES.START_DATE];
+        // endDate = additional_metadata[this.#gplConfig.FIELD_NAMES.END_DATE];
 
       } else {
         additional_metadata = {};
@@ -541,15 +505,14 @@ class DiagramExporter extends HTMLElement {
         geometry: diagramFeature.geometry,
         attributes: {
           ...additional_metadata,                                        // START WITH ANY ADDITIONAL ATTRIBUTES //
-          ...coefficientAttributes,                                      // COEFFICIENTS //
           Geodesign_ProjectID: this.#gplProjectGroup.id,                 // GPL PROJECT ID - SHOULD BE THE SAME //
           Geodesign_ScenarioID: newScenarioID,                           // GPL SCENARIO ID  //
           [this.#gplConfig.FIELD_NAMES.NAME]: description,               // GPL DIAGRAM NAME //
           [this.#gplConfig.FIELD_NAMES.ACTION_ID]: actionID,             // ACTION ID  //
           [this.#gplConfig.FIELD_NAMES.ACTION_IDS]: actionIDs.join('|'), // ACTION IDS //
           [this.#gplConfig.FIELD_NAMES.SOURCE_ID]: sourceID,             // SOURCE ID = GLOBAL ID //
-          [this.#gplConfig.FIELD_NAMES.START_DATE]: startDate,           // START DATE //
-          [this.#gplConfig.FIELD_NAMES.END_DATE]: endDate                // END DATE   //
+          // [this.#gplConfig.FIELD_NAMES.START_DATE]: startDate.valueOf(), // START DATE //
+          // [this.#gplConfig.FIELD_NAMES.END_DATE]: endDate.valueOf()      // END DATE   //
         }
       };
       console.info("newScenarioFeature: ", newScenarioFeature.attributes);

@@ -351,6 +351,13 @@ class DiagramImporter extends HTMLElement {
 
       // GEODESIGNHUB MIGRATE FEATURES AS DIAGRAMS //
       this.#geodesignhub.migrateGPLFeaturesAsDiagrams(diagramsGeoJSON).then(() => {
+
+        /**
+         *
+         * TODO: CAN WE NOW ASSIGN ALL THE NEW DIAGRAMS TO A DESIGN?
+         *
+         */
+
         this.completeSection.toggleAttribute('hidden', false);
       });
     });
