@@ -449,31 +449,42 @@ class DiagramExporter extends HTMLElement {
       //console.info("diagramFeature: ", diagramFeature.attributes);
 
       // DIAGRAM INFORMATION //
-      let {description, tag_codes, additional_metadata} = diagramFeature.attributes;  // start_date, end_date,
+      let {description, tag_codes, start_date, end_date, additional_metadata} = diagramFeature.attributes;
+
+      // SOURCE ID = GLOBAL ID //
+      let sourceID = null;
 
       // ACTION ID(S) //
       let actionIDs;
       let actionID;
+
+      // HAS ACTION IDS //
       if (tag_codes?.length) {
         actionIDs = tag_codes.split('|');
         [actionID] = actionIDs;
       }
 
-      // SOURCE ID = GLOBAL ID //
-      let sourceID = null;
-
       // START AND END DATES //
-      // let startDate = new Date(start_date || 'January 1, 2024').valueOf();
-      // let endDate = new Date(end_date || 'December 31, 2049').valueOf();
+      let startDate;
+      let endDate;
+
+      //
+      // IF AVAILABLE VIA GDH ASSIGN DATES //
+      //
+      start_date && (startDate = new Date(start_date));
+      end_date && (endDate = new Date(end_date));
 
       // ORIGINAL VALUES //
       if (additional_metadata) {
 
+        // SOURCE ID = GLOBAL ID //
+        sourceID = additional_metadata[this.#gplConfig.FIELD_NAMES.GLOBAL_ID];
+
         //
-        // ACTION ID(S) //
+        // IF NO ACTION IDS //
+        //  - IF tag_codes IS EMPTY THEN FALL BACK TO ORIGINAL VALUES //
         //
         if (!tag_codes?.length) {
-          // IF tag_codes IS EMPTY THEN FALL BACK TO ORIGINAL VALUES //
           actionIDs = additional_metadata[this.#gplConfig.FIELD_NAMES.ACTION_IDS].split('|');
           [actionID] = actionIDs;
         }
@@ -489,12 +500,12 @@ class DiagramExporter extends HTMLElement {
           !nameChanged && (description = "[climate action changed]");
         }
 
-        // SOURCE ID = GLOBAL ID //
-        sourceID = additional_metadata[this.#gplConfig.FIELD_NAMES.GLOBAL_ID];
-
         // START AND END DATES //
-        // startDate = additional_metadata[this.#gplConfig.FIELD_NAMES.START_DATE];
-        // endDate = additional_metadata[this.#gplConfig.FIELD_NAMES.END_DATE];
+        //
+        //  - IF NOT AVAILABLE VIA GDH THEN ASSIGN SOURCE DATES //
+        //
+        !startDate && (startDate = new Date(additional_metadata[this.#gplConfig.FIELD_NAMES.START_DATE] || this.#gplConfig.DATES.START));
+        !endDate && (endDate = new Date(additional_metadata[this.#gplConfig.FIELD_NAMES.END_DATE] || this.#gplConfig.DATES.END));
 
       } else {
         additional_metadata = {};
@@ -504,18 +515,18 @@ class DiagramExporter extends HTMLElement {
       const newScenarioFeature = {
         geometry: diagramFeature.geometry,
         attributes: {
-          ...additional_metadata,                                        // START WITH ANY ADDITIONAL ATTRIBUTES //
-          Geodesign_ProjectID: this.#gplProjectGroup.id,                 // GPL PROJECT ID - SHOULD BE THE SAME //
-          Geodesign_ScenarioID: newScenarioID,                           // GPL SCENARIO ID  //
-          [this.#gplConfig.FIELD_NAMES.NAME]: description,               // GPL DIAGRAM NAME //
-          [this.#gplConfig.FIELD_NAMES.ACTION_ID]: actionID,             // ACTION ID  //
-          [this.#gplConfig.FIELD_NAMES.ACTION_IDS]: actionIDs.join('|'), // ACTION IDS //
-          [this.#gplConfig.FIELD_NAMES.SOURCE_ID]: sourceID,             // SOURCE ID = GLOBAL ID //
-          // [this.#gplConfig.FIELD_NAMES.START_DATE]: startDate.valueOf(), // START DATE //
-          // [this.#gplConfig.FIELD_NAMES.END_DATE]: endDate.valueOf()      // END DATE   //
+          ...additional_metadata,                                         // START WITH ANY ADDITIONAL ATTRIBUTES //
+          Geodesign_ProjectID: this.#gplProjectGroup.id,                  // GPL PROJECT ID - SHOULD BE THE SAME  //
+          Geodesign_ScenarioID: newScenarioID,                            // GPL SCENARIO ID  //
+          [this.#gplConfig.FIELD_NAMES.NAME]: description,                // GPL DIAGRAM NAME //
+          [this.#gplConfig.FIELD_NAMES.SOURCE_ID]: sourceID,              // SOURCE ID = GLOBAL ID //
+          [this.#gplConfig.FIELD_NAMES.ACTION_ID]: actionID,              // ACTION ID  //
+          [this.#gplConfig.FIELD_NAMES.ACTION_IDS]: actionIDs.join('|'),  // ACTION IDS //
+          [this.#gplConfig.FIELD_NAMES.START_DATE]: startDate.valueOf(),  // START DATE //
+          [this.#gplConfig.FIELD_NAMES.END_DATE]: endDate.valueOf()       // END DATE   //
         }
       };
-      console.info("newScenarioFeature: ", newScenarioFeature.attributes);
+      //console.info("newScenarioFeature: ", newScenarioFeature.attributes);
 
       return newScenarioFeature;
     });

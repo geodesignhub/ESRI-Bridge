@@ -318,8 +318,8 @@ class DiagramImporter extends HTMLElement {
         const diagramName = feature.properties[this.#gplConfig.FIELD_NAMES.NAME] || "GPL Migration";
 
         // START AND END DATES //
-        const startDate = new Date(feature.properties[this.#gplConfig.FIELD_NAMES.START_DATE] || 'January 1, 2024');
-        const endDate = new Date(feature.properties[this.#gplConfig.FIELD_NAMES.NAME.END_DATE] || 'December 31, 2049');
+        const startDate = new Date(feature.properties[this.#gplConfig.FIELD_NAMES.START_DATE] || this.#gplConfig.DATES.START);
+        const endDate = new Date(feature.properties[this.#gplConfig.FIELD_NAMES.END_DATE] || this.#gplConfig.DATES.END);
 
         // GET CLIMATE ACTION //
         const climateAction = feature.properties[this.#gplConfig.FIELD_NAMES.ACTION_ID];

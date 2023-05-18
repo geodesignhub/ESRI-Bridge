@@ -28,7 +28,6 @@ import GeodesignhubAPI from './GeodesignhubAPI.js';
  * Created:  2/14/2023 - 0.0.1 -
  * Modified:
  *
- * ASANA PROJECT: https://app.asana.com/0/1203835742423665/list
  *
  */
 
@@ -40,14 +39,31 @@ class EsriBridge extends EventTarget {
    *
    * USED TO CONFIGURE GEOPLANNER LAYER IDS AND FIELD NAMES
    *
-   * @typedef {{ACTIONS_LAYER_ID: number, AOI_LAYER_ID: number, FIELD_NAMES: {ACTION_IDS: string, SOURCE_ID: string, DESCRIPTION: string, ACTION_ID: string, GLOBAL_ID: string, NAME: string,START_DATE: string, END_DATE: string}} GPLConfig
+   * @typedef {{
+   *  ACTIONS_LAYER_ID: number,
+   *  AOI_LAYER_ID: number,
+   *  FIELD_NAMES: {
+   *    ACTION_IDS: string,
+   *    SOURCE_ID: string,
+   *    DESCRIPTION: string,
+   *    ACTION_ID: string,
+   *    GLOBAL_ID: string,
+   *    NAME: string,
+   *    START_DATE: string,
+   *    END_DATE: string
+   *  },
+   *  DATES: {
+   *   START: string,
+   *   END: string
+   *  }
+   * }} GPLConfig
    */
 
   /**
    *
    * GEOPLANNER CONFIGURATION
    *
-   * @type {GPLConfig}
+   * @type GPLConfig
    */
   static GPL_CONFIG = {
     ACTIONS_LAYER_ID: 0,
@@ -60,6 +76,10 @@ class EsriBridge extends EventTarget {
       ACTION_IDS: 'Policy_Actions_IDS',
       START_DATE: 'Start_Date',
       END_DATE: 'End_Date'
+    },
+    DATES: {
+      START: 'January 1, 2024 UTC',
+      END: 'December 31, 2049 UTC'
     }
   };
 
