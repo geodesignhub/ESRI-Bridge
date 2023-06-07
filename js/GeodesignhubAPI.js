@@ -298,14 +298,14 @@ class GeodesignhubAPI extends HTMLElement {
   };
 
   /*_gdhGetDiagramProperties(diagramId) {
-    return this.__fetchResource(`projects/${ this.#gdhProjectId }/diagrams/${ diagramId }/`,
-      {
-        method: 'GET',
-        headers: {
-          "Authorization": `Token ${ this.#gdhAPIToken }`
-        }
-      });
-  }*/
+   return this.__fetchResource(`projects/${ this.#gdhProjectId }/diagrams/${ diagramId }/`,
+   {
+   method: 'GET',
+   headers: {
+   "Authorization": `Token ${ this.#gdhAPIToken }`
+   }
+   });
+   }*/
 
   _gdhUpdateDiagramProperties(diagramID, postJson) {
     return this.__fetchResource(`projects/${ this.#gdhProjectId }/diagrams/${ diagramID }/`,
@@ -500,6 +500,17 @@ class GeodesignhubAPI extends HTMLElement {
             "start_date": gdhStartDate,
             "end_date": gdhEndDate
           };
+
+
+          // FIRST CLIMATE ACTION //
+          const [firstClimateAction] = gdhTagCodes;
+
+          //
+          // TODO: DETERMINE IF DIAGRAM IS A PROJECT OR POLICY
+          //
+          const _listOfNoActionIDs = ['5.5.', '2.6.'];
+          const projectOrPolicy = _listOfNoActionIDs.find(noActionID => firstClimateAction.startsWith(noActionID)) ? 'project' : 'policy';
+          console.info(firstClimateAction, projectOrPolicy);
 
           this._gdhMigrateDiagramsToProject(gdhSystemID, 'project', postJson).then(diagram_data => {
             this.displayMessage(JSON.stringify(diagram_data, null, 2));
