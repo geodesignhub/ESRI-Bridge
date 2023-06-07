@@ -501,7 +501,6 @@ class GeodesignhubAPI extends HTMLElement {
             "end_date": gdhEndDate
           };
 
-
           // FIRST CLIMATE ACTION //
           const [firstClimateAction] = gdhTagCodes;
 
@@ -511,9 +510,9 @@ class GeodesignhubAPI extends HTMLElement {
           const _listOfNoActionIDs = ['5.5.', '2.6.'];
           const isProject = (_listOfNoActionIDs.find(noActionID => firstClimateAction.startsWith(noActionID)) != null);
           const projectOrPolicy = isProject ? 'project' : 'policy';
-          console.info(firstClimateAction, projectOrPolicy);
+          console.info("Project or Policy: ", firstClimateAction, projectOrPolicy);
 
-          this._gdhMigrateDiagramsToProject(gdhSystemID, 'project', postJson).then(diagram_data => {
+          this._gdhMigrateDiagramsToProject(gdhSystemID, projectOrPolicy, postJson).then(diagram_data => {
             this.displayMessage(JSON.stringify(diagram_data, null, 2));
             return diagram_data;
           }).then(diagram_data => {
