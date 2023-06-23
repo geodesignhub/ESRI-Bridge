@@ -502,16 +502,14 @@ class GeodesignhubAPI extends HTMLElement {
           };
 
           // FIRST CLIMATE ACTION //
-          const [firstClimateAction] = gdhTagCodes;
+          //const [firstClimateAction] = gdhTagCodes;
+          // DETERMINE IF DIAGRAM IS A PROJECT OR POLICY
+          //const _listOfNoActionIDs = ['5.5.', '2.6.'];
+          //const isProject = (_listOfNoActionIDs.find(noActionID => firstClimateAction.startsWith(noActionID)) != null);
+          //const projectOrPolicy = isProject ? 'project' : 'policy';
+          //console.info("Project or Policy: ", firstClimateAction, projectOrPolicy);
 
-          //
-          // TODO: DETERMINE IF DIAGRAM IS A PROJECT OR POLICY
-          //
-          const _listOfNoActionIDs = ['5.5.', '2.6.'];
-          const isProject = (_listOfNoActionIDs.find(noActionID => firstClimateAction.startsWith(noActionID)) != null);
-          const projectOrPolicy = isProject ? 'project' : 'policy';
-          console.info("Project or Policy: ", firstClimateAction, projectOrPolicy);
-
+          const projectOrPolicy = 'project';
           this._gdhMigrateDiagramsToProject(gdhSystemID, projectOrPolicy, postJson).then(diagram_data => {
             this.displayMessage(JSON.stringify(diagram_data, null, 2));
             return diagram_data;
