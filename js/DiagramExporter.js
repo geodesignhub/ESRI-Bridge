@@ -227,8 +227,8 @@ class DiagramExporter extends HTMLElement {
         const {tag_codes} = _esri_json_feature.attributes;
         const isValid = (tag_codes?.length > 0);
         if (!isValid) {
-          //console.info('diagram with no climate action: ', _esri_json_feature.attributes);
           this.#geodesignhub.displayMessage("Warning: diagram with no climate action.");
+          console.warn('diagram with no climate action: ', tag_codes, _esri_json_feature.attributes);
         }
         return isValid;
       });
@@ -492,9 +492,9 @@ class DiagramExporter extends HTMLElement {
         //
         // IF CLIMATE ACTION CHANGED BUT THE NAME HAS NOT, THEN UPDATE THE NAME TO INDICATE STATE //
         //
-        const nameChanged = (description !== additional_metadata[this.#gplConfig.FIELD_NAMES.NAME]);
         const actionChanged = (actionID !== additional_metadata[this.#gplConfig.FIELD_NAMES.ACTION_ID]);
         if (actionChanged) {
+          const nameChanged = (description !== additional_metadata[this.#gplConfig.FIELD_NAMES.NAME]);
           // IF THE ACTION ID HAS CHANGED BUT THE NAME HAS //
           // NOT THEN WE SHOULD NOT USE THE PREVIOUS NAME  //
           !nameChanged && (description = "[climate action changed]");
