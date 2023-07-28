@@ -154,7 +154,12 @@ class DiagramImporter extends HTMLElement {
 
     this.migrateBtn = this.shadowRoot.querySelector('.migrate-btn');
     this.migrateBtn.addEventListener('click', () => {
-      this.migrateSelectedScenario();
+      this.migrateBtn.disabled = true;
+      this.migrateSelectedScenario().catch(error => {
+        this.#geodesignhub.displayMessage(error);
+      }).finally(() => {
+        this.migrateBtn.disabled = false;
+      });
     });
 
     this.completeSection = this.shadowRoot.querySelector('.complete-section');
@@ -294,74 +299,78 @@ class DiagramImporter extends HTMLElement {
 
   /**
    *
+   * @return {Promise<>}
    */
   migrateSelectedScenario() {
+    return new Promise((resolve, reject) => {
 
-    //
-    // GET THE FEATURES AS GEOJSON DIRECTLY FROM THE REST ENDPOINT //
-    //  - esri/request IS A GENERIC METHOD TO MAKE DIRECT WEB CALLS BUT WILL HANDLE ESRI SPECIFIC USE-CASES
-    //      DOC: https://developers.arcgis.com/javascript/latest/api-reference/esri-request.html
-    //  - HERE WE USE IT TO MAKE A DIRECT CALL TO THE QUERY REST ENDPOINT OF THE FEATURE LAYER
-    //
-    //  - NOTE: CURRENTLY ALSO FILTERING OUT FEATURES WITH 'NA' IN THE SYSTEM FIELD
-    //          AND NOT SURE IF WE'LL ALWAYS NEED THIS...
-    //
-    this._getAllFeatures({
-      queryUrl: this.#geoPlannerScenarioLayerQueryUrl,
-      queryFilter: this.#queryWhereClause,
-      maxFeatureCount: this.#scenarioDiagramCount
-    }).then(({features}) => {
+      //
+      // GET THE FEATURES AS GEOJSON DIRECTLY FROM THE REST ENDPOINT //
+      //  - esri/request IS A GENERIC METHOD TO MAKE DIRECT WEB CALLS BUT WILL HANDLE ESRI SPECIFIC USE-CASES
+      //      DOC: https://developers.arcgis.com/javascript/latest/api-reference/esri-request.html
+      //  - HERE WE USE IT TO MAKE A DIRECT CALL TO THE QUERY REST ENDPOINT OF THE FEATURE LAYER
+      //
+      //  - NOTE: CURRENTLY ALSO FILTERING OUT FEATURES WITH 'NA' IN THE SYSTEM FIELD
+      //          AND NOT SURE IF WE'LL ALWAYS NEED THIS...
+      //
+      this._getAllFeatures({
+        queryUrl: this.#geoPlannerScenarioLayerQueryUrl,
+        queryFilter: this.#queryWhereClause,
+        maxFeatureCount: this.#scenarioDiagramCount
+      }).then(({features}) => {
 
-      const diagramsGeoJSON = features.map((feature, featureIdx) => {
+        const diagramsGeoJSON = features.map((feature, featureIdx) => {
 
-        // DIAGRAM NAME //
-        const diagramName = feature.properties[this.#gplConfig.FIELD_NAMES.NAME] || "GPL Migration";
+          // DIAGRAM NAME //
+          const diagramName = feature.properties[this.#gplConfig.FIELD_NAMES.NAME] || "GPL Migration";
 
-        // START AND END DATES //
-        const startDate = new Date(feature.properties[this.#gplConfig.FIELD_NAMES.START_DATE] || this.#gplConfig.DATES.START);
-        const endDate = new Date(feature.properties[this.#gplConfig.FIELD_NAMES.END_DATE] || this.#gplConfig.DATES.END);
+          // START AND END DATES //
+          const startDate = new Date(feature.properties[this.#gplConfig.FIELD_NAMES.START_DATE] || this.#gplConfig.DATES.START);
+          const endDate = new Date(feature.properties[this.#gplConfig.FIELD_NAMES.END_DATE] || this.#gplConfig.DATES.END);
 
-        // GET CLIMATE ACTION //
-        const climateAction = feature.properties[this.#gplConfig.FIELD_NAMES.ACTION_ID];
-        // GET CLIMATE ACTION SYSTEM //
-        const [systemCode] = climateAction?.split('.');
+          // GET CLIMATE ACTION //
+          const climateAction = feature.properties[this.#gplConfig.FIELD_NAMES.ACTION_ID];
+          // GET CLIMATE ACTION SYSTEM //
+          const [systemCode] = climateAction?.split('.');
 
-        // CLIMATE ACTIONS PROPERTY //
-        const climateActionsStr = feature.properties[this.#gplConfig.FIELD_NAMES.ACTION_IDS];
-        // CLIMATE ACTION CODES //
-        const climateActions = (climateActionsStr?.length) ? climateActionsStr.split('|') : [climateAction];
+          // CLIMATE ACTIONS PROPERTY //
+          const climateActionsStr = feature.properties[this.#gplConfig.FIELD_NAMES.ACTION_IDS];
+          // CLIMATE ACTION CODES //
+          const climateActions = (climateActionsStr?.length) ? climateActionsStr.split('|') : [climateAction];
 
-        const newDiagram = {
-          type: 'Feature',
-          id: (featureIdx + 1),
-          geometry: feature.geometry,
-          properties: {
-            name: diagramName,
-            system: Number(systemCode),
-            tags: climateActions,
-            start_date: startDate.toISOString(),
-            end_date: endDate.toISOString(),
-            metadata: {...feature.properties}
-          }
-        };
-        //console.info(newDiagram);
+          const newDiagram = {
+            type: 'Feature',
+            id: (featureIdx + 1),
+            geometry: feature.geometry,
+            properties: {
+              name: diagramName,
+              system: Number(systemCode),
+              tags: climateActions,
+              start_date: startDate.toISOString(),
+              end_date: endDate.toISOString(),
+              metadata: {...feature.properties}
+            }
+          };
+          //console.info(newDiagram);
 
-        return newDiagram;
-      });
+          return newDiagram;
+        });
 
-      // GEODESIGNHUB MIGRATE FEATURES AS DIAGRAMS //
-      this.#geodesignhub.migrateGPLFeaturesAsDiagrams(diagramsGeoJSON).then(() => {
+        // GEODESIGNHUB MIGRATE FEATURES AS DIAGRAMS //
+        this.#geodesignhub.migrateGPLFeaturesAsDiagrams(diagramsGeoJSON).then(() => {
 
-        /**
-         *
-         * TODO: CAN WE NOW ASSIGN ALL THE NEW DIAGRAMS TO A DESIGN?
-         *
-         */
+          /**
+           *
+           * TODO: CAN WE NOW ASSIGN ALL THE NEW DIAGRAMS TO A DESIGN?
+           *
+           */
 
-        this.completeSection.toggleAttribute('hidden', false);
-      });
+          this.completeSection.toggleAttribute('hidden', false);
+
+          resolve();
+        }).catch(reject);
+      }).catch(reject);
     });
-
   }
 
   /**
