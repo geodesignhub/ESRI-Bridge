@@ -138,7 +138,12 @@ class DiagramExporter extends HTMLElement {
 
     this.migrateSelectedBtn = this.shadowRoot.querySelector('.migrate-selected-btn');
     this.migrateSelectedBtn.addEventListener('click', () => {
-      this.migrateDesignAsScenario();
+      this.migrateSelectedBtn.disabled = true;
+      this.migrateDesignAsScenario().catch(error => {
+        this.#geodesignhub.displayMessage(error);
+      }).finally(() => {
+        this.migrateSelectedBtn.disabled = false;
+      });
     });
 
     this.completeSection = this.shadowRoot.querySelector('.complete-section');
@@ -213,60 +218,58 @@ class DiagramExporter extends HTMLElement {
    *
    */
   migrateDesignAsScenario() {
+    return new Promise((resolve, reject) => {
 
-    const gdhDesignTeamID = this.#gdhDesignTeamId;
-    const gdhDesignTeamName = this.designTeamInput.value;
-    const gdhDesignID = this.#gdhDesignId;
-    const gdhDesignName = this.designInput.value;
+      const gdhDesignTeamID = this.#gdhDesignTeamId;
+      const gdhDesignTeamName = this.designTeamInput.value;
+      const gdhDesignID = this.#gdhDesignId;
+      const gdhDesignName = this.designInput.value;
 
-    this.#geodesignhub.displayMessage("Migration process started...");
-    this.#geodesignhub._gdhGetDesignESRIJSON(gdhDesignTeamID, gdhDesignID).then(_designFeaturesAsEsriJSON => {
+      this.#geodesignhub.displayMessage("Migration process started...");
+      this.#geodesignhub._gdhGetDesignESRIJSON(gdhDesignTeamID, gdhDesignID).then(_designFeaturesAsEsriJSON => {
 
-      // This filters out the design features that have "empty" tag_codes, meaning that these features dont have a climate action tag attached to them.
-      let designFeaturesAsEsriJSON = _designFeaturesAsEsriJSON.filter((_esri_json_feature) => {
-        const {tag_codes} = _esri_json_feature.attributes;
-        const isValid = (tag_codes?.length > 0);
-        if (!isValid) {
-          this.#geodesignhub.displayMessage("Warning: diagram with no climate action.");
-          console.warn('diagram with no climate action: ', tag_codes, _esri_json_feature.attributes);
-        }
-        return isValid;
-      });
-
-      // MAKE SURE WE HAVE AT LEAST ONE DIAGRAM AVAILABLE TO EXPORT //
-      if (designFeaturesAsEsriJSON.length) {
-
-        //
-        // CREATE TARGET SCENARIO PORTAL ITEM //
-        //  - THIS WILL GIVE US THE NECESSARY NEW SCENARIO ID...
-        //
-        this._createNewGeoPlannerScenarioPortalItem({
-          designTeamName: gdhDesignTeamName,
-          designName: gdhDesignName
-        }).then(({newPortalItem, newScenarioID, scenarioFilter}) => {
-          this.#geodesignhub.displayMessage(`New GeoPlanner scenario created: ${ gdhDesignName }`);
-
-          // UPDATE NEW SCENARIO FEATURES //
-          const updatedDesignFeaturesAsEsriJSON = this._updateScenarioCandidates({candidateFeatures: designFeaturesAsEsriJSON, newScenarioID});
-
-          // ADD NEW GEOPLANNER SCENARIO FEATURES //
-          this._addNewGeoPlannerScenarioFeatures({designFeaturesAsEsriJSON: updatedDesignFeaturesAsEsriJSON, newPortalItem}).then(({addFeaturesOIDs}) => {
-            this.#geodesignhub.displayMessage(`Migration process complete: ${ addFeaturesOIDs.length } diagrams`);
-
-            this.newScenarioLink.setAttribute('href', `https://${ this.#portal.urlKey }.${ this.#portal.customBaseUrl }/apps/mapviewer/index.html?layers=${ newScenarioID }`);
-            this.completeSection.toggleAttribute('hidden', false);
-
-          }).catch(error => {
-            this.#geodesignhub.displayMessage(error);
-          });
-        }).catch(error => {
-          this.#geodesignhub.displayMessage(error);
+        // This filters out the design features that have "empty" tag_codes, meaning that these features dont have a climate action tag attached to them.
+        let designFeaturesAsEsriJSON = _designFeaturesAsEsriJSON.filter((_esri_json_feature) => {
+          const {tag_codes} = _esri_json_feature.attributes;
+          const isValid = (tag_codes?.length > 0);
+          if (!isValid) {
+            this.#geodesignhub.displayMessage("Warning: diagram with no climate action.");
+            console.warn('diagram with no climate action: ', tag_codes, _esri_json_feature.attributes);
+          }
+          return isValid;
         });
-      } else {
-        this.#geodesignhub.displayMessage(new Error("All diagrams missing at least one Climate Action. No diagrams available for export."));
-      }
-    }).catch(error => {
-      this.#geodesignhub.displayMessage(error);
+
+        // MAKE SURE WE HAVE AT LEAST ONE DIAGRAM AVAILABLE TO EXPORT //
+        if (designFeaturesAsEsriJSON.length) {
+
+          //
+          // CREATE TARGET SCENARIO PORTAL ITEM //
+          //  - THIS WILL GIVE US THE NECESSARY NEW SCENARIO ID...
+          //
+          this._createNewGeoPlannerScenarioPortalItem({
+            designTeamName: gdhDesignTeamName,
+            designName: gdhDesignName
+          }).then(({newPortalItem, newScenarioID, scenarioFilter}) => {
+            this.#geodesignhub.displayMessage(`New GeoPlanner scenario created: ${ gdhDesignName }`);
+
+            // UPDATE NEW SCENARIO FEATURES //
+            const updatedDesignFeaturesAsEsriJSON = this._updateScenarioCandidates({candidateFeatures: designFeaturesAsEsriJSON, newScenarioID});
+
+            // ADD NEW GEOPLANNER SCENARIO FEATURES //
+            this._addNewGeoPlannerScenarioFeatures({designFeaturesAsEsriJSON: updatedDesignFeaturesAsEsriJSON, newPortalItem}).then(({addFeaturesOIDs}) => {
+              this.#geodesignhub.displayMessage(`Migration process complete: ${ addFeaturesOIDs.length } diagrams`);
+
+              this.newScenarioLink.setAttribute('href', `https://${ this.#portal.urlKey }.${ this.#portal.customBaseUrl }/apps/mapviewer/index.html?layers=${ newScenarioID }`);
+              this.completeSection.toggleAttribute('hidden', false);
+
+              resolve();
+            }).catch(reject);
+          }).catch(reject);
+        } else {
+          reject(new Error("All diagrams missing at least one Climate Action. No diagrams available for export."));
+        }
+      }).catch(reject);
+
     });
   }
 
