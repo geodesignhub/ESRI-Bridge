@@ -553,6 +553,9 @@ class GeodesignhubAPI extends HTMLElement {
         }
       };
 
+      // START THE MIGRATION PROCESS //
+      _migrateDiagrams();
+
       /*
        let source_diagrams_len = diagramsGeoJSON.length;
        for (let index = 0; index < source_diagrams_len; index++) {
