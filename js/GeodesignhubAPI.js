@@ -452,77 +452,176 @@ class GeodesignhubAPI extends HTMLElement {
   /**
    *
    * @param diagramsGeoJSON
-   * @returns {Promise<unknown>}
+   * @returns {Promise<>}
    */
   migrateGPLFeaturesAsDiagrams(diagramsGeoJSON) {
     return new Promise((resolve, reject) => {
 
-      let source_diagrams_len = diagramsGeoJSON.length;
+      /**
+       * MIGRATE A SINGLE DIAGRAM FEATURE
+       *
+       * @param diagram_feature
+       * @return {Promise<>}
+       * @private
+       */
+      const _migrateDiagram = (diagram_feature) => {
+        return new Promise((migrateResolve, migrateReject) => {
 
-      for (let index = 0; index < source_diagrams_len; index++) {
-        const current_diagram_feature = diagramsGeoJSON[index];
+          const gdhDiagramName = diagram_feature.properties.name;
+          const gplSystem = diagram_feature.properties.system;
+          const gdhTagCodes = diagram_feature.properties.tags;
+          const gdhStartDate = diagram_feature.properties.start_date;
+          const gdhEndDate = diagram_feature.properties.end_date;
 
-        const gdhDiagramName = current_diagram_feature.properties.name;
-        const gplSystem = current_diagram_feature.properties.system;
-        const gdhTagCodes = current_diagram_feature.properties.tags;
-        const gdhStartDate = current_diagram_feature.properties.start_date;
-        const gdhEndDate = current_diagram_feature.properties.end_date;
+          // METADATA //
+          let gplAdditionalMetadata = diagram_feature.properties.metadata;
+          if (!gplAdditionalMetadata) {
+            gplAdditionalMetadata = {"globalid": ""};
+          }
+          // REMOVE METADATA //
+          delete diagram_feature.properties.metadata;
 
-        // METADATA //
-        let gplAdditionalMetadata = current_diagram_feature.properties.metadata;
-        if (!gplAdditionalMetadata) {
-          gplAdditionalMetadata = {"globalid": ""};
+          // SYSTEM ID //
+          const gdhSystemID = this.gdhGPLSystemConverter(gplSystem);
+
+          // REWIND GEOMETRY //
+          const gj = diagram_feature['geometry'];
+          let geoJSONGeometryType = gj['type'].toLowerCase();
+          let rewound = this.rewind(gj, false);
+          diagram_feature['geometry'] = rewound;
+
+          // CREATE FEATURE COLLECTION //
+          let gj_feature_collection = {"type": "FeatureCollection", "features": [diagram_feature]};
+          if (geoJSONGeometryType === 'LineString') { geoJSONGeometryType = 'polyline'; }
+
+          const postJson = {"featuretype": geoJSONGeometryType, "description": gdhDiagramName, "geometry": gj_feature_collection};
+
+          if (gdhSystemID !== 0) {
+
+            let gdhDiagramProperties = {
+              "additional_metadata": gplAdditionalMetadata,
+              "tag_codes": gdhTagCodes,
+              "title": gdhDiagramName,
+              "start_date": gdhStartDate,
+              "end_date": gdhEndDate
+            };
+
+            //
+            // PROJECT OR POLICY //
+            //
+            const [climateAction] = gdhTagCodes;
+            const projectOrPolicy = climateAction?.endsWith('.0.0') ? 'project' : 'policy';
+
+            this._gdhMigrateDiagramsToProject(gdhSystemID, projectOrPolicy, postJson).then(diagram_data => {
+              //this.displayMessage(JSON.stringify(diagram_data, null, 2));
+              return diagram_data;
+            }).then(diagram_data => {
+              const dd = JSON.parse(diagram_data);
+              let diagramID = dd['diagram_id'];
+              this._gdhUpdateDiagramProperties(diagramID, gdhDiagramProperties).then(propertiesUpdated => {
+                migrateResolve({diagramID, propertiesUpdated});
+              }).catch(migrateReject);
+            }).catch(migrateReject);
+          }
+
+        });
+      };
+
+      const _migrateDiagrams = () => {
+        if (diagramsGeoJSON.length) {
+
+          // NEXT DIAGRAM FEATURE //
+          const diagram_feature = diagramsGeoJSON.splice(0, 1);
+
+          // MIGRATE DIAGRAM //
+          _migrateDiagram(diagram_feature).then(({diagramID, propertiesUpdated}) => {
+            // FEATURE MIGRATED AS DIAGRAM //
+            this.displayMessage(`Diagram ${diagramID} migrated`);
+          }).catch(this.displayMessage).finally(() => {
+            // CATCH AND DISPLAY INDIVIDUAL ERRORS BUT
+            // CONTINUE MIGRATION PROCESS EVEN IF THERE
+            // WAS AN ERROR IN THE PREVIOUS FEATURE
+
+            setTimeout(() => {
+              _migrateDiagrams();
+            }, 250);
+
+          });
+        } else {
+          // RESOLVE WHEN THERE ARE NO MORE FEATURES TO MIGRATE //
+          resolve();
         }
-        // REMOVE METADATA //
-        delete current_diagram_feature.properties.metadata;
+      };
 
-        // SYSTEM ID //
-        const gdhSystemID = this.gdhGPLSystemConverter(gplSystem);
+      /*
+       let source_diagrams_len = diagramsGeoJSON.length;
+       for (let index = 0; index < source_diagrams_len; index++) {
+       const current_diagram_feature = diagramsGeoJSON[index];
 
-        // REWIND GEOMETRY //
-        const gj = current_diagram_feature['geometry'];
-        let geoJSONGeometryType = gj['type'].toLowerCase();
-        let rewound = this.rewind(gj, false);
-        current_diagram_feature['geometry'] = rewound;
+       const gdhDiagramName = current_diagram_feature.properties.name;
+       const gplSystem = current_diagram_feature.properties.system;
+       const gdhTagCodes = current_diagram_feature.properties.tags;
+       const gdhStartDate = current_diagram_feature.properties.start_date;
+       const gdhEndDate = current_diagram_feature.properties.end_date;
 
-        // CREATE FEATURE COLLECTION //
-        let gj_feature_collection = {"type": "FeatureCollection", "features": [current_diagram_feature]};
-        if (geoJSONGeometryType === 'LineString') { geoJSONGeometryType = 'polyline'; }
+       // METADATA //
+       let gplAdditionalMetadata = current_diagram_feature.properties.metadata;
+       if (!gplAdditionalMetadata) {
+       gplAdditionalMetadata = {"globalid": ""};
+       }
+       // REMOVE METADATA //
+       delete current_diagram_feature.properties.metadata;
 
-        const postJson = {"featuretype": geoJSONGeometryType, "description": gdhDiagramName, "geometry": gj_feature_collection};
+       // SYSTEM ID //
+       const gdhSystemID = this.gdhGPLSystemConverter(gplSystem);
 
-        if (gdhSystemID !== 0) {
+       // REWIND GEOMETRY //
+       const gj = current_diagram_feature['geometry'];
+       let geoJSONGeometryType = gj['type'].toLowerCase();
+       let rewound = this.rewind(gj, false);
+       current_diagram_feature['geometry'] = rewound;
 
-          let gdhDiagramProperties = {
-            "additional_metadata": gplAdditionalMetadata,
-            "tag_codes": gdhTagCodes,
-            "title": gdhDiagramName,
-            "start_date": gdhStartDate,
-            "end_date": gdhEndDate
-          };
+       // CREATE FEATURE COLLECTION //
+       let gj_feature_collection = {"type": "FeatureCollection", "features": [current_diagram_feature]};
+       if (geoJSONGeometryType === 'LineString') { geoJSONGeometryType = 'polyline'; }
 
-          //
-          // PROJECT OR POLICY //
-          //
-          const [climateAction] = gdhTagCodes;
-          const projectOrPolicy = climateAction?.endsWith('.0.0') ? 'project' : 'policy';
+       const postJson = {"featuretype": geoJSONGeometryType, "description": gdhDiagramName, "geometry": gj_feature_collection};
 
-          this._gdhMigrateDiagramsToProject(gdhSystemID, projectOrPolicy, postJson).then(diagram_data => {
-            this.displayMessage(JSON.stringify(diagram_data, null, 2));
-            return diagram_data;
-          }).then(diagram_data => {
-            const dd = JSON.parse(diagram_data);
-            let diagramID = dd['diagram_id'];
+       if (gdhSystemID !== 0) {
 
-            this._gdhUpdateDiagramProperties(diagramID, gdhDiagramProperties).then(propertiesUpdated => {
-              this.displayMessage("Diagram properties updated..");
+       let gdhDiagramProperties = {
+       "additional_metadata": gplAdditionalMetadata,
+       "tag_codes": gdhTagCodes,
+       "title": gdhDiagramName,
+       "start_date": gdhStartDate,
+       "end_date": gdhEndDate
+       };
 
-              setTimeout(resolve, 250);
+       //
+       // PROJECT OR POLICY //
+       //
+       const [climateAction] = gdhTagCodes;
+       const projectOrPolicy = climateAction?.endsWith('.0.0') ? 'project' : 'policy';
 
-            }).catch(this.displayMessage);
-          }).catch(this.displayMessage);
-        }
-      }
+       this._gdhMigrateDiagramsToProject(gdhSystemID, projectOrPolicy, postJson).then(diagram_data => {
+       this.displayMessage(JSON.stringify(diagram_data, null, 2));
+       return diagram_data;
+       }).then(diagram_data => {
+       const dd = JSON.parse(diagram_data);
+       let diagramID = dd['diagram_id'];
+
+       this._gdhUpdateDiagramProperties(diagramID, gdhDiagramProperties).then(propertiesUpdated => {
+       this.displayMessage("Diagram properties updated..");
+
+       setTimeout(resolve, 250);
+
+       }).catch(this.displayMessage);
+       }).catch(this.displayMessage);
+
+       }
+       }
+       */
+
     });
   }
 
