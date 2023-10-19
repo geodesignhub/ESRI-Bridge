@@ -127,7 +127,7 @@ class DiagramImporter extends HTMLElement {
       <label>   
         <div>Select GeoPlanner Scenario</div> 
         <select class="scenario-items-select"></select>
-        <div>The '<span class="scenario-name-label">?</span>' GeoPlanner Scenario contains <span class="scenario-diagram-count">---</span> diagrams.</div>         
+        <div>The '<span class="scenario-name-label">?</span>' GeoPlanner Scenario contains <b><span class="scenario-diagram-count">---</span></b> diagrams.</div>         
         <button class="migrate-btn">Migrate GeoPlanner Scenario as Geodesignhub Diagrams</button>        
       </label>
       <div class="complete-section" hidden>
