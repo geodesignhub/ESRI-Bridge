@@ -390,7 +390,7 @@ class GeodesignhubAPI extends HTMLElement {
             for (let x1 = 0; x1 < validSystemColors.length; x1++) {
               const currentSystemToCheck = validSystemColors[x1];
               const exists = systemsData.filter(function (singleSystem) {
-                return singleSystem.sysname === currentSystemToCheck['name'] && singleSystem.syscolor === currentSystemToCheck['color'];
+                return singleSystem.name === currentSystemToCheck['name'] && singleSystem.color === currentSystemToCheck['color'];
               });
               if (exists) {
                 allSysNameColorsFound.push(1);
@@ -438,7 +438,7 @@ class GeodesignhubAPI extends HTMLElement {
     if (gplGDHLookup.hasOwnProperty(gplSystem)) {
       let gdhSystemName = gplGDHLookup[gplSystem];
       const gdhSystem = this.#allGDHSystems.filter(function (singleSystem) {
-        return singleSystem.sysname === gdhSystemName;
+        return singleSystem.name === gdhSystemName;
       });
       if (gdhSystem.length === 1) { // There should be only one system in a GDH project
         gdhSystemID = gdhSystem[0]['id'];
